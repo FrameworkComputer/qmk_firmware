@@ -1,15 +1,15 @@
 name: CLI CI
 
-on:
-  push:
-    branches:
-    - master
-    - develop
-  pull_request:
-    paths:
-    - 'lib/python/**'
-    - 'requirements.txt'
-    - '.github/workflows/cli.yml'
+#on:
+#  push:
+#    branches:
+#    - master
+#    - develop
+#  pull_request:
+#    paths:
+#    - 'lib/python/**'
+#    - 'requirements.txt'
+#    - '.github/workflows/cli.yml'
 
 jobs:
   test:

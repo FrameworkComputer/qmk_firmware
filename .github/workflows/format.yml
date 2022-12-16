@@ -1,16 +1,16 @@
 name: PR Lint Format
 
-on:
-  pull_request:
-    paths:
-    - 'drivers/**'
-    - 'lib/arm_atsam/**'
-    - 'lib/lib8tion/**'
-    - 'lib/python/**'
-    - 'platforms/**'
-    - 'quantum/**'
-    - 'tests/**'
-    - 'tmk_core/**'
+#on:
+#  pull_request:
+#    paths:
+#    - 'drivers/**'
+#    - 'lib/arm_atsam/**'
+#    - 'lib/lib8tion/**'
+#    - 'lib/python/**'
+#    - 'platforms/**'
+#    - 'quantum/**'
+#    - 'tests/**'
+#    - 'tmk_core/**'
 
 jobs:
   lint:

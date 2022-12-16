@@ -1,15 +1,15 @@
 name: Generate Docs
 
-on:
-  push:
-    branches:
-    - master
-    paths:
-    - 'tmk_core/**'
-    - 'quantum/**'
-    - 'platforms/**'
-    - 'docs/**'
-    - '.github/workflows/docs.yml'
+#on:
+#  push:
+#    branches:
+#    - master
+#    paths:
+#    - 'tmk_core/**'
+#    - 'quantum/**'
+#    - 'platforms/**'
+#    - 'docs/**'
+#    - '.github/workflows/docs.yml'
 
 jobs:
   generate:

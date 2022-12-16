@@ -1,17 +1,17 @@
 name: Update API Data
 
-on:
-  push:
-    branches:
-    - master
-    - develop
-    paths:
-    - 'keyboards/**'
-    - 'layouts/community/**'
-    - 'lib/python/**'
-    - 'data/**'
-    - '.github/workflows/api.yml'
-  workflow_dispatch:
+#on:
+#  push:
+#    branches:
+#    - master
+#    - develop
+#    paths:
+#    - 'keyboards/**'
+#    - 'layouts/community/**'
+#    - 'lib/python/**'
+#    - 'data/**'
+#    - '.github/workflows/api.yml'
+#  workflow_dispatch:
 
 jobs:
   api_data:

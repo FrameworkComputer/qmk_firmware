@@ -1,9 +1,9 @@
 name: PR Lint keyboards
 
-on:
-  pull_request:
-    paths:
-    - 'keyboards/**'
+#on:
+#  pull_request:
+#    paths:
+#    - 'keyboards/**'
 
 jobs:
   lint:
