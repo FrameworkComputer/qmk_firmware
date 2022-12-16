@@ -1,4 +1,4 @@
-// Copyright 2022 Yoichiro Tanaka (@yoichiro)
+// Copyright 2022 Framework Computer
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
