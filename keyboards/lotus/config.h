@@ -19,6 +19,9 @@
 #define RGBLIGHT_LED_MAP { 0, 1, 2, 3, 4, 5, \
                            11, 10, 9, 8, 7, 6 }
 
+#define DRIVER_COUNT 1
+#define RGB_MATRIX_LED_COUNT 78
+
 /* define if matrix has ghost (lacks anti-ghosting diodes) */
 //#define MATRIX_HAS_GHOST
 

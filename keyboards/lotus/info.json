@@ -10,7 +10,7 @@
         "extrakey": true,
         "console": false,
         "command": false,
-        "nkro": false,
+        "nkro": true,
         "rgblight": true,
         "audio": false
     },
@@ -21,9 +21,9 @@
     "debounce": 5,
     "processor": "RP2040",
     "usb": {
-        "device_version": "3.0.0",
-        "pid": "0x0003",
-        "vid": "0x5954"
+        "device_version": "0.1.0",
+        "pid": "0x0013",
+        "vid": "0x32AC"
     },
     "rgblight": {
         "led_count": 12,
@@ -49,12 +49,21 @@
         "max_brightness": 255
     },
     "split": {
-        "enabled": true
-    },
-    "layout_aliases": {
-        "LAYOUT": "LAYOUT_split_3x6_4"
+        "enabled": false
     },
     "layouts": {
+        "LAYOUT_ANSI": {
+            "layout": [
+            ],
+        },
+        "LAYOUT_ISO": {
+            "layout": [
+            ],
+        },
+        "LAYOUT_JIS": {
+            "layout": [
+            ],
+        },
         "LAYOUT_split_3x6_4": {
             "layout": [
                 {"label":"L00", "x":0, "y":1.5},
