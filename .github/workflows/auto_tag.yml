@@ -1,19 +1,19 @@
 name: Essential files modified
 
-on:
-  push:
-    branches:
-    - master
-    paths:
-    - builddefs/**/*
-    - drivers/**/*
-    - platforms/**/*
-    - quantum/**/*
-    - tests/**/*
-    - tmk_core/**/*
-    - util/**/*
-    - Makefile
-    - '*.mk'
+#on:
+#  push:
+#    branches:
+#    - master
+#    paths:
+#    - builddefs/**/*
+#    - drivers/**/*
+#    - platforms/**/*
+#    - quantum/**/*
+#    - tests/**/*
+#    - tmk_core/**/*
+#    - util/**/*
+#    - Makefile
+#    - '*.mk'
 
 jobs:
   tag:

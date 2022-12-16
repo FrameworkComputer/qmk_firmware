@@ -1,9 +1,9 @@
 name: Update feature branches after develop merge
 
-on:
-  push:
-    branches:
-    - develop
+#on:
+#  push:
+#    branches:
+#    - develop
 
 jobs:
   feature_branch_update:

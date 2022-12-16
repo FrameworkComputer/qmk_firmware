@@ -1,9 +1,9 @@
 name: Update develop after master merge
 
-on:
-  push:
-    branches:
-    - master
+#on:
+#  push:
+#    branches:
+#    - master
 
 jobs:
   develop_update:
