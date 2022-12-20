@@ -60,3 +60,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          BL_TOGG,                            KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_PGUP, KC_RGHT
     )
 };
+
+
+#define BOOT_DONE_GPIO GP5
+
+/**
+ * Hook into early keyboard initialization
+*/
+void keyboard_pre_init_user(void) {
+    // Mark boot as done.
+    // Before this, when holding down both alt keys QSPI_SS is pulled low to put
+    // the RP2040 in bootloader mode during reset.
+    setPinOutput(BOOT_DONE_GPIO);
+    writePinHigh(BOOT_DONE_GPIO);
+}
