@@ -60,3 +60,76 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          BL_TOGG,                            KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_PGUP, KC_RGHT
     )
 };
+
+/**
+ * Keyscan mockup/pseudo-code below. Prefixed with zoid_ to avoid hooking into system
+*/
+#define LOTUS_COLS 14
+
+void adc_gpio_init(int gpio) {
+    // TODO: Implement
+}
+void adc_select_input(int adc_channel) {
+    // TODO: Implement
+}
+
+// Mux GPIOs
+#define MUX_A 1
+#define MUX_B 2
+#define MUX_C 3
+#define MUX_ENABLE 4
+// Mux output
+#define ADC_IN 28
+
+void gpio_set(int gpio, int enable) {
+    // TODO: Implement
+}
+
+/**
+ * Tell the mux to select a specific column
+ *
+ * Splits the positive integer (<=7) into its three component bits.
+*/
+void mux_select_col(int col) {
+    int bits[] = {
+        (col & 0x1) > 0,
+        (col & 0x4) > 0,
+        (col & 0x8) > 0
+    };
+    gpio_set(MUX_A, bits[0]);
+    gpio_set(MUX_B, bits[1]);
+    gpio_set(MUX_C, bits[2]);
+}
+uint16_t adc_read(void) { return 0; }
+
+void zoid_keyscan(void) {
+    for (int col = 0; col < LOTUS_COLS; col++) {
+        // TODO: Map col index to GPIO
+        // Drive column high so we can measure the resistors
+        gpio_set(col, 1);
+
+        // Read ADC for this row
+        mux_select_col(col);
+        uint16_t adc_value = adc_read();
+
+        // Interpret ADC value as rows
+        printf("%04X", adc_value);
+
+        // Drive column low again
+        gpio_set(col, 1);
+    }
+}
+
+void adc_init(void) {
+    gpio_set(MUX_ENABLE, 1);
+}
+// TODO: Do we need a de-init? Probably not.
+
+void zoid_keyscan_init(void) {
+    adc_init();
+
+    // Make sure GPIO is high-impedance, no pullups etc
+    adc_gpio_init(26);
+    // Select ADC input 0 (GPIO26)
+    adc_select_input(0);
+}
