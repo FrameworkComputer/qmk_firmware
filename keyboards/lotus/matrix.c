@@ -57,7 +57,7 @@ static uint16_t adc_read(void) { return 0; }
 static bool interpret_adc_col(matrix_row_t cur_matrix[], uint16_t adc_value, int col) {
     bool changed = false;
 
-    printf("Col %d - ADC value:%04X", col, adc_value);
+    printf("Col %d - ADC value:%04X\n", col, adc_value);
     for(uint8_t row = 0; row < MATRIX_ROWS; row++) {
         // TODO: Decode adc_value and set each row in this column
         uint8_t key_state = 0;
@@ -107,6 +107,7 @@ static void adc_mux_init(void) {
  * Overriding behavior of matrix_init from quantum/matrix.c
 */
 void matrix_init_custom(void) {
+    printf("Initializing Lotus\n");
     adc_mux_init();
 
     // Make sure GPIO is high-impedance, no pullups etc

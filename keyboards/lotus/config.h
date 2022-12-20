@@ -21,7 +21,7 @@
 #define LED_CAPS_LOCK_PIN GP24
 //#define LED_NUM_LOCK_PIN GP24
 
-//#define SERIAL_DEBUG
+#define SERIAL_DEBUG
 
 #define WS2812_PIO_USE_PIO1
 

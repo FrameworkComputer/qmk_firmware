@@ -13,5 +13,5 @@ RGB_MATRIX_DRIVER = IS31FL3745
 CUSTOM_MATRIX = lite
 SRC += matrix.c
 
-# Debugging
+# Debugging (enabled in info.json)
 #CONSOLE_ENABLE = yes
