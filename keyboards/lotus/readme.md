@@ -40,3 +40,32 @@ Enter the bootloader in 3 ways:
   - [ ] Keyboard with per-key RGB
   - [ ] Numpad with 1-zone backlight
   - [ ] Numpad with per-key RGB
+
+# Notes
+
+- GPIO
+  - Keyboard Column driver pins
+    - GPIO8 (Column 0)
+    - GPIO9
+    - GPIO10
+    - GPIO11
+    - GPIO12
+    - GPIO13
+    - GPIO14
+    - GPIO15
+    - GPIO16
+    - GPIO17
+    - GPIO18
+    - GPIO19
+    - GPIO20
+    - GPIO21
+    - GPIO22
+    - GPIO23 (Column 14)
+  - SGM48751
+    - GPIO1 - Analog Mux Control
+    - GPIO2 - Analog Mux Control
+    - GPIO3 - Analog Mux Control
+    - GPIO4 - Enable
+  - RGB Backlight
+    - GPIO26 - I2C SDA
+    - GPIO27 - I2C SCL
