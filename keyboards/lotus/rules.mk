@@ -10,5 +10,8 @@ RGB_MATRIX_ENABLE = no
 RGB_MATRIX_DRIVER = IS31FL3745
 
 # Custom matrix scanning code via ADC
-#CUSTOM_MATRIX = lite
-#SRC += matrix.c
+CUSTOM_MATRIX = lite
+SRC += matrix.c
+
+# Debugging
+#CONSOLE_ENABLE = yes

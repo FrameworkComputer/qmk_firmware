@@ -6,6 +6,10 @@
 
 #include <config_common.h>
 
+#define MATRIX_COLS 14
+#define MATRIX_ROWS 6
+
+// TODO: Adjust this. The GPIO is definitely wrong
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP25
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 500U
@@ -20,9 +24,6 @@
 //#define SERIAL_DEBUG
 
 #define WS2812_PIO_USE_PIO1
-
-#define RGBLIGHT_LED_MAP { 0, 1, 2, 3, 4, 5, \
-                           11, 10, 9, 8, 7, 6 }
 
 #define DRIVER_COUNT 1
 #define RGB_MATRIX_LED_COUNT 78
