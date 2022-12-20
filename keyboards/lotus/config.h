@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <config_common.h>
+
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP25
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 500U
@@ -21,6 +23,11 @@
 
 #define DRIVER_COUNT 1
 #define RGB_MATRIX_LED_COUNT 78
+
+// PWM single one backlight configuration
+// The RP2040 datasheet says GPIO25 maps to PWM channel 4B
+#define BACKLIGHT_PWM_DRIVER    PWMD4
+#define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
 
 /* define if matrix has ghost (lacks anti-ghosting diodes) */
 //#define MATRIX_HAS_GHOST

@@ -5,4 +5,7 @@
 
 #define HAL_USE_SIO TRUE
 
+// For single-zone backlight
+#define HAL_USE_PWM TRUE
+
 #include_next <halconf.h>

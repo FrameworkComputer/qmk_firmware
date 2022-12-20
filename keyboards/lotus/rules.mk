@@ -1,6 +1,12 @@
 WS2812_DRIVER = vendor
 SERIAL_DRIVER = vendor
-#RGB_MATRIX_ENABLE = false
+
+# Backlight for one variant
+BACKLIGHT_ENABLE = yes
+BACKLIGHT_DRIVER = pwm
+
+# TODO: Enable RGB matrix for one variant
+RGB_MATRIX_ENABLE = no
 RGB_MATRIX_DRIVER = IS31FL3745
 
 # Custom matrix scanning code via ADC

@@ -26,6 +26,9 @@
         "pid": "0x0013",
         "vid": "0x32AC"
     },
+    "backlight": {
+        "pin": "GP25"
+    },
     "rgblight": {
         "led_count": 12,
         "pin": "GP6",
