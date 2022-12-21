@@ -35,29 +35,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * Function layer
      *         ┌─────┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬────┐
      * 14 keys │FN lk│Mut│vDn│vUp│Prv│Ply│Nxt│bDn│bUp│Scn│Air│Prt│App│Ins │
-     *         ├───┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴────┤
-     * 14 keys │   │   │   │   │   │   │   │   │   │   │   │   │   │      │
-     *         ├───┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬────┤
-     * 13 keys │     │   │   │   │   │   │   │   │   │   │   │   │   │    │
+     *         ├───┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴┬───┤
+     * 15 keys │   │   │   │   │   │   │   │   │   │   │   │   │   │  │   │
+     *         ├───┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬┴───┤
+     * 13 keys │     │   │   │   │   │   │   │   │   │   │Pau│   │   │    │
      *         ├─────┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┬──┴┐   │
-     * 14 keys │      │   │   │   │   │   │   │   │   │   │   │   │   │   │
-     *         ├────┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴───┴───┤
-     * 13 keys │    │   │   │   │   │   │   │   │   │   │   │   │         │
-     *         ├────┼───┼───┼───┼───┴───┴───┴───┴───┼───┼───┼───┴┬───┬────┤
-     *         │    │   │   │   │                   │   │   │    │PgU│    │
-     * 11 keys │    │   │   │   │ Toggle Backlight  │   │   │Home├───┤End │
-     *         │    │   │   │   │                   │   │   │    │PgD│    │
-     *         └────┴───┴───┴───┴───────────────────┴───┴───┴────┴───┴────┘
-     * 78 total
+     * 14 keys │      │   │SRq│   │   │   │   │   │ScL│   │   │   │   │   │
+     *         ├──────┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴─┬─┴───┤
+     * 13 keys │        │   │   │   │   │Brk│   │   │   │   │   │   │     │
+     *         ├────┬───┼───┼───┼──┬┴───┴───┴─┬─┴┬──┼───┼───┼───┴┬──┴┬────┤
+     *         │    │   │   │   │  │ Toggle   │  │  │   │   │    │PgU│    │
+     * 14 keys │    │   │   │   │  │ Backlight│  │  │   │   │Home├───┤End │
+     *         │    │   │   │   │  │          │  │  │   │   │    │PgD│    │
+     *         └────┴───┴───┴───┴──┴──────────┴──┴──┴───┴───┴────┴───┴────┘
+     * 83 total
      */
     // TODO: Screen toggle, airplane mode
     // TODO: Other unlabeled keys
     [1] = LAYOUT_83_jis(
         TG(1), KC_KB_MUTE, KC_KB_VOLUME_DOWN, KC_KB_VOLUME_UP, KC_MPRV, KC_MPLY, KC_MNXT, KC_BRID, KC_BRIU, KC_TRNS, KC_TRNS, KC_PSCR, KC_MSEL, KC_INS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-            KC_TRNS,      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,     KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PAUS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_SYRQ, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_SCRL, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+            KC_TRNS,      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_BRK,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,     KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,     BL_TOGG,      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_HOME, KC_PGUP, KC_PGDN, KC_END
     )
 };
