@@ -62,3 +62,18 @@
   { KC_NO, KC_NO, K131, KC_NO,  K114,   K18,   K20,   K23,  K122, KC_NO,   K24,   K79, KC_NO,   K27,   K28, KC_NO,}, \
   { KC_NO, KC_NO,  K31, KC_NO, KC_NO,  K110,   K34,   K37,   K39, KC_NO,   K38, KC_NO, KC_NO,   K40,   K33, KC_NO,} \
 }
+
+#define LAYOUT_numpad( \
+    H1,    H2,    H3,    H4, \
+   K90,   K95,  K100,  K105, \
+   K91,   K96,  K101,        \
+   K92,   K97,  K102,  K106, \
+   K93,   K98,  K103,        \
+       K99,     K104,  K108  \
+) \
+{ \
+  {   K90,   K91,   K92,   K93,   K95,   K96,   K97,   K98 }, \
+  {   K99,  K100,  K101,  K102,  K103,  K104,  K105,  K106 }, \
+  {  K108,    H1,    H2, KC_NO,    H4, KC_NO, KC_NO, KC_NO }, \
+  { KC_NO, KC_NO, KC_NO, KC_NO,    H3, KC_NO, KC_NO, KC_NO }, \
+}
