@@ -8,8 +8,6 @@
 #include "print.h"
 #include "quantum.h"
 
-#define LOTUS_COLS 14
-
 /**
  * Tell RP2040 ADC controller to initialize a specific GPIO for ADC input
 */
@@ -39,7 +37,7 @@ void adc_select_input(int adc_channel) {
  * 
  * Splits the positive integer (<=7) into its three component bits.
 */
-static void mux_select_col(int col) {
+static void mux_select_row(int row) {
     assert(col >= 0 && col <= 7);
 
     // Not in order - need to remap them
@@ -52,7 +50,7 @@ static void mux_select_col(int col) {
     // X6 - KSI6
     // X7 - KSI7
     int index = 0;
-    switch (col) {
+    switch (row) {
         case 0:
             index = 2;
         case 1:
@@ -60,7 +58,7 @@ static void mux_select_col(int col) {
         case 2:
             index = 1;
         default:
-            index = col;
+            index = row;
     }
 
     int bits[] = {
@@ -77,18 +75,76 @@ static uint16_t adc_read(void) { return 0; }
 /**
  * Based on the adc value, update the matrix for this column
  * */
-static bool interpret_adc_col(matrix_row_t cur_matrix[], uint16_t adc_value, int col) {
+static bool interpret_adc_row(matrix_row_t cur_matrix[], uint16_t adc_value, int col, int row) {
     bool changed = false;
 
-    printf("Col %d - ADC value:%04X\n", col, adc_value);
-    for(uint8_t row = 0; row < MATRIX_ROWS; row++) {
-        // TODO: Decode adc_value and set each row in this column
-        uint8_t key_state = 0;
+    // TODO: Decode adc_value and set each row in this column
+    uint8_t key_state = 0;
 
-        cur_matrix[row] |= key_state ? 0 : (1 << col);
-    }
+    printf("Col %d - Row %d - ADC value:%04X\n", col, row, adc_value);
+    cur_matrix[row] |= key_state ? 0 : (1 << col);
 
     return changed;
+}
+
+void drive_col(int col, bool high) {
+    assert(col >= 0 && col <= MATRIX_COLS);
+    int gpio = 0;
+    switch (col) {
+        case 0:
+            gpio = 8;
+            break;
+        case 1:
+            gpio = 9;
+            break;
+        case 2:
+            gpio = 10;
+            break;
+        case 3:
+            gpio = 11;
+            break;
+        case 4:
+            gpio = 12;
+            break;
+        case 5:
+            gpio = 13;
+            break;
+        case 6:
+            gpio = 14;
+            break;
+        case 7:
+            gpio = 15;
+            break;
+        case 8:
+            gpio = 21;
+            break;
+        case 9:
+            gpio = 20;
+            break;
+        case 10:
+            gpio = 19;
+            break;
+        case 11:
+            gpio = 18;
+            break;
+        case 12:
+            gpio = 17;
+            break;
+        case 13:
+            gpio = 16;
+            break;
+        default:
+            // Not supposed to happen
+            assert(false);
+            return;
+    }
+
+    if (high) {
+        // TODO: Could set up the pins with `setPinOutputOpenDrain` instead
+        writePinHigh(gpio);
+    } else {
+        writePinLow(gpio);
+    }
 }
 
 /**
@@ -97,21 +153,24 @@ static bool interpret_adc_col(matrix_row_t cur_matrix[], uint16_t adc_value, int
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
-    for (int col = 0; col < LOTUS_COLS; col++) {
-        // TODO: Map col index to GPIO
-        // Drive column high so we can measure the resistors
-        writePinHigh(col);
-        wait_us(30); // Probably good idea to wait a bit
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        // Drive column low so we can measure the resistors on each row in this column
+        drive_col(col, false);
+        for (int row = 0; row <= MATRIX_ROWS; row++) {
 
-        // Read ADC for this row
-        mux_select_col(col);
-        uint16_t adc_value = adc_read();
+            // Read ADC for this row
+            mux_select_row(row);
 
-        // Interpret ADC value as rows
-        changed |= interpret_adc_col(current_matrix, adc_value, col);
+            wait_us(30); // Wait for column select and ADC to settle
 
-        // Drive column low again
-        writePinLow(col);
+            uint16_t adc_value = adc_read();
+
+            // Interpret ADC value as rows
+            changed |= interpret_adc_row(current_matrix, adc_value, col, row);
+        }
+
+        // Drive column high again
+        drive_col(col, true);
     }
 
     return changed;
