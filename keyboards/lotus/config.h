@@ -6,8 +6,8 @@
 
 #include <config_common.h>
 
-#define MATRIX_COLS 14
-#define MATRIX_ROWS 6
+#define MATRIX_COLS 16
+#define MATRIX_ROWS 8
 
 // TODO: Adjust this. The GPIO is definitely wrong
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
@@ -29,6 +29,7 @@
 #define RGB_MATRIX_LED_COUNT 78
 
 // PWM single one backlight configuration
+// TODO: Double-check these
 // The RP2040 datasheet says GPIO25 maps to PWM channel 4B
 #define BACKLIGHT_PWM_DRIVER    PWMD4
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B

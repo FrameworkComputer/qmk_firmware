@@ -1,6 +1,6 @@
 {
     "keyboard_name": "lotus",
-    "manufacturer": "Framework Computer",
+    "manufacturer": "Framework Computer Inc",
     "maintainer": "JohnAZoidberg",
     "bootloader": "rp2040",
     "features": {

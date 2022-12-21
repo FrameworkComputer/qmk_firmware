@@ -40,10 +40,33 @@ void adc_select_input(int adc_channel) {
  * Splits the positive integer (<=7) into its three component bits.
 */
 static void mux_select_col(int col) {
+    assert(col >= 0 && col <= 7);
+
+    // Not in order - need to remap them
+    // X0 - KSI1
+    // X1 - KSI2
+    // X2 - KSI0
+    // X3 - KSI3
+    // X4 - KSI4
+    // X5 - KSI5
+    // X6 - KSI6
+    // X7 - KSI7
+    int index = 0;
+    switch (col) {
+        case 0:
+            index = 2;
+        case 1:
+            index = 0;
+        case 2:
+            index = 1;
+        default:
+            index = col;
+    }
+
     int bits[] = {
-        (col & 0x1) > 0,
-        (col & 0x4) > 0,
-        (col & 0x8) > 0
+        (index & 0x1) > 0,
+        (index & 0x4) > 0,
+        (index & 0x8) > 0
     };
     writePin(MUX_A, bits[0]);
     writePin(MUX_B, bits[1]);
