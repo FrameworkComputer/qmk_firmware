@@ -1,3 +1,5 @@
+EXTRAKEY_ENABLE = yes          # Audio control and System control
+
 WS2812_DRIVER = vendor
 SERIAL_DRIVER = vendor
 
