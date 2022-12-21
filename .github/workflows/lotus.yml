@@ -22,7 +22,7 @@ jobs:
       run: pip3 install -r requirements-dev.txt
 
     - name: Lint lotus
-      run: qmk lint -kb lotus
+      run: qmk lint -kb lotus -km 78_ansi -km 79_iso -km 83_jis
 
     - name: Build Lotus ANSI variant
       run: qmk compile -kb lotus -km 78_ansi
