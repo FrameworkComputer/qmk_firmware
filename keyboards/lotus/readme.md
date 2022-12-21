@@ -8,11 +8,15 @@ Keyboard input module for Lotus.
 
 Make example for this keyboard (after setting up your build environment):
 
-    qmk compile -kb lotus -km default
+    qmk compile -kb lotus -km 78_ansi
+    qmk compile -kb lotus -km 79_iso
+    qmk compile -kb lotus -km 83_jis
 
 Flashing example for this keyboard:
 
-    qmk flash -kb lotus -km default
+    qmk compile -kb lotus -km 78_ansi
+    qmk compile -kb lotus -km 79_iso
+    qmk compile -kb lotus -km 83_jis
 
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
 
@@ -35,9 +39,9 @@ Enter the bootloader in 3 ways:
 - [ ] Enable backlight with IS31FL3745 (see `docs/feature_rgb_matrix.md`)
 - [ ] Split variants
   - [ ] Keyboard with 1-zone backlight
-    - [ ] ANSI (78 keys)
-    - [ ] ISO (79 keys)
-    - [ ] JIS (84 keys)
+    - [x] ANSI (78 keys)
+    - [x] ISO (79 keys)
+    - [x] JIS (84 keys)
   - [ ] Keyboard with per-key RGB
   - [ ] Numpad with 1-zone backlight
   - [ ] Numpad with per-key RGB

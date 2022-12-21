@@ -24,8 +24,14 @@ jobs:
     - name: Lint lotus
       run: qmk lint -kb lotus
 
-    - name: Build Lotus
-      run: qmk compile -kb lotus -km default
+    - name: Build Lotus ANSI variant
+      run: qmk compile -kb lotus -km 78_ansi
+
+    - name: Build Lotus ISO variant
+      run: qmk compile -kb lotus -km 79_iso
+
+    - name: Build Lotus JIS variant
+      run: qmk compile -kb lotus -km 83_jis
 
 #  tests:
 #    runs-on: ubuntu-latest
