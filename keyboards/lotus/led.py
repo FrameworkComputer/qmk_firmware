@@ -224,7 +224,7 @@ def normalize(layout):
 
 # Turn the data to C code that can be used in QMK's keymap.c
 def print_matrix(layout, led_to_el, normalized):
-    print("led_config_t g_led_config = {{")
+    print("led_config_t g_led_config = { {")
     print("  // Key Matrix to LED Index")
     for row in led_to_el:
         print("  {", end='')
@@ -254,7 +254,7 @@ def print_matrix(layout, led_to_el, normalized):
             print(", ", end='')
         if (i + 1) % 16 == 0:
             print("\n  ", end='')
-    print("}")
+    print("} };")
 
 def main(data):
     # Normalize data and convert to C code

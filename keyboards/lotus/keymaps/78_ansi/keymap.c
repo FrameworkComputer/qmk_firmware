@@ -72,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //    {0, CS1_SW1, CS2_SW1, CS3_SW1},
 //}
 
-led_config_t g_led_config = {{
+led_config_t g_led_config = { {
   // Key Matrix to LED Index
   {32, 73, 6, 85, 0, 30, 34, 78, 76, 81, 79, 0, 89, 80, 53, 0, },
   {0, 0, 0, 48, 95, 28, 36, 77, 82, 33, 0, 0, 35, 91, 54, 68, },
@@ -190,4 +190,4 @@ led_config_t g_led_config = {{
   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
   4
-}
+} };
