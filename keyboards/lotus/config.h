@@ -25,7 +25,9 @@
 #define WS2812_PIO_USE_PIO1
 
 #define DRIVER_COUNT 1
-#define RGB_MATRIX_LED_COUNT 78
+#define RGB_MATRIX_LED_COUNT 97
+// For the numpad
+// #define RGB_MATRIX_LED_COUNT 22
 
 // PWM single one backlight configuration
 // TODO: Double-check these
