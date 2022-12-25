@@ -43,7 +43,7 @@ typedef struct is31_led {
     uint8_t b;
 } __attribute__((packed)) is31_led;
 
-extern const is31_led __flash g_is31_leds[RGB_MATRIX_LED_COUNT];
+extern const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT];
 
 #elif defined(LED_MATRIX_ENABLE)
 typedef struct is31_led {

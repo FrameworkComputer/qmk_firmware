@@ -61,16 +61,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
-//// TODO: Need to define the LED matrix.
-//const is31_led __flash g_is31_leds[RGB_MATRIX_LED_COUNT] = {
-///* Refer to IS31 manual for these locations
-// *   driver
-// *   |  R location
-// *   |  |        G location
-// *   |  |        |        B location
-// *   |  |        |        | */
-//    {0, CS1_SW1, CS2_SW1, CS3_SW1},
-//}
+// TODO: Need to define the LED matrix.
+// TODO: Should have attribute __flash. But won't compile if I add it
+const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
+/* Refer to IS31 manual for these locations
+ *   driver
+ *   |  R location
+ *   |  |        G location
+ *   |  |        |        B location
+ *   |  |        |        | */
+    {0, CS1_SW1, CS2_SW1, CS3_SW1}
+};
 
 led_config_t g_led_config = { {
   // Key Matrix to LED Index
