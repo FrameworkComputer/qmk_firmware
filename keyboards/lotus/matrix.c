@@ -8,6 +8,8 @@
 #include "print.h"
 #include "quantum.h"
 
+#define ADC_THRESHOLD 3
+
 /**
  * Tell RP2040 ADC controller to initialize a specific GPIO for ADC input
 */
@@ -78,10 +80,20 @@ static uint16_t adc_read(void) { return 0; }
 static bool interpret_adc_row(matrix_row_t cur_matrix[], uint16_t adc_value, int col, int row) {
     bool changed = false;
 
-    // TODO: Decode adc_value and set each row in this column
-    uint8_t key_state = 0;
+    // TODO: Convert adc value to voltage
+    uint16_t voltage = adc_value;
 
-    printf("Col %d - Row %d - ADC value:%04X\n", col, row, adc_value);
+    // By default the voltage is high (3.3V)
+    // When a key is pressed it causes the voltage to go down.
+    // But because every key is connected in a matrix, pressing multiple keys
+    // changes the voltage at every key again. So we can't check for a specific
+    // voltage but need to have a threshold.
+    uint8_t key_state = 0;
+    if (voltage < ADC_THRESHOLD) {
+        key_state = 1;
+    }
+
+    printf("Col %d - Row %d - ADC value:%04X, Voltage: %d\n", col, row, adc_value, voltage);
     cur_matrix[row] |= key_state ? 0 : (1 << col);
 
     return changed;
