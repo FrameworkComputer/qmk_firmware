@@ -1,6 +1,7 @@
 VIA_ENABLE = yes
 
-EXTRAKEY_ENABLE = yes          # Audio control and System control
+# Enabled in info.json
+# EXTRAKEY_ENABLE = yes          # Audio control and System control
 
 SERIAL_DRIVER = vendor
 
