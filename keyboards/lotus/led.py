@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Generate C code for the common configuration of the RBG matrix feature of QMK
 
