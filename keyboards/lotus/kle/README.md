@@ -7,7 +7,7 @@ But to continue editing them, I kept the files here. Might be useful for the fut
 | Layout | Standard KLE Layout   | VIA KLE Layout     | VIA Design                |
 | ------ | --------------------- | ------------------ | ------------------------- |
 | ANSI   | `ansi_layout.json`    | `ansi_via.json`    | `via_design.json`         |
-| ISO    | `iso_layout.json`     |                    |                           |
+| ISO    | `iso_layout.json`     | `iso_layout.json`  | `via_iso_design.json`     |
 | JIS    | `jis_layout.json`     |                    |                           |
 | Numpad | `numpad_layout.json`  | `numpad_via.json`  | `via_numpad_design.json`  |
 | Gridpad| `gridpad_layout.json` | `gridpad_via.json` | `via_gridpad_design.json` |
