@@ -36,6 +36,9 @@ jobs:
     - name: Build Lotus Numpad
       run: qmk compile -kb lotus -km numpad
 
+    - name: Build Lotus Gridpad
+      run: qmk compile -kb lotus -km gridpad
+
 #  tests:
 #    runs-on: ubuntu-latest
 #
