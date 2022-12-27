@@ -8,11 +8,6 @@
 #define MATRIX_COLS 16
 #define MATRIX_ROWS 8
 
-// TODO: Adjust this. The GPIO is definitely wrong
-#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
-#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP25
-#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 500U
-
 #define SERIAL_USART_FULL_DUPLEX
 #define SERIAL_USART_TX_PIN GP0
 #define SERIAL_USART_RX_PIN GP1
@@ -30,13 +25,10 @@
 // #define RGB_MATRIX_LED_COUNT 22
 
 // PWM single one backlight configuration
-// TODO: Double-check these
 // The RP2040 datasheet says GPIO25 maps to PWM channel 4B
+// On the Raspberry Pi Pico this is the green LED on the board, good for prototyping
 #define BACKLIGHT_PWM_DRIVER    PWMD4
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
-
-/* define if matrix has ghost (lacks anti-ghosting diodes) */
-//#define MATRIX_HAS_GHOST
 
 /*
  * Feature disable options
