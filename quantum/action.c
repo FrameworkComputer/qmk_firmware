@@ -532,6 +532,9 @@ void process_action(keyrecord_t *record, action_t action) {
                 case PAGE_CONSUMER:
                     host_consumer_send(event.pressed ? action.usage.code : 0);
                     break;
+                case PAGE_RADIO:
+                    host_radio_send(event.pressed);
+                    break;
             }
             break;
 #endif

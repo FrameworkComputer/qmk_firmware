@@ -223,6 +223,7 @@ These keycodes are not part of the Keyboard/Keypad usage page. The `SYSTEM_` key
 |`KC_BRIGHTNESS_DOWN`   |`KC_BRID`|Brightness Down    |
 |`KC_CONTROL_PANEL`     |`KC_CPNL`|Open Control Panel |
 |`KC_ASSISTANT`         |`KC_ASST`|Launch Assistant   |
+|`KC_AIRPLANE_MODE`     |`KC_AIRP`|Toggle Airplane Mode|
 
 ## Number Pad
 

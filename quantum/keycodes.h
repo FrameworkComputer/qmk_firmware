@@ -304,6 +304,7 @@ enum qk_keycode_defines {
     KC_RIGHT_SHIFT = 0x00E5,
     KC_RIGHT_ALT = 0x00E6,
     KC_RIGHT_GUI = 0x00E7,
+    KC_AIRPLANE_MODE = 0x00E8,
     SH_TG = 0x56F0,
     SH_TT = 0x56F1,
     SH_MON = 0x56F2,
@@ -863,6 +864,7 @@ enum qk_keycode_defines {
     KC_RGUI    = KC_RIGHT_GUI,
     KC_RCMD    = KC_RIGHT_GUI,
     KC_RWIN    = KC_RIGHT_GUI,
+    KC_AIRP    = KC_AIRPLANE_MODE,
     CL_SWAP    = MAGIC_SWAP_CONTROL_CAPSLOCK,
     CL_NORM    = MAGIC_UNSWAP_CONTROL_CAPSLOCK,
     CL_TOGG    = MAGIC_TOGGLE_CONTROL_CAPSLOCK,
@@ -1306,7 +1308,7 @@ enum qk_keycode_defines {
 #define IS_INTERNAL_KEYCODE(code) ((code) >= KC_NO && (code) <= KC_TRANSPARENT)
 #define IS_BASIC_KEYCODE(code) ((code) >= KC_A && (code) <= KC_EXSEL)
 #define IS_SYSTEM_KEYCODE(code) ((code) >= KC_SYSTEM_POWER && (code) <= KC_SYSTEM_WAKE)
-#define IS_MEDIA_KEYCODE(code) ((code) >= KC_AUDIO_MUTE && (code) <= KC_ASSISTANT)
+#define IS_MEDIA_KEYCODE(code) ((code) >= KC_AUDIO_MUTE && (code) <= KC_AIRPLANE_MODE)
 #define IS_MOUSE_KEYCODE(code) ((code) >= KC_MS_UP && (code) <= KC_MS_ACCEL2)
 #define IS_MODIFIERS_KEYCODE(code) ((code) >= KC_LEFT_CTRL && (code) <= KC_RIGHT_GUI)
 #define IS_SWAP_HANDS_KEYCODE(code) ((code) >= SH_TG && (code) <= SH_OS)
