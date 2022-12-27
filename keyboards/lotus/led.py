@@ -234,11 +234,11 @@ def print_matrix(layout, led_to_el, normalized):
     for row in led_to_el:
         print("  {", end='')
         for col in row:
-            print(f"{col: >4}, ", end='')
+            print(f"{col: >2}, ", end='')
         print("},")
 
     print("}, {")
-    print("  // LED Index to Physical Potision")
+    print("  // LED Index to Physical Position")
     for (i, (led_id, (x, y))) in enumerate(normalized.items()):
         coords = f"  {{ {int(x): >3}, {int(y): >3} }},"
         print(f"{coords: <15} // LED {led_id}")
