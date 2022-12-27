@@ -41,11 +41,42 @@ const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
     {0, CS16_SW4, CS17_SW4, CS18_SW4}, // LED 49
 };
 
-// TODO: Add mapping
 led_config_t g_led_config = { {
+  // Key Matrix to LED Index
+  {  10,   14,   12,   20,    1,    2,   47,   22, },
+  {  19,   46,   96,   95,   29,   78,   87,   42, },
+  {  34,   11,   12,    0,   77,    0,   79,   21, },
+  {   0,    0,    0,    0,   46,    0,    0,    0, },
 }, {
+  // LED Index to Physical Potision
+  {  73,  10 }, // LED 1
+  {  73,  24 }, // LED 2
+  {   0,  10 }, // LED 10
+  {   0,   0 }, // LED 11
+  {   0,  37 }, // LED 12
+  {   0,  24 }, // LED 14
+  {   0,  64 }, // LED 19
+  {   0,  50 }, // LED 20
+  {  73,  64 }, // LED 21
+  {  73,  50 }, // LED 22
+  { 150,  64 }, // LED 28
+  { 150,  50 }, // LED 29
+  { 223,  64 }, // LED 34
+  { 223,  37 }, // LED 42
+  { 150,  10 }, // LED 46
+  {  73,  37 }, // LED 47
+  { 223,   0 }, // LED 77
+  { 223,  24 }, // LED 78
+  { 223,  50 }, // LED 79
+  { 223,  10 }, // LED 87
+  { 150,  37 }, // LED 95
+  { 150,  24 }, // LED 96
 }, {
+  // LED Index to Flag
+  4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+  4, 4, 4, 4, 4, 4, 4, 4
 } };
+
 
 #define NUMPAD_ROWS 4
 #define NUMPAD_COLS 8

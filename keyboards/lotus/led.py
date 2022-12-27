@@ -14,8 +14,12 @@ from collections import OrderedDict
 
 # Rows and columns in the electrical keyboard matrix.
 # Equivalent to QMK's macros: MATRIX_ROWS and MATRIX_COLS
+# Keyboard
 MATRIX_ROWS = 8
 MATRIX_COLS = 16
+# Gridpad
+#MATRIX_ROWS = 4
+#MATRIX_COLS = 8
 
 LED_FLAG_NONE      = 0x00
 LED_FLAG_MODIFIER  = 0x01
@@ -150,21 +154,21 @@ ansi = [
     { "id": "92", "x":1120, "y": 542, "matrix": (15,2)  },
 ]
 
-numpad = [
-    { "id": "11", "x":1332, "y": 158, "matrix": (1,2)  },
-    { "id": "12", "x":1395, "y": 158, "matrix": (2,2)  },
-    { "id": "46", "x":1460, "y": 158, "matrix": (4,3)  },
-    { "id": "77", "x":1523, "y": 158, "matrix": (4,2)  },
+gridpad = [
+    { "id": "11", "x":1332, "y": 158, "matrix": (1,2) },
+    { "id": "12", "x":1395, "y": 158, "matrix": (2,2) },
+    { "id": "46", "x":1460, "y": 158, "matrix": (4,3) },
+    { "id": "77", "x":1523, "y": 158, "matrix": (4,2) },
 
-    { "id": "10", "x":1332, "y": 219, "matrix": (0,0)  },
-    { "id": "1",  "x":1395, "y": 219, "matrix": (4,0)  },
-    { "id": "46", "x":1460, "y": 219, "matrix": (1,1)  },
-    { "id": "87", "x":1523, "y": 219, "matrix": (6,1)  },
+    { "id": "10", "x":1332, "y": 219, "matrix": (0,0) },
+    { "id": "1",  "x":1395, "y": 219, "matrix": (4,0) },
+    { "id": "46", "x":1460, "y": 219, "matrix": (1,1) },
+    { "id": "87", "x":1523, "y": 219, "matrix": (6,1) },
 
-    { "id": "14", "x":1332, "y": 294, "matrix": (1,0)  },
-    { "id": "2",  "x":1395, "y": 294, "matrix": (5,0)  },
-    { "id": "96", "x":1460, "y": 294, "matrix": (2,1) },  # Plus
-    { "id": "78", "x":1523, "y": 294 },                   # Plus
+    { "id": "14", "x":1332, "y": 294, "matrix": (1,0) },
+    { "id": "2",  "x":1395, "y": 294, "matrix": (5,0) },
+    { "id": "96", "x":1460, "y": 294, "matrix": (2,1) },
+    { "id": "78", "x":1523, "y": 294, "matrix": (5,1) },
 
     { "id": "12", "x":1332, "y": 368, "matrix": (2,0) },
     { "id": "47", "x":1395, "y": 368, "matrix": (6,0) },
@@ -173,11 +177,11 @@ numpad = [
 
     { "id": "20", "x":1332, "y": 443, "matrix": (3,0) },
     { "id": "22", "x":1395, "y": 443, "matrix": (7,0) },
-    { "id": "29", "x":1460, "y": 443, "matrix": (4,1) },  # Enter
-    { "id": "79", "x":1523, "y": 443 },                   # Enter
+    { "id": "29", "x":1460, "y": 443, "matrix": (4,1) },
+    { "id": "79", "x":1523, "y": 443, "matrix": (6,2) },
 
-    { "id": "19", "x":1332, "y": 519, "matrix": (0,1) },  # 0
-    { "id": "21", "x":1395, "y": 519 },                   # 0
+    { "id": "19", "x":1332, "y": 519, "matrix": (0,1) },
+    { "id": "21", "x":1395, "y": 519, "matrix": (7,2) },
     { "id": "28", "x":1460, "y": 519, "matrix": (5,1) },
     { "id": "34", "x":1523, "y": 519, "matrix": (0,2) },
 ]
@@ -229,17 +233,14 @@ def print_matrix(layout, led_to_el, normalized):
     for row in led_to_el:
         print("  {", end='')
         for col in row:
-            print(f"{col}, ", end='')
+            print(f"{col: >4}, ", end='')
         print("},")
 
     print("}, {")
-    print("  // Key Matrix to LED Index")
-    for i, (x, y) in normalized.items():
-        print(f"  {{ {int(x)}, {int(y)} }}", end='')
-        if i < len(normalized):
-            print(',')
-        else:
-            print()
+    print("  // LED Index to Physical Potision")
+    for (i, (led_id, (x, y))) in enumerate(normalized.items()):
+        coords = f"  {{ {int(x): >3}, {int(y): >3} }},"
+        print(f"{coords: <15} // LED {led_id}")
 
     print("}, {")
     print("  // LED Index to Flag")

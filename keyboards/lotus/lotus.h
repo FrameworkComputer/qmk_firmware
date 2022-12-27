@@ -5,6 +5,7 @@
 
 #include "quantum.h"
 
+// The layouts are all mostly the same, except for the extra keys that the different layouts have
 #define LAYOUT_78_ansi( \
   K110,  K112,  K113,  K114,  K115,  K116,  K117,  K118,  K119,  K120,  K121,  K122,  K126,   K76, \
     K1,    K2,    K3,    K4,    K5,    K6,    K7,    K8,    K9,   K10,   K11,   K12,   K13,   K15, \
@@ -44,6 +45,7 @@
   { KC_NO, KC_NO,  K31,  KC_NO, KC_NO,  K110,   K34,   K37,   K39, KC_NO,   K38, KC_NO, KC_NO,   K40,   K33, KC_NO }, \
 }
 
+// JIS is based off ANSI with a few extra keys
 #define LAYOUT_83_jis( \
   K110,  K112,  K113,  K114,  K115,  K116,  K117,  K118,  K119,  K120,  K121,  K122,  K126,   K76,       \
     K1,    K2,    K3,    K4,    K5,    K6,    K7,    K8,    K9,   K10,   K11,   K12,   K13,   K14,   K15,\
@@ -63,6 +65,7 @@
   { KC_NO, KC_NO,  K31, KC_NO, KC_NO,  K110,   K34,   K37,   K39, KC_NO,   K38, KC_NO, KC_NO,   K40,   K33, KC_NO,} \
 }
 
+// Same as gridpad with a few keys removed
 #define LAYOUT_numpad( \
     H1,    H2,    H3,    H4, \
    K90,   K95,  K100,  K105, \
@@ -75,5 +78,20 @@
   {   K90,   K91,   K92,   K93,   K95,   K96,   K97,   K98 }, \
   {   K99,  K100,  K101,  K102,  K103,  K104,  K105,  K106 }, \
   {  K108,    H1,    H2, KC_NO,    H4, KC_NO, KC_NO, KC_NO }, \
+  { KC_NO, KC_NO, KC_NO, KC_NO,    H3, KC_NO, KC_NO, KC_NO }, \
+}
+
+#define LAYOUT_gridpad( \
+    H1,    H2,    H3,    H4, \
+   K90,   K95,  K100,  K105, \
+   K91,   K96,  K101,  K107, \
+   K92,   K97,  K102,  K106, \
+   K93,   K98,  K103,  K109, \
+   K99,  K110,  K104,  K108  \
+) \
+{ \
+  {   K90,   K91,   K92,   K93,   K95,   K96,   K97,   K98 }, \
+  {   K99,  K100,  K101,  K102,  K103,  K104,  K105,  K106 }, \
+  {  K108,    H1,    H2, KC_NO,    H4,  K107,  K109,  K110 }, \
   { KC_NO, KC_NO, KC_NO, KC_NO,    H3, KC_NO, KC_NO, KC_NO }, \
 }
