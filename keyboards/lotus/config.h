@@ -19,7 +19,9 @@
 
 #define WS2812_PIO_USE_PIO1
 
-#define DRIVER_COUNT 1
+// Keyboard has 2 drivers, gridpad has 1
+#define DRIVER_ADDR_1 0b0100000
+#define DRIVER_ADDR_2 0b0100011
 #define RGB_MATRIX_LED_COUNT 97
 // For the numpad
 // #define RGB_MATRIX_LED_COUNT 22
