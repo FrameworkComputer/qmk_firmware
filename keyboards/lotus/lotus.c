@@ -22,3 +22,23 @@ void keyboard_pre_init_user(void) {
     setPinOutput(BOOT_DONE_GPIO);
     writePinHigh(BOOT_DONE_GPIO);
 }
+
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+  process_record_user();
+
+  switch (keycode) {
+    case KC_SCRN:
+      // Simulate press WIN+P
+      // Works (at least) on Windows and GNOME
+      if (record->event.pressed) {
+        register_code(KC_LGUI);
+        register_code(KC_P);
+      } else {
+        unregister_code(KC_LGUI);
+        unregister_code(KC_P);
+      }
+      return false; // Skip all further processing of this key
+    default:
+      return true; // Process all other keycodes normally
+  }
+}

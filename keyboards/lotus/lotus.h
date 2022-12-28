@@ -5,6 +5,11 @@
 
 #include "quantum.h"
 
+enum lotus_keycodes {
+  // Custom keycode to change screen modes (e.g. enable external screen)
+  KC_SCRN = SAFE_RANGE,
+};
+
 // The layouts are all mostly the same, except for the extra keys that the different layouts have
 #define LAYOUT_78_ansi( \
   K110,  K112,  K113,  K114,  K115,  K116,  K117,  K118,  K119,  K120,  K121,  K122,  K126,   K76, \
