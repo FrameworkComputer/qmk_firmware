@@ -19,13 +19,6 @@
 
 #define WS2812_PIO_USE_PIO1
 
-// Keyboard has 2 drivers, gridpad has 1
-#define DRIVER_ADDR_1 0b0100000
-#define DRIVER_ADDR_2 0b0100011
-#define RGB_MATRIX_LED_COUNT 97
-// For the numpad
-// #define RGB_MATRIX_LED_COUNT 22
-
 // PWM single one backlight configuration
 // The RP2040 datasheet says GPIO25 maps to PWM channel 4B
 // On the Raspberry Pi Pico this is the green LED on the board, good for prototyping
