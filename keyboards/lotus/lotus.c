@@ -24,7 +24,7 @@ void keyboard_pre_init_user(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-  process_record_user();
+  process_record_user(keycode, record);
 
   switch (keycode) {
     case KC_SCRN:
