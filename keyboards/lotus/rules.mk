@@ -5,12 +5,9 @@ VIA_ENABLE = yes
 
 SERIAL_DRIVER = vendor
 
-# Backlight for one variant
+# Keep it enabled for all, at the moment. Because The rpi-pico has an LED that I can use for debugging
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm
-
-RGB_MATRIX_ENABLE = yes
-RGB_MATRIX_DRIVER = IS31FL3743A
 
 # Custom matrix scanning code via ADC
 CUSTOM_MATRIX = lite
