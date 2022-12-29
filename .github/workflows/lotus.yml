@@ -22,22 +22,27 @@ jobs:
       run: pip3 install -r requirements-dev.txt
 
     - name: Lint lotus
-      run: qmk lint -kb lotus -km 78_ansi -km 79_iso -km 83_jis
+      run: |
+        qmk lint -kb lotus/ansi -km default
+        qmk lint -kb lotus/iso -km default
+        qmk lint -kb lotus/jis -km default
+        qmk lint -kb lotus/numpad -km default
+        qmk lint -kb lotus/gridpad -km default
 
     - name: Build Lotus ANSI variant
-      run: qmk compile -kb lotus -km 78_ansi
+      run: qmk compile -kb lotus/ansi -km default
 
     - name: Build Lotus ISO variant
-      run: qmk compile -kb lotus -km 79_iso
+      run: qmk compile -kb lotus/iso -km default
 
     - name: Build Lotus JIS variant
-      run: qmk compile -kb lotus -km 83_jis
+      run: qmk compile -kb lotus/jis -km default
 
     - name: Build Lotus Numpad
-      run: qmk compile -kb lotus -km numpad
+      run: qmk compile -kb lotus/numpad -km default
 
     - name: Build Lotus Gridpad
-      run: qmk compile -kb lotus -km gridpad
+      run: qmk compile -kb lotus/gridpad -km default
 
 #  tests:
 #    runs-on: ubuntu-latest

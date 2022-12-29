@@ -1,4 +1,5 @@
 VIA_ENABLE = yes
+RAW_ENABLE = no
 
 # Enabled in info.json
 # EXTRAKEY_ENABLE = yes          # Audio control and System control
@@ -13,5 +14,4 @@ BACKLIGHT_DRIVER = pwm
 CUSTOM_MATRIX = lite
 SRC += matrix.c
 
-# Debugging (enabled in info.json)
-#CONSOLE_ENABLE = yes
+DEFAULT_FOLDER = lotus/ansi

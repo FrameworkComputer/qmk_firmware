@@ -201,7 +201,7 @@ static void adc_mux_init(void) {
  * Overriding behavior of matrix_init from quantum/matrix.c
 */
 void matrix_init_custom(void) {
-    printf("Initializing Lotus\n");
+    print("Initializing Lotus\n");
     adc_mux_init();
 
     // Make sure GPIO is high-impedance, no pullups etc

@@ -1,0 +1,53 @@
+{
+    "keyboard_name": "Lotus Numpad",
+    "manufacturer": "Framework Computer Inc",
+    "maintainer": "JohnAZoidberg",
+    "bootloader": "rp2040",
+    "features": {
+        "bootmagic": false,
+        "mousekey": true,
+        "extrakey": true,
+        "console": true,
+        "command": false,
+        "nkro": true,
+        "audio": false
+    },
+    "debounce": 5,
+    "processor": "RP2040",
+    "url": "https://frame.work",
+    "usb": {
+        "device_version": "0.1.0",
+        "pid": "0x0013",
+        "vid": "0x32AC"
+    },
+    "backlight": {
+        "pin": "GP25"
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                { "label": "ESC", "x": 0, "y": 0, "h": 0.75 },
+                { "label": "+ -", "x": 1.25, "y": 0, "h": 0.75 },
+                { "label": "=", "x": 2.5, "y": 0, "h": 0.75 },
+                { "label": "<--", "x": 3.75, "y": 0, "h": 0.75 },
+                { "label": "Num Lock", "x": 0, "y": 1, "h": 1.25 },
+                { "label": "-", "x": 1.25, "y": 1, "h": 1.25 },
+                { "label": "*", "x": 2.5, "y": 1, "h": 1.25 },
+                { "label": "-", "x": 3.75, "y": 1, "h": 1.25 },
+                { "label": "7", "x": 0, "y": 2.5, "h": 1.25 },
+                { "label": "8", "x": 1.25, "y": 2.5, "h": 1.25 },
+                { "label": "9", "x": 2.5, "y": 2.5, "h": 1.25 },
+                { "label": "+", "x": 3.75, "y": 2.5, "h": 2.75 },
+                { "label": "4", "x": 0, "y": 4, "h": 1.25 },
+                { "label": "5", "x": 1.25, "y": 4, "h": 1.25 },
+                { "label": "6", "x": 2.5, "y": 4, "h": 1.25 },
+                { "label": "1", "x": 0, "y": 5.5, "h": 1.25 },
+                { "label": "2", "x": 1.25, "y": 5.5, "h": 1.25 },
+                { "label": "3", "x": 2.5, "y": 5.5, "h": 1.25 },
+                { "label": "Enter", "x": 3.75, "y": 5.5, "h": 2.75 },
+                { "label": "0", "x": 0, "y": 7, "w": 2.25, "h": 1.25 },
+                { "label": ".", "x": 2.5, "y": 7, "h": 1.25 }
+            ]
+        },
+    }
+}
