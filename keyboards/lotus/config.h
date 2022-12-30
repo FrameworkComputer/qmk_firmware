@@ -9,8 +9,16 @@
 #define SERIAL_USART_TX_PIN GP0
 #define SERIAL_USART_RX_PIN GP1
 
-#define LED_CAPS_LOCK_PIN GP24
-//#define LED_NUM_LOCK_PIN GP24
+#ifdef KEYBOARD_lotus_ansi
+    #define LED_CAPS_LOCK_PIN GP24
+#elif KEYBOARD_lotus_iso
+    #define LED_CAPS_LOCK_PIN GP24
+#elif KEYBOARD_lotus_jis
+    #define LED_CAPS_LOCK_PIN GP24
+#elif KEYBOARD_lotus_numpad
+    #define LED_NUM_LOCK_PIN GP24
+#elif KEYBOARD_lotus_gridpad
+#endif
 
 #define SERIAL_DEBUG
 
