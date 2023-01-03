@@ -457,6 +457,10 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
 
     // Return the same buffer, optionally with values changed
     // (i.e. returning state to the host, or the unhandled state).
+    // Even when sending 32 bytes, it seems that the RP2040 receives only 31
+    // But tmk_core/protocol/chibios/usb_main.c refuses to send anything other than 32
+    // TODO: Figure out what's going on
+    length = 32;
     raw_hid_send(data, length);
 }
 
