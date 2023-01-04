@@ -17,3 +17,10 @@
 // For single-zone backlight
 #undef RP_PWM_USE_PWM4
 #define RP_PWM_USE_PWM4 TRUE
+
+/*
+ * IRQ system settings.
+
+ * Need to define this for the ADC code to compile.
+ */
+#define RP_IRQ_ADC1_PRIORITY                3
