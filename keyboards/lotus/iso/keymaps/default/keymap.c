@@ -51,11 +51,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
     // TODO: Airplane mode
     [1] = LAYOUT(
-        TG(1), KC_KB_MUTE, KC_KB_VOLUME_DOWN, KC_KB_VOLUME_UP, KC_MPRV, KC_MPLY, KC_MNXT, KC_BRID, KC_BRIU, KC_SCRN, KC_TRNS, KC_PSCR, KC_MSEL, KC_INS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PAUS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_SYRQ, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_SCRL, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_BRK,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          BL_TOGG,                            KC_TRNS, KC_TRNS, KC_HOME, KC_PGUP, KC_PGDN, KC_END
+        TG(1),   KC_MUTE, KC_VOLD, KC_VOLU, KC_MPRV, KC_MPLY, KC_MNXT, KC_BRID, KC_BRIU, KC_SCRN, _______, KC_PSCR, KC_MSEL, KC_INS,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PAUS, _______, _______,
+        _______, _______, KC_SYRQ, _______, _______, _______, _______, _______, KC_SCRL, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, KC_BRK,  _______, _______, _______, _______, _______,          _______,
+        _______, _______, _______, _______,          BL_TOGG,                            _______, _______, KC_HOME, KC_PGUP, KC_PGDN, KC_END
     )
 };
