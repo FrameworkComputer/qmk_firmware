@@ -44,6 +44,12 @@ jobs:
     - name: Build Lotus Gridpad
       run: qmk compile -kb lotus/gridpad -km default
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: lotus_kb_qmk.${{github.sha}}
+        path: |
+          lotus_*.uf2
+
 #  tests:
 #    runs-on: ubuntu-latest
 #
