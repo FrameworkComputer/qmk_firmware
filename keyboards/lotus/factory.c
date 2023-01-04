@@ -3,11 +3,13 @@
 
 #include "quantum.h"
 #include "raw_hid.h"
+#include "matrix.h"
 
 enum factory_commands {
     f_bootloader   = 0x00,
     f_emu_keypress = 0x01, // Next byte is keycode
     f_backlight    = 0x02, // Next byte is on/off boolean
+    f_adc          = 0x03, // ADC trigger
 };
 
 void handle_factory_command(uint8_t *data) {
@@ -34,6 +36,9 @@ void handle_factory_command(uint8_t *data) {
             } else {
                 backlight_enable();
             }
+            break;
+        case f_adc:
+            trigger_adc();
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
