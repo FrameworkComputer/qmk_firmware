@@ -34,6 +34,10 @@
 #define BACKLIGHT_PWM_DRIVER    PWMD4
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
 
+#define I2C_DRIVER I2CD0
+#define I2C1_SDA_PIN GP26
+#define I2C1_SCL_PIN GP27
+
 /*
  * Feature disable options
  *  These options are also useful to firmware size reduction.
