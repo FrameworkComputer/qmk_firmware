@@ -5,6 +5,10 @@
 
 #include <config_common.h>
 
+// 18-digit serial number. Must be programmed at factory
+// TODO: Figure out how to do that. Probably a script to compile qmk
+#define SERIAL_NUMBER "FRALDLvvccxxxxxxxx"
+
 #define SERIAL_USART_FULL_DUPLEX
 #define SERIAL_USART_TX_PIN GP0
 #define SERIAL_USART_RX_PIN GP1
