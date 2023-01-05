@@ -1,3 +1,6 @@
+# Custom linker script
+MCU_LDSCRIPT = rp2040_lotus
+
 VIA_ENABLE = yes
 RAW_ENABLE = no
 
