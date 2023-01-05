@@ -4,6 +4,7 @@
 #include "quantum.h"
 #include "lotus.h"
 
+#define MUX_ENABLE_GPIO GP4
 #define BOOT_DONE_GPIO GP5
 
 void keyboard_post_init_user(void) {
@@ -22,6 +23,10 @@ void keyboard_pre_init_user(void) {
     // the RP2040 in bootloader mode during reset.
     setPinOutput(BOOT_DONE_GPIO);
     writePinHigh(BOOT_DONE_GPIO);
+
+    // TODO: Do we ever need to disable it to save power?
+    setPinOutput(MUX_ENABLE_GPIO);
+    writePinHigh(MUX_ENABLE_GPIO);
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
