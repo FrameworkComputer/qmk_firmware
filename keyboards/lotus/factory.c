@@ -6,10 +6,17 @@
 #include "matrix.h"
 
 enum factory_commands {
-    f_bootloader   = 0x00,
-    f_emu_keypress = 0x01, // Next byte is keycode
-    f_backlight    = 0x02, // Next byte is on/off boolean
-    f_adc          = 0x03, // ADC trigger
+    f_bootloader    = 0x00,
+    f_emu_keypress  = 0x01, // Next byte is keycode
+    f_backlight     = 0x02, // Next byte is on/off boolean
+    f_adc           = 0x03, // ADC trigger
+    // RGB control
+    f_rgb_enable    = 0x04, // Enable RGB
+    f_rgb_dimmer    = 0x05, // RGB brightness lower
+    f_rgb_brighter  = 0x06, // RGB brightness higher
+    f_rgb_cycle_hue = 0x0A, // Cycle through the hues
+    f_rgb_next      = 0x0B, // Next RGB pattern
+    f_rgb_prev      = 0x0C, // Previous RGB pattern
 };
 
 void handle_factory_command(uint8_t *data) {
@@ -40,6 +47,43 @@ void handle_factory_command(uint8_t *data) {
         case f_adc:
             trigger_adc();
             break;
+        case f_rgb_enable:
+            print("rgb factory enable&solid\n");
+            rgb_matrix_enable();
+            rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+            break;
+        case f_rgb_dimmer:
+            print("RGB dimmer\n");
+            rgb_matrix_decrease_val();
+            break;
+        case f_rgb_brighter:
+            print("RGB brighter\n");
+            rgb_matrix_increase_val();
+            break;
+        // Don't seem to work, not sure why
+        //case 7:
+        //    print("RGB red\n");
+        //    rgb_matrix_set_color_all(255, 0, 0);
+        //    break;
+        //case 8:
+        //    print("RGB green\n");
+        //    rgb_matrix_set_color_all(0, 255, 0);
+        //    break;
+        //case 9:
+        //    print("RGB blue\n");
+        //    rgb_matrix_set_color_all(0, 0, 255);
+        //    break;
+        case f_rgb_cycle_hue:
+            print("rgb_matrix_increase_hue\n");
+            rgb_matrix_increase_hue();
+        case f_rgb_next:
+            print("rgb_matrix_step\n");
+            rgb_matrix_step();
+            break;
+        case f_rgb_prev:
+            print("rgb_matrix_step_reverse\n");
+            rgb_matrix_step_reverse();
+            break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
             break;
@@ -50,7 +94,7 @@ bool handle_hid(uint8_t *data, uint8_t length) {
     uint8_t command_id = data[0];
     uint8_t *command_data = &(data[1]);
 
-    uprintf("raw_hid_receive(command: %X, length: %d)\n", command_id, length);
+    //uprintf("raw_hid_receive(command: %X, length: %d)\n", command_id, length);
 
     switch (command_id) {
         case 0x01:
