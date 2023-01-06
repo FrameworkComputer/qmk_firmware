@@ -9,10 +9,6 @@
 // TODO: Figure out how to do that. Probably a script to compile qmk
 #define SERIAL_NUMBER "FRALDLvvccxxxxxxxx"
 
-#define SERIAL_USART_FULL_DUPLEX
-#define SERIAL_USART_TX_PIN GP0
-#define SERIAL_USART_RX_PIN GP1
-
 #ifdef KEYBOARD_lotus_ansi
     #define LED_CAPS_LOCK_PIN GP24
 #elif KEYBOARD_lotus_iso
@@ -23,10 +19,6 @@
     #define LED_NUM_LOCK_PIN GP24
 #elif KEYBOARD_lotus_gridpad
 #endif
-
-#define SERIAL_DEBUG
-
-#define WS2812_PIO_USE_PIO1
 
 // PWM single one backlight configuration
 // The RP2040 datasheet says GPIO25 maps to PWM channel 4B
