@@ -182,24 +182,24 @@ const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
  *   |  |        G location
  *   |  |        |        B location
  *   |  |        |        | */
-    // TODO: Probably have to order them by LED ID?
+    // Re-arranged in LED ID order so it matches with the physical location array
+    {0, CS1_SW6, CS2_SW6, CS3_SW6}, // LED 1
+    {0, CS1_SW8, CS2_SW8, CS3_SW8}, // LED 2
     {0, CS1_SW1, CS2_SW1, CS3_SW1}, // LED 3
     {0, CS1_SW2, CS2_SW2, CS3_SW2}, // LED 4
     {0, CS1_SW3, CS2_SW3, CS3_SW3}, // LED 5
     {0, CS1_SW4, CS2_SW4, CS3_SW4}, // LED 6
-    {0, CS1_SW5, CS2_SW5, CS3_SW5}, // LED 8
-    {0, CS1_SW6, CS2_SW6, CS3_SW6}, // LED 1
-    {0, CS1_SW7, CS2_SW7, CS3_SW7}, // LED 9
-    {0, CS1_SW8, CS2_SW8, CS3_SW8}, // LED 2
     {0, CS1_SW9, CS2_SW9, CS3_SW9}, // LED 7
+    {0, CS1_SW5, CS2_SW5, CS3_SW5}, // LED 8
+    {0, CS1_SW7, CS2_SW7, CS3_SW7}, // LED 9
 
+    {0, CS4_SW3, CS5_SW3, CS6_SW3}, // LED 10
+    {0, CS4_SW7, CS5_SW7, CS6_SW7}, // LED 11
     {0, CS4_SW1, CS5_SW1, CS6_SW1}, // LED 12
     {0, CS4_SW2, CS5_SW2, CS6_SW2}, // LED 13
-    {0, CS4_SW3, CS5_SW3, CS6_SW3}, // LED 10
     {0, CS4_SW4, CS5_SW4, CS6_SW4}, // LED 14
     {0, CS4_SW5, CS5_SW5, CS6_SW5}, // LED 15
     {0, CS4_SW6, CS5_SW6, CS6_SW6}, // LED 16
-    {0, CS4_SW7, CS5_SW7, CS6_SW7}, // LED 11
     {0, CS4_SW8, CS5_SW8, CS6_SW8}, // LED 17
     {0, CS4_SW9, CS5_SW9, CS6_SW9}, // LED 18
 
@@ -223,15 +223,15 @@ const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
     {0, CS10_SW8, CS11_SW8, CS12_SW8}, // LED 35
     {0, CS10_SW9, CS11_SW9, CS12_SW9}, // LED 36
 
-    {0, CS13_SW1, CS14_SW1, CS15_SW1}, // LED 42
     {0, CS13_SW2, CS14_SW2, CS15_SW2}, // LED 37
     {0, CS13_SW3, CS14_SW3, CS15_SW3}, // LED 38
-    {0, CS13_SW4, CS14_SW4, CS15_SW4}, // LED 43
-    {0, CS13_SW5, CS14_SW5, CS15_SW5}, // LED 44
     {0, CS13_SW6, CS14_SW6, CS15_SW6}, // LED 39
     {0, CS13_SW7, CS14_SW7, CS15_SW7}, // LED 40
-    {0, CS13_SW8, CS14_SW8, CS15_SW8}, // LED 45
     {0, CS13_SW9, CS14_SW9, CS15_SW9}, // LED 41
+    {0, CS13_SW1, CS14_SW1, CS15_SW1}, // LED 42
+    {0, CS13_SW4, CS14_SW4, CS15_SW4}, // LED 43
+    {0, CS13_SW5, CS14_SW5, CS15_SW5}, // LED 44
+    {0, CS13_SW8, CS14_SW8, CS15_SW8}, // LED 45
 
     {0, CS16_SW1, CS17_SW1, CS18_SW1}, // LED 46
     {0, CS16_SW2, CS17_SW2, CS18_SW2}, // LED 47
@@ -259,18 +259,18 @@ const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
 
     {1, CS25_SW12, CS26_SW12, CS27_SW12}, // LED 67
     {1, CS25_SW13, CS26_SW13, CS27_SW13}, // LED 68
-    {1, CS25_SW14, CS26_SW14, CS27_SW14}, // LED 75
     {1, CS25_SW15, CS26_SW15, CS27_SW15}, // LED 69
     {1, CS25_SW16, CS26_SW16, CS27_SW16}, // LED 70
     {1, CS25_SW17, CS26_SW17, CS27_SW17}, // LED 71
     {1, CS25_SW18, CS26_SW18, CS27_SW18}, // LED 72
     {1, CS25_SW19, CS26_SW19, CS27_SW19}, // LED 73
     {1, CS25_SW20, CS26_SW20, CS27_SW20}, // LED 74
+    {1, CS25_SW14, CS26_SW14, CS27_SW14}, // LED 75
 
     {1, CS28_SW12, CS29_SW12, CS30_SW12}, // LED 76
     {1, CS28_SW13, CS29_SW13, CS30_SW13}, // LED 77
     {1, CS28_SW14, CS29_SW14, CS30_SW14}, // LED 78
-    {1, CS28_SW15, CS29_SW15, CS30_SW15}, // LED 89
+    {1, CS28_SW15, CS29_SW15, CS30_SW15}, // LED 79
     {1, CS28_SW16, CS29_SW16, CS30_SW16}, // LED 80
     {1, CS28_SW17, CS29_SW17, CS30_SW17}, // LED 81
     {1, CS28_SW18, CS29_SW18, CS30_SW18}, // LED 82
