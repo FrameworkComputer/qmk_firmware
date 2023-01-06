@@ -11,37 +11,35 @@ const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
  *   |  |        |        B location
  *   |  |        |        | */
     // TODO: probably need to re-arrange them as below in g_led_config
-    // LED IDs from pos diagram missing in schematic: 5, 6, 7, 8, 9, 13, 15, 16, 17, 18, 13, 24
-    // LED from Schematic below. Those without X are missing in pos diagram.
-    {0, CS1_SW1, CS2_SW1, CS3_SW1}, // LED 1      X
-    {0, CS1_SW2, CS2_SW2, CS3_SW2}, // LED 2      X
-    {0, CS1_SW3, CS2_SW3, CS3_SW3}, // LED 3      X
-    {0, CS1_SW4, CS2_SW4, CS3_SW4}, // LED 4      X
+    {0, CS1_SW1, CS2_SW1, CS3_SW1}, // LED 1
+    {0, CS1_SW2, CS2_SW2, CS3_SW2}, // LED 2
+    {0, CS1_SW3, CS2_SW3, CS3_SW3}, // LED 3
+    {0, CS1_SW4, CS2_SW4, CS3_SW4}, // LED 4
 
-    {0, CS4_SW1, CS5_SW1, CS6_SW1}, // LED 10     X
-    {0, CS4_SW2, CS5_SW2, CS6_SW2}, // LED 14     X
-    {0, CS4_SW3, CS5_SW3, CS6_SW3}, // LED 11     X
-    {0, CS4_SW4, CS5_SW4, CS6_SW4}, // LED 12     X
+    {0, CS4_SW1, CS5_SW1, CS6_SW1}, // LED 5
+    {0, CS4_SW2, CS5_SW2, CS6_SW2}, // LED 8
+    {0, CS4_SW3, CS5_SW3, CS6_SW3}, // LED 6
+    {0, CS4_SW4, CS5_SW4, CS6_SW4}, // LED 7
 
-    {0, CS7_SW1, CS8_SW1, CS9_SW1}, // LED 19     X
-    {0, CS7_SW2, CS8_SW2, CS9_SW2}, // LED 20     X
-    {0, CS7_SW3, CS8_SW3, CS9_SW3}, // LED 21     X
-    {0, CS7_SW4, CS8_SW4, CS9_SW4}, // LED 22     X
+    {0, CS7_SW1, CS8_SW1, CS9_SW1}, // LED 9
+    {0, CS7_SW2, CS8_SW2, CS9_SW2}, // LED 10
+    {0, CS7_SW3, CS8_SW3, CS9_SW3}, // LED 11
+    {0, CS7_SW4, CS8_SW4, CS9_SW4}, // LED 12
 
-    {0, CS10_SW1, CS11_SW1, CS12_SW1}, // LED 33
-    {0, CS10_SW2, CS11_SW2, CS12_SW2}, // LED 34
-    {0, CS10_SW3, CS11_SW3, CS12_SW3}, // LED 28
-    {0, CS10_SW4, CS11_SW4, CS12_SW4}, // LED 29
+    {0, CS10_SW1, CS11_SW1, CS12_SW1}, // LED 13
+    {0, CS10_SW2, CS11_SW2, CS12_SW2}, // LED 14
+    {0, CS10_SW3, CS11_SW3, CS12_SW3}, // LED 15
+    {0, CS10_SW4, CS11_SW4, CS12_SW4}, // LED 16
 
-    {0, CS13_SW1, CS14_SW1, CS15_SW1}, // LED 41
-    {0, CS13_SW2, CS14_SW2, CS15_SW2}, // LED 37
-    {0, CS13_SW3, CS14_SW3, CS15_SW3}, // LED 38
-    {0, CS13_SW4, CS14_SW4, CS15_SW4}, // LED 42
+    {0, CS13_SW1, CS14_SW1, CS15_SW1}, // LED 19
+    {0, CS13_SW2, CS14_SW2, CS15_SW2}, // LED 17
+    {0, CS13_SW3, CS14_SW3, CS15_SW3}, // LED 18
+    {0, CS13_SW4, CS14_SW4, CS15_SW4}, // LED 20
 
-    {0, CS16_SW1, CS17_SW1, CS18_SW1}, // LED 46
-    {0, CS16_SW2, CS17_SW2, CS18_SW2}, // LED 47
-    {0, CS16_SW3, CS17_SW3, CS18_SW3}, // LED 48
-    {0, CS16_SW4, CS17_SW4, CS18_SW4}, // LED 49
+    {0, CS16_SW1, CS17_SW1, CS18_SW1}, // LED 21
+    {0, CS16_SW2, CS17_SW2, CS18_SW2}, // LED 22
+    {0, CS16_SW3, CS17_SW3, CS18_SW3}, // LED 23
+    {0, CS16_SW4, CS17_SW4, CS18_SW4}, // LED 24
 };
 
 led_config_t g_led_config = { {
