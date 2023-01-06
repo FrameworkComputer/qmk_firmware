@@ -27,7 +27,7 @@
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
 
 // I2C for the RBG controller
-#define I2C_DRIVER I2CD0
+#define I2C_DRIVER I2CD1
 #define I2C1_SDA_PIN GP26
 #define I2C1_SCL_PIN GP27
 

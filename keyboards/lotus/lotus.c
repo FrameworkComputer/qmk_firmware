@@ -6,6 +6,11 @@
 
 #define MUX_ENABLE_GPIO GP4
 #define BOOT_DONE_GPIO GP5
+// SDB
+// 22 only on RPi Pico because it doesn't have GP29
+#define IS31FL3743A_ENABLE_GPIO GP22
+//#define IS31FL3743A_ENABLE_GPIO GP29
+
 
 void keyboard_post_init_user(void) {
   // Enable debug output
@@ -25,8 +30,8 @@ void keyboard_pre_init_user(void) {
     writePinHigh(BOOT_DONE_GPIO);
 
     // TODO: Do we ever need to disable it to save power?
-    setPinOutput(MUX_ENABLE_GPIO);
-    writePinHigh(MUX_ENABLE_GPIO);
+    setPinOutput(IS31FL3743A_ENABLE_GPIO);
+    writePinHigh(IS31FL3743A_ENABLE_GPIO);
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
