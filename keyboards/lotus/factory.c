@@ -4,6 +4,7 @@
 #include "quantum.h"
 #include "raw_hid.h"
 #include "matrix.h"
+#include "rgb_matrix.h"
 
 enum factory_commands {
     f_bootloader    = 0x00,
