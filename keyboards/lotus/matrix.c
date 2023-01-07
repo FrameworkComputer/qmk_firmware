@@ -49,21 +49,18 @@ const float CONV_FACTOR = 3.3f / (1<<12);
 // Voltage threshold - TODO: Need to adjust
 #define ADC_THRESHOLD 3.0f
 
-#define CALC_DIGITS 12
-char calc_result[CALC_DIGITS+1] = "";
-
 /*
- * Print two digits
+ * Print two digits XX.XX
  */
 void print_float(float f) {
-  // dtostrf doesn't seem to be available
-  //dtostrf(temp, CALC_DIGITS, 2, calc_result);
-  //uprintf("temp: %s\n", calc_result);
   int digits = (int)f;
   int decimals = (int)(f * 100) % 100;
   uprintf("%d.%d\n", digits, decimals);
 }
 
+/**
+ * Average the mulitiple samples due to depth>1 together to a single value
+ */
 float average_samples(adcsample_t s[], int channel) {
   float sum = 0;
   for (int i = 0; i < ADC_GRP_NUM_CHANNELS; i++) {
@@ -83,6 +80,11 @@ void print_samples(adcsample_t s[]) {
   print_float(adc_voltage);
 }
 
+/**
+ * Convert the ADC samples to meaningful values
+ *
+ * Should be called after receiving a set of samples from the ADC
+ */
 void handle_sample(void) {
   float adv_avg = average_samples(samples, 0);
   float temp_avg = average_samples(samples, 1);
@@ -90,6 +92,9 @@ void handle_sample(void) {
   // Convert them to voltage (0 to 3.3V)
   float adc_v = adv_avg * CONV_FACTOR;
   float temp_v = temp_avg * CONV_FACTOR;
+
+  // Uses global variables because it might be called from an interrupt handler
+  // But we might not want to act upon them from there.
   // Convert to real temperature based on RP2040 datasheet
   temperature = 27.0 - (temp_v - 0.706)/0.001721;
   adc_voltage = adc_v;
@@ -99,7 +104,7 @@ void handle_sample(void) {
 }
 
 /*
- * Call back function which called when ADC is finished.
+ * Call back function which is called when ADC is finished.
  */
 void adc_end_callback(ADCDriver *adcp) {
   (void)adcp;
@@ -115,6 +120,7 @@ void adc_end_callback(ADCDriver *adcp) {
 void adc_error_callback(ADCDriver *adcp, adcerror_t err) {
   (void)adcp;
   uprintf("error: %ld\n", err);
+  assert(false);
 }
 
 const ADCConversionGroup adcConvGroup = {
@@ -126,12 +132,20 @@ const ADCConversionGroup adcConvGroup = {
   .channel_mask = RP_ADC_CH2 | RP_ADC_CH4,
 };
 
-// If adcConvGroup.circular is true, this will just keep going
+/**
+ * Trigger an ADC conversion. When done, the callback is called.
+ *
+ * Never blocks.
+ * If adcConvGroup.circular is true, callbacks will keep coming.
+ */
 void trigger_adc(void) {
     adcStartConversion(&ADCD1, &adcConvGroup,
                        samples, ADC_GRP_BUF_DEPTH);
 }
 
+/**
+ * Trigger a single, blocking ADC conversion
+ */
 void factory_trigger_adc(void) {
     if (!letsgo) {
       print("Factory triggered ADC\n");
@@ -193,7 +207,7 @@ static void mux_select_row(int row) {
 }
 
 /**
- * Based on the adc value, update the matrix for this column
+ * Based on the ADC value, update the matrix for this column
  * */
 static bool interpret_adc_row(matrix_row_t cur_matrix[], float voltage, int col, int row) {
     bool changed = false;
@@ -225,6 +239,9 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], float voltage, int col,
     return changed;
 }
 
+/**
+ * Drive the GPIO for a column low or high.
+ */
 void drive_col(int col, bool high) {
     assert(col >= 0 && col <= MATRIX_COLS);
     int gpio = 0;
@@ -297,6 +314,9 @@ void drive_col(int col, bool high) {
     }
 }
 
+/**
+ * Read a value from the ADC and print some debugging details
+ */
 static void read_adc(void) {
     uint32_t current_ts = timer_read32();
     if (prev_matrix_ts) {
@@ -304,6 +324,7 @@ static void read_adc(void) {
       uprintf("%lu ms (%ld Hz)\n", delta, 1000 / delta);
     }
     prev_matrix_ts = current_ts;
+
     // Need to sleep a bit, otherwise we seem to get stuck
     chThdSleepMilliseconds(5);
 #if !CHIBIOS_ADC
@@ -329,9 +350,11 @@ static void read_adc(void) {
     //  //
     //  // Also works if we never trigger ADC at all
     //  //hThdSleepMilliseconds(300);
+    //  // Trigger non-blocking ADC read that will be handled by and interrupt callback
     //  trigger_adc();
     //}
 #endif // CHIBIOS_ADC
+
     uprintf("Temperature: ");
     print_float(temperature);
     uprintf("ADC Voltage: ");
