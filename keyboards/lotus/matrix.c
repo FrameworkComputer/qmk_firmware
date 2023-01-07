@@ -316,15 +316,8 @@ void drive_col(int col, bool high) {
  * Read a value from the ADC and print some debugging details
  */
 static void read_adc(void) {
-    uint32_t current_ts = timer_read32();
-    if (prev_matrix_ts) {
-      uint32_t delta = current_ts - prev_matrix_ts;
-      uprintf("%lu ms (%ld Hz)\n", delta, 1000 / delta);
-    }
-    prev_matrix_ts = current_ts;
-
     // Need to sleep a bit, otherwise we seem to get stuck
-    chThdSleepMilliseconds(5);
+    wait_us(5);
 #if !CHIBIOS_ADC
     uint16_t val = analogReadPin(ADC_CH2_PIN);
     adc_voltage = val * CONV_FACTOR;
@@ -379,6 +372,13 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
     print("scan\n");
+
+    uint32_t current_ts = timer_read32();
+    if (prev_matrix_ts) {
+      uint32_t delta = current_ts - prev_matrix_ts;
+      uprintf("%lu ms (%ld Hz)\n", delta, 1000 / delta);
+    }
+    prev_matrix_ts = current_ts;
 
     handle_idle();
 
