@@ -46,7 +46,8 @@ const float CONV_FACTOR = 3.3f / (1<<12);
 #define ADC_CH1_PIN  GP27
 #define ADC_CH2_PIN  GP28
 #define ADC_CH3_PIN  GP29
-#define ADC_THRESHOLD 3.0 / CONV_FACTOR
+// Voltage threshold - TODO: Need to adjust
+#define ADC_THRESHOLD 3.0f
 
 #define CALC_DIGITS 12
 char calc_result[CALC_DIGITS+1] = "";
@@ -194,11 +195,8 @@ static void mux_select_row(int row) {
 /**
  * Based on the adc value, update the matrix for this column
  * */
-static bool interpret_adc_row(matrix_row_t cur_matrix[], uint16_t adc_value, int col, int row) {
+static bool interpret_adc_row(matrix_row_t cur_matrix[], float voltage, int col, int row) {
     bool changed = false;
-
-    // TODO: Convert adc value to voltage
-    uint16_t voltage = adc_value;
 
     // By default the voltage is high (3.3V)
     // When a key is pressed it causes the voltage to go down.
@@ -210,14 +208,19 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], uint16_t adc_value, int
         key_state = 1;
     }
 
-    uprintf("Col %d - Row %d - ADC value:%04X, Voltage: %d\n", col, row, adc_value, voltage);
+    uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
+    print_float(voltage);
+
 // Don't update  matrix on Pico to avoid messing with the debug system
 // Can't attach the matrix anyways
 #ifdef PICO_LOTUS
     (void)key_state;
-#else
-    cur_matrix[row] |= key_state ? 0 : (1 << col);
+    return false;
 #endif
+
+    matrix_row_t new_row = cur_matrix[row] | key_state ? (1 << col) : 0;
+    changed = cur_matrix[row] == new_row;
+    cur_matrix[row] = new_row;
 
     return changed;
 }
@@ -277,29 +280,25 @@ void drive_col(int col, bool high) {
 // Don't drive columns on pico because we're using these GPIOs for other purposes
 #ifdef PICO_LOTUS
     (void)gpio;
-#else
+    return;
+#endif
+
     if (high) {
         // TODO: Could set up the pins with `setPinOutputOpenDrain` instead
         writePinHigh(gpio);
     } else {
         writePinLow(gpio);
     }
-#endif
 }
 
-/**
- * Overriding behavior of matrix_scan from quantum/matrix.c
-*/
-bool matrix_scan_custom(matrix_row_t current_matrix[]) {
-    bool changed = false;
-
-    print("scan\n");
+static void read_adc(void) {
     uint32_t current_ts = timer_read32();
     if (prev_matrix_ts) {
       uint32_t delta = current_ts - prev_matrix_ts;
       uprintf("%lu ms (%ld Hz)\n", delta, 1000 / delta);
     }
     prev_matrix_ts = current_ts;
+    // Need to sleep a bit, otherwise we seem to get stuck
     chThdSleepMilliseconds(5);
 #if !CHIBIOS_ADC
     uint16_t val = analogReadPin(ADC_CH2_PIN);
@@ -310,6 +309,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     }
 
     // Interrupt-driven
+    // Even the "blocking" one suspends the thread, so we shouldn't need this
     //if (adc_state == s_ready) {
     //  print("new sample\n");
 
@@ -330,22 +330,30 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     print_float(temperature);
     uprintf("ADC Voltage: ");
     print_float(adc_voltage);
+}
+
+/**
+ * Overriding behavior of matrix_scan from quantum/matrix.c
+*/
+bool matrix_scan_custom(matrix_row_t current_matrix[]) {
+    bool changed = false;
+
+    print("scan\n");
 
     for (int col = 0; col < MATRIX_COLS; col++) {
-        break;
         // Drive column low so we can measure the resistors on each row in this column
         drive_col(col, false);
-        for (int row = 0; row <= MATRIX_ROWS; row++) {
-
+        for (int row = 0; row < MATRIX_ROWS; row++) {
             // Read ADC for this row
             mux_select_row(row);
 
-            wait_us(30); // Wait for column select and ADC to settle
+            // Wait for column select to settle and propagate to ADC
+            wait_us(30);
 
-            uint16_t adc_value = 0;//adc_read();
+            read_adc();
 
             // Interpret ADC value as rows
-            changed |= interpret_adc_row(current_matrix, adc_value, col, row);
+            changed |= interpret_adc_row(current_matrix, adc_voltage, col, row);
         }
 
         // Drive column high again
