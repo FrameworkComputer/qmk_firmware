@@ -30,8 +30,11 @@ void keyboard_pre_init_user(void) {
     writePinHigh(BOOT_DONE_GPIO);
 
     // TODO: Do we ever need to disable it to save power?
+#ifdef RGB_MATRIX_ENABLE
+    //// TODO: Do we ever need to disable it to save power?
     setPinOutput(IS31FL3743A_ENABLE_GPIO);
     writePinHigh(IS31FL3743A_ENABLE_GPIO);
+#endif
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {

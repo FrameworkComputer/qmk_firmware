@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
-#include "raw_hid.h"
 #include "matrix.h"
-#include "rgb_matrix.h"
 
 enum factory_commands {
     f_bootloader    = 0x00,
@@ -48,6 +46,7 @@ void handle_factory_command(uint8_t *data) {
         case f_adc:
             trigger_adc();
             break;
+#ifdef RGB_MATRIX_ENABLE
         case f_rgb_enable:
             print("rgb factory enable&solid\n");
             rgb_matrix_enable();
@@ -85,6 +84,7 @@ void handle_factory_command(uint8_t *data) {
             print("rgb_matrix_step_reverse\n");
             rgb_matrix_step_reverse();
             break;
+#endif
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
             break;
