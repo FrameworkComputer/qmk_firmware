@@ -26,3 +26,7 @@
  * Need to define this for the ADC code to compile.
  */
 #define RP_IRQ_ADC1_PRIORITY                2
+
+// For MAX...
+#undef RP_SPI_USE_SPI0
+#define RP_SPI_USE_SPI0 TRUE

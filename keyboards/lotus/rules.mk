@@ -14,4 +14,6 @@ SRC += matrix.c
 
 SRC += factory.c
 
+QUANTUM_LIB_SRC += max7219.c spi_master.c
+
 DEFAULT_FOLDER = lotus/ansi

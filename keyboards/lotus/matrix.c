@@ -12,6 +12,8 @@
 
 #include "matrix.h"
 #include "lotus.h"
+#include "max7219.h"
+#include "font.h"
 
 // Use raw ChibiOS ADC functions instead of those from QMK
 // Using the QMK functions doesn't work yet
@@ -365,6 +367,18 @@ void handle_idle(void) {
     // TODO: Implement idle behavior
 }
 
+void led_set_user(uint8_t usb_led) {
+  if (host_keyboard_leds() & (1<<USB_LED_CAPS_LOCK)) {
+    uint8_t message[MSG_FRAMEWORK_LEN][6] = MSG_FRAMEWORK;
+    max7219_message_sign(message, MSG_FRAMEWORK_LEN);
+  } else {
+    uint8_t message[MSG_FRAMEWORK_LEN][6] = MSG_FRAMEWORK_LOWER;
+    max7219_message_sign(message, MSG_FRAMEWORK_LEN);
+  }
+}
+
+static uint16_t led_frame_timer = 0;
+
 /**
  * Overriding behavior of matrix_scan from quantum/matrix.c
 */
@@ -372,6 +386,11 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
     print("scan\n");
+
+    if (timer_elapsed(led_frame_timer) > MAX7219_SCROLL_TIME) {
+        max7219_message_sign_task(true);
+        led_frame_timer = timer_read();
+    }
 
     uint32_t current_ts = timer_read32();
     if (prev_matrix_ts) {
@@ -449,4 +468,72 @@ void matrix_init_custom(void) {
 
     // TODO: Not sure we ever need to stop. Perhaps to save power.
     // adcStopConversion(&ADCD1);
+
+    max7219_init();
+
+    // Light up all LEDs
+    #if defined(MAX7219_LED_TEST)
+    while(1) {
+        for (int i=0; i<MAX7219_CONTROLLERS; i++) {
+            max7219_display_test(i, true);
+            wait_ms(500);
+            max7219_display_test(i, false);
+        }
+    }
+    // Go through each LED  one by one
+#elif defined(MAX7219_LED_ITERATE)
+    while (1) {
+        for (int row=0; row<8; row++) {
+            for(int col=0;col<8*MAX7219_CONTROLLERS;col++) {
+                max7219_set_led(row, col, true);
+                wait_ms(500);
+                max7219_set_led(row, col, false);
+            }
+        }
+    }
+    // Shows chess pattern, both ways
+#elif defined(MAX7219_LED_DANCE)
+    while (1) {
+        for (int col=0; col<8; col++) {
+            for (int device_num=0; device_num<MAX7219_CONTROLLERS; device_num++) {
+                if (col % 2 == 0) {
+                    max7219_led_a[col][device_num] = 0b01010101;
+                } else {
+                    max7219_led_a[col][device_num] = 0b10101010;
+                }
+            }
+        }
+        max7219_write_frame();
+        wait_ms(500);
+        for (int col=0; col<8; col++) {
+            for (int device_num=0; device_num<MAX7219_CONTROLLERS; device_num++) {
+                if (col % 2 == 0) {
+                    max7219_led_a[col][device_num] = 0b10101010;
+                } else {
+                    max7219_led_a[col][device_num] = 0b01010101;
+                }
+            }
+        }
+        max7219_write_frame();
+        wait_ms(500);
+    }
+    // Draws an S
+#elif defined(MAX7219_LED_FONTTEST)
+    uint8_t message[MSG_FONTTEST_LEN][6] = MSG_FONTTEST;
+    max7219_message_sign(message, MSG_FONTTEST_LEN);
+#elif defined(MAX7219_LED_CLUEBOARD)
+    uint8_t message[MSG_CLUEBOARD_LEN][6] = MSG_CLUEBOARD;
+    max7219_message_sign(message, MSG_CLUEBOARD_LEN);
+#elif defined(MAX7219_LED_KONAMI)
+    uint8_t message[MSG_KONAMI_LEN][6] = MSG_KONAMI;
+    max7219_message_sign(message, MSG_KONAMI_LEN);
+#elif defined(MAX7219_LED_QMK_POWERED)
+    uint8_t message[MSG_QMK_POWERED_LEN][6] = MSG_QMK_POWERED;
+    max7219_message_sign(message, MSG_QMK_POWERED_LEN);
+#elif defined(MAX7219_LED_FRAMEWORK)
+    uint8_t message[MSG_FRAMEWORK_LEN][6] = MSG_FRAMEWORK;
+    max7219_message_sign(message, MSG_FRAMEWORK_LEN);
+#elif defined(DRAWING_TOY_MODE)
+    max7219_set_led(0, 0, true);
+#endif
 }
