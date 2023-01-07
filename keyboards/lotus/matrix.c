@@ -43,10 +43,7 @@ const float CONV_FACTOR = 3.3f / (1<<12);
 #define MUX_C GP3
 #define MUX_ENABLE GP4
 
-#define ADC_CH0_PIN  GP26
-#define ADC_CH1_PIN  GP27
 #define ADC_CH2_PIN  GP28
-#define ADC_CH3_PIN  GP29
 // Voltage threshold - TODO: Need to adjust
 #define ADC_THRESHOLD 3.0f
 
