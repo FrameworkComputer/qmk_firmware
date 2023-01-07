@@ -44,7 +44,7 @@ void handle_factory_command(uint8_t *data) {
             }
             break;
         case f_adc:
-            trigger_adc();
+            factory_trigger_adc();
             break;
 #ifdef RGB_MATRIX_ENABLE
         case f_rgb_enable:

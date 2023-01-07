@@ -5,4 +5,4 @@
 
 #include "quantum.h"
 
-void trigger_adc(void);
+void factory_trigger_adc(void);

@@ -12,12 +12,23 @@
 #include "chprintf.h"
 #include "matrix.h"
 
+// Use raw ChibiOS ADC functions instead of those from QMK
+#define CHIBIOS_ADC TRUE
+
+bool letsgo = false;
+uint32_t prev_matrix_ts = 0;
+
+enum sample_state {
+  s_never, // Never received a sample
+  s_waiting, // Waiting for a new sample (at least one received)
+  s_ready, // Received a sample, ready to be consumed
+};
 #define ADC_RESOLUTION 10
 #define ADC_GRP_NUM_CHANNELS 2
 #define ADC_GRP_BUF_DEPTH 2
-//static adcsample_t prev_samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * 2)];
+static adcsample_t prev_samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * 2)];
 static adcsample_t samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * 2)];
-static bool new_sample = false;
+static enum sample_state adc_state;
 
 // 3.3V with 12bit resolution
 const float CONV_FACTOR = 3.3f / (1<<12);
@@ -31,6 +42,7 @@ const float CONV_FACTOR = 3.3f / (1<<12);
 #define ADC_CH0_PIN  GP26
 #define ADC_CH1_PIN  GP27
 #define ADC_CH2_PIN  GP28
+#define ADC_CH3_PIN  GP29
 #define ADC_THRESHOLD 3.0 / CONV_FACTOR
 
 #define CALC_DIGITS 12
@@ -77,8 +89,11 @@ void print_samples(adcsample_t s[]) {
 }
 
 void handle_sample(void) {
-  //print_samples(prev_samples);
+  //print("Current:")
   print_samples(samples);
+  //print("Previous:")
+  //print_samples(prev_samples);
+  print("\n");
 }
 
 /*
@@ -86,9 +101,10 @@ void handle_sample(void) {
  */
 void adc_end_callback(ADCDriver *adcp) {
   (void)adcp;
-  new_sample = true;
+  adc_state = s_ready;
+  print("adc_end_callback\n");
 
-  handle_sample();
+  //handle_sample();
 }
 
 /*
@@ -110,9 +126,21 @@ const ADCConversionGroup adcConvGroup = {
 
 // If adcConvGroup.circular is true, this will just keep going
 void trigger_adc(void) {
-    print("Triggered ADC\n");
     adcStartConversion(&ADCD1, &adcConvGroup,
                        samples, ADC_GRP_BUF_DEPTH);
+}
+
+void factory_trigger_adc(void) {
+    if (!letsgo) {
+      print("Factory triggered ADC\n");
+      letsgo = true;
+    }
+    adcConvert(&ADCD1, &adcConvGroup,
+               samples, ADC_GRP_BUF_DEPTH);
+    print("After adcConvert\n");
+    memcpy(prev_samples, samples, sizeof(samples));
+    handle_sample();
+    print("After handle_sample");
 }
 
 /**
@@ -256,11 +284,47 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
 #ifdef PICO_LOTUS
-    uprintf("scan\n");
-    adcStartConversion(&ADCD1, &adcConvGroup,
-                       samples, ADC_GRP_BUF_DEPTH);
-    chThdSleepMilliseconds(500);
+    print("scan\n");
+    uint32_t current_ts = timer_read32();
+    if (prev_matrix_ts) {
+      uprintf("prev: %lu\n", prev_matrix_ts);
+      uprintf("curr: %lu\n", current_ts);
+      uprintf("%lu ms\n", current_ts - prev_matrix_ts);
+      uprintf("%ld Hz\n", 1000 / (current_ts - prev_matrix_ts));
+    }
+    prev_matrix_ts = current_ts;
+    chThdSleepMilliseconds(5);
+    //chThdSleepMilliseconds(200);
+#if !CHIBIOS_ADC
+    uint16_t val = analogReadPin(ADC_CH2_PIN);
+    uprintf("val: %u\n", val);
 #else
+    if (letsgo) {
+      print("letsgo\n");
+      factory_trigger_adc();
+    }
+    //adcConvert(&ADCD1, &adcConvGroup,
+    //                 samples, ADC_GRP_BUF_DEPTH);
+    //memcpy(prev_samples, samples, sizeof(samples));
+    //handle_sample();
+
+    //if (adc_state == s_ready) {
+    //  print("new sample\n");
+
+    //  memcpy(prev_samples, samples, sizeof(samples));
+
+    //  adc_state = s_waiting;
+
+    //  // Works if both are commented out.
+    //  // Doesn't work if we don't sleep at all or sleep less than 300ms.
+    //  // Then we seemingly are stuck, no prints and doesn't respond to raw HID commands.
+    //  //
+    //  // Also works if we never trigger ADC at all
+    //  //hThdSleepMilliseconds(300);
+    //  trigger_adc();
+    //}
+#endif // CHIBIOS_ADC
+#else // PICO_LOTUS
     for (int col = 0; col < MATRIX_COLS; col++) {
         break;
         // Drive column low so we can measure the resistors on each row in this column
@@ -306,10 +370,13 @@ void matrix_init_custom(void) {
 
     adc_mux_init();
     adc_gpio_init(ADC_CH2_PIN);
+    adc_state = s_never;
 
     const ADCConfig adcConfig = {
+        // Default clock divider
         .div_int  = 0,
         .div_frac = 0,
+        // Don't shift FIFO results
         .shift    = false,
     };
     adcStart(&ADCD1, &adcConfig);
@@ -318,8 +385,8 @@ void matrix_init_custom(void) {
     adcRPEnableTS(&ADCD1);
 
     // Start automatic conversion
-    chThdSleepMilliseconds(100);
-    trigger_adc();
+    //chThdSleepMilliseconds(100);
+    //trigger_adc();
 
     // TODO: Not sure we ever need to stop. Perhaps to save power.
     // adcStopConversion(&ADCD1);

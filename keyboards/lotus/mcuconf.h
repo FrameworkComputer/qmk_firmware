@@ -25,4 +25,4 @@
 
  * Need to define this for the ADC code to compile.
  */
-#define RP_IRQ_ADC1_PRIORITY                3
+#define RP_IRQ_ADC1_PRIORITY                2
