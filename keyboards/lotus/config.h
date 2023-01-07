@@ -5,6 +5,10 @@
 
 #include <config_common.h>
 
+// Prototype for Lotus with Raspberry Pi Pico
+// SDB is mapped to GP22
+#define PICO_LOTUS
+
 // 18-digit serial number. Must be programmed at factory
 // TODO: Figure out how to do that. Probably a script to compile qmk
 #define SERIAL_NUMBER "FRALDLvvccxxxxxxxx"

@@ -6,13 +6,17 @@
 
 #define MUX_ENABLE_GPIO GP4
 #define BOOT_DONE_GPIO GP5
-// SDB
+// Pin SDB to enable the RGB controller
+#ifdef PICO_LOTUS
 // 22 only on RPi Pico because it doesn't have GP29
 #define IS31FL3743A_ENABLE_GPIO GP22
-//#define IS31FL3743A_ENABLE_GPIO GP29
+#else
+#define IS31FL3743A_ENABLE_GPIO GP29
+#endif
 
+void keyboard_post_init_kb(void) {
+  keyboard_post_init_user();
 
-void keyboard_post_init_user(void) {
   // Enable debug output
   debug_enable = true;
   debug_matrix = true;
@@ -22,14 +26,21 @@ void keyboard_post_init_user(void) {
 /**
  * Hook into early keyboard initialization
 */
-void keyboard_pre_init_user(void) {
+void keyboard_pre_init_kb(void) {
+    keyboard_pre_init_user();
+
     // Mark boot as done.
     // Before this, when holding down both alt keys QSPI_SS is pulled low to put
     // the RP2040 in bootloader mode during reset.
     setPinOutput(BOOT_DONE_GPIO);
     writePinHigh(BOOT_DONE_GPIO);
 
-    // TODO: Do we ever need to disable it to save power?
+    //// TODO: Do we ever need to disable it to save power?
+#ifndef PICO_LOTUS
+    setPinOutput(MUX_ENABLE_GPIO);
+    writePinHigh(MUX_ENABLE_GPIO);
+#endif
+
 #ifdef RGB_MATRIX_ENABLE
     //// TODO: Do we ever need to disable it to save power?
     setPinOutput(IS31FL3743A_ENABLE_GPIO);
