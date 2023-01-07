@@ -23,10 +23,10 @@ static bool new_sample = false;
 const float CONV_FACTOR = 3.3f / (1<<12);
 
 // Mux GPIOs
-#define MUX_A 1
-#define MUX_B 2
-#define MUX_C 3
-#define MUX_ENABLE 4
+#define MUX_A GP1
+#define MUX_B GP2
+#define MUX_C GP3
+#define MUX_ENABLE GP4
 
 #define ADC_CH0_PIN  GP26
 #define ADC_CH1_PIN  GP27
@@ -57,7 +57,7 @@ float average_samples(adcsample_t s[], int channel) {
 }
 
 void print_samples(adcsample_t s[]) {
-  // Samples go from 0 to 4096
+  // Samples go from 0 to 4095
   uprintf("Raw ADC samples: %d, %d, %d, %d\n", s[0], s[1], s[2], s[3]);
 
   float adv_avg = average_samples(s, 0);
@@ -162,7 +162,6 @@ static void mux_select_row(int row) {
     writePin(MUX_B, bits[1]);
     writePin(MUX_C, bits[2]);
 }
-static uint16_t adc_read(void) { return 0; }
 
 /**
  * Based on the adc value, update the matrix for this column
@@ -194,46 +193,46 @@ void drive_col(int col, bool high) {
     int gpio = 0;
     switch (col) {
         case 0:
-            gpio = 8;
+            gpio = GP8;
             break;
         case 1:
-            gpio = 9;
+            gpio = GP9;
             break;
         case 2:
-            gpio = 10;
+            gpio = GP10;
             break;
         case 3:
-            gpio = 11;
+            gpio = GP11;
             break;
         case 4:
-            gpio = 12;
+            gpio = GP12;
             break;
         case 5:
-            gpio = 13;
+            gpio = GP13;
             break;
         case 6:
-            gpio = 14;
+            gpio = GP14;
             break;
         case 7:
-            gpio = 15;
+            gpio = GP15;
             break;
         case 8:
-            gpio = 21;
+            gpio = GP21;
             break;
         case 9:
-            gpio = 20;
+            gpio = GP20;
             break;
         case 10:
-            gpio = 19;
+            gpio = GP19;
             break;
         case 11:
-            gpio = 18;
+            gpio = GP18;
             break;
         case 12:
-            gpio = 17;
+            gpio = GP17;
             break;
         case 13:
-            gpio = 16;
+            gpio = GP16;
             break;
         default:
             // Not supposed to happen
