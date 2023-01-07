@@ -271,6 +271,12 @@ void drive_col(int col, bool high) {
         case 13:
             gpio = GP16;
             break;
+        case 14:
+            gpio = GP23;
+            break;
+        case 15:
+            gpio = GP22;
+            break;
         default:
             // Not supposed to happen
             assert(false);
