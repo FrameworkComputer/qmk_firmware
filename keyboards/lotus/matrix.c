@@ -55,7 +55,7 @@ const float CONV_FACTOR = 3.3f / (1<<12);
 void print_float(float f) {
   int digits = (int)f;
   int decimals = (int)(f * 100) % 100;
-  uprintf("%d.%d\n", digits, decimals);
+  uprintf("%d.%02d\n", digits, decimals);
 }
 
 /**
