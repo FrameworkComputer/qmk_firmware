@@ -10,6 +10,13 @@
 // SDB is mapped to GP22
 #define PICO_LOTUS
 
+#ifdef PICO_LOTUS
+#define ANALOG_JOYSTICK_CLICK_PIN GP21
+// Must be ADC pins
+#define ANALOG_JOYSTICK_X_AXIS_PIN GP27
+#define ANALOG_JOYSTICK_Y_AXIS_PIN GP26
+#endif
+
 // 18-digit serial number. Must be programmed at factory
 // TODO: Figure out how to do that. Probably a script to compile qmk
 #define SERIAL_NUMBER "FRALDLvvccxxxxxxxx"

@@ -8,6 +8,9 @@ RAW_ENABLE = no
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm
 
+POINTING_DEVICE_ENABLE = yes
+POINTING_DEVICE_DRIVER = analog_joystick
+
 # Custom matrix scanning code via ADC
 CUSTOM_MATRIX = lite
 SRC += matrix.c
