@@ -13,10 +13,13 @@
 #include "matrix.h"
 
 // Use raw ChibiOS ADC functions instead of those from QMK
+// Using the QMK functions doesn't work yet
 #define CHIBIOS_ADC TRUE
 
 bool letsgo = false;
 uint32_t prev_matrix_ts = 0;
+float adc_voltage;
+float temperature;
 
 enum sample_state {
   s_never, // Never received a sample
@@ -70,30 +73,28 @@ float average_samples(adcsample_t s[], int channel) {
 
 void print_samples(adcsample_t s[]) {
   // Samples go from 0 to 4095
-  uprintf("Raw ADC samples: %d, %d, %d, %d\n", s[0], s[1], s[2], s[3]);
+  uprintf("Raw ADC samples: %d, %d, %d, %d\n", samples[0], samples[1], samples[2], samples[3]);
 
-  float adv_avg = average_samples(s, 0);
-  float temp_avg = average_samples(s, 1);
+  print("Temp: ");
+  print_float(temperature);
+   
+  uprintf("ADC Voltage: ");
+  print_float(adc_voltage);
+}
+
+void handle_sample(void) {
+  float adv_avg = average_samples(samples, 0);
+  float temp_avg = average_samples(samples, 1);
 
   // Convert them to voltage (0 to 3.3V)
   float adc_v = adv_avg * CONV_FACTOR;
   float temp_v = temp_avg * CONV_FACTOR;
   // Convert to real temperature based on RP2040 datasheet
-  double temp = 27.0 - (temp_v - 0.706)/0.001721;
+  temperature = 27.0 - (temp_v - 0.706)/0.001721;
+  adc_voltage = adc_v;
 
-  print("Temp: ");
-  print_float(temp);
-   
-  uprintf("ADC Voltage: ");
-  print_float(adc_v);
-}
-
-void handle_sample(void) {
   //print("Current:")
-  print_samples(samples);
-  //print("Previous:")
-  //print_samples(prev_samples);
-  print("\n");
+  //print_samples(samples);
 }
 
 /*
@@ -102,7 +103,7 @@ void handle_sample(void) {
 void adc_end_callback(ADCDriver *adcp) {
   (void)adcp;
   adc_state = s_ready;
-  print("adc_end_callback\n");
+  //print("adc_end_callback\n");
 
   //handle_sample();
 }
@@ -137,10 +138,10 @@ void factory_trigger_adc(void) {
     }
     adcConvert(&ADCD1, &adcConvGroup,
                samples, ADC_GRP_BUF_DEPTH);
-    print("After adcConvert\n");
+    //print("After adcConvert\n");
     memcpy(prev_samples, samples, sizeof(samples));
     handle_sample();
-    print("After handle_sample");
+    //print("After handle_sample");
 }
 
 /**
@@ -151,7 +152,6 @@ void adc_gpio_init(int gpio) {
     palSetLineMode(gpio, PAL_MODE_INPUT_ANALOG);
 }
 
-#ifndef PICO_LOTUS
 /**
  * Tell the mux to select a specific column
  * 
@@ -211,7 +211,13 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], uint16_t adc_value, int
     }
 
     uprintf("Col %d - Row %d - ADC value:%04X, Voltage: %d\n", col, row, adc_value, voltage);
+// Don't update  matrix on Pico to avoid messing with the debug system
+// Can't attach the matrix anyways
+#ifdef PICO_LOTUS
+    (void)key_state;
+#else
     cur_matrix[row] |= key_state ? 0 : (1 << col);
+#endif
 
     return changed;
 }
@@ -268,14 +274,18 @@ void drive_col(int col, bool high) {
             return;
     }
 
+// Don't drive columns on pico because we're using these GPIOs for other purposes
+#ifdef PICO_LOTUS
+    (void)gpio;
+#else
     if (high) {
         // TODO: Could set up the pins with `setPinOutputOpenDrain` instead
         writePinHigh(gpio);
     } else {
         writePinLow(gpio);
     }
+#endif
 }
-#endif // PICO_LOTUS
 
 /**
  * Overriding behavior of matrix_scan from quantum/matrix.c
@@ -283,31 +293,23 @@ void drive_col(int col, bool high) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
-#ifdef PICO_LOTUS
     print("scan\n");
     uint32_t current_ts = timer_read32();
     if (prev_matrix_ts) {
-      uprintf("prev: %lu\n", prev_matrix_ts);
-      uprintf("curr: %lu\n", current_ts);
-      uprintf("%lu ms\n", current_ts - prev_matrix_ts);
-      uprintf("%ld Hz\n", 1000 / (current_ts - prev_matrix_ts));
+      uint32_t delta = current_ts - prev_matrix_ts;
+      uprintf("%lu ms (%ld Hz)\n", delta, 1000 / delta);
     }
     prev_matrix_ts = current_ts;
     chThdSleepMilliseconds(5);
-    //chThdSleepMilliseconds(200);
 #if !CHIBIOS_ADC
     uint16_t val = analogReadPin(ADC_CH2_PIN);
-    uprintf("val: %u\n", val);
+    adc_voltage = val * CONV_FACTOR;
 #else
     if (letsgo) {
-      print("letsgo\n");
       factory_trigger_adc();
     }
-    //adcConvert(&ADCD1, &adcConvGroup,
-    //                 samples, ADC_GRP_BUF_DEPTH);
-    //memcpy(prev_samples, samples, sizeof(samples));
-    //handle_sample();
 
+    // Interrupt-driven
     //if (adc_state == s_ready) {
     //  print("new sample\n");
 
@@ -324,7 +326,11 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     //  trigger_adc();
     //}
 #endif // CHIBIOS_ADC
-#else // PICO_LOTUS
+    uprintf("Temperature: ");
+    print_float(temperature);
+    uprintf("ADC Voltage: ");
+    print_float(adc_voltage);
+
     for (int col = 0; col < MATRIX_COLS; col++) {
         break;
         // Drive column low so we can measure the resistors on each row in this column
@@ -345,7 +351,6 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         // Drive column high again
         drive_col(col, true);
     }
-#endif // PICO_LOTUS
 
    return changed;
 }
@@ -356,9 +361,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
  * TODO: Do we need a de-init? Probably not.
 */
 static void adc_mux_init(void) {
-#ifndef PICO_LOTUS
     writePinHigh(MUX_ENABLE);
-#endif
 }
 
 /**

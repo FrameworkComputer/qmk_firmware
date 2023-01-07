@@ -36,10 +36,8 @@ void keyboard_pre_init_kb(void) {
     writePinHigh(BOOT_DONE_GPIO);
 
     //// TODO: Do we ever need to disable it to save power?
-#ifndef PICO_LOTUS
     setPinOutput(MUX_ENABLE_GPIO);
     writePinHigh(MUX_ENABLE_GPIO);
-#endif
 
 #ifdef RGB_MATRIX_ENABLE
     //// TODO: Do we ever need to disable it to save power?
