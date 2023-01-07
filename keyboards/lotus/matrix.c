@@ -424,6 +424,12 @@ void matrix_init_custom(void) {
     // For testing enable temp sensor
     adcRPEnableTS(&ADCD1);
 
+    // Start ADC conversion immediately. Don't wait for factory command to enable
+    // For debugging it's sometimes useful to start later because the first
+    // prints won't show on the console. So if it hangs here, it's hard to tell
+    // what's going wrong.
+    letsgo = true;
+
     // Start automatic conversion
     //chThdSleepMilliseconds(100);
     //trigger_adc();
