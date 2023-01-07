@@ -4,13 +4,14 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "debug.h"
-#include "matrix.h"
 #include "analog.h"
 #include "print.h"
 #include "quantum.h"
 #include "hal_adc.h"
 #include "chprintf.h"
+
 #include "matrix.h"
+#include "lotus.h"
 
 // Use raw ChibiOS ADC functions instead of those from QMK
 // Using the QMK functions doesn't work yet
@@ -362,12 +363,27 @@ static void read_adc(void) {
 }
 
 /**
+ * Handle the host going to sleep or the keyboard being idle
+ * If the host is asleep the keyboard should reduce the scan rate and turn backlight off.
+ *
+ * If the host is awake but the keyboard is idle it should enter a low-power state
+ */
+void handle_idle(void) {
+    bool asleep = readPin(SLEEP_GPIO);
+    uprintf("Host asleep: %d\n", asleep);
+
+    // TODO: Implement idle behavior
+}
+
+/**
  * Overriding behavior of matrix_scan from quantum/matrix.c
 */
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
     print("scan\n");
+
+    handle_idle();
 
     for (int col = 0; col < MATRIX_COLS; col++) {
         // Drive column low so we can measure the resistors on each row in this column

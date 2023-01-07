@@ -4,16 +4,6 @@
 #include "quantum.h"
 #include "lotus.h"
 
-#define MUX_ENABLE_GPIO GP4
-#define BOOT_DONE_GPIO GP5
-// Pin SDB to enable the RGB controller
-#ifdef PICO_LOTUS
-// 22 only on RPi Pico because it doesn't have GP29
-#define IS31FL3743A_ENABLE_GPIO GP22
-#else
-#define IS31FL3743A_ENABLE_GPIO GP29
-#endif
-
 void keyboard_post_init_kb(void) {
   keyboard_post_init_user();
 
@@ -40,7 +30,30 @@ void keyboard_pre_init_kb(void) {
     writePinHigh(MUX_ENABLE_GPIO);
 
 #ifdef RGB_MATRIX_ENABLE
-    //// TODO: Do we ever need to disable it to save power?
+    setPinOutput(IS31FL3743A_ENABLE_GPIO);
+    writePinHigh(IS31FL3743A_ENABLE_GPIO);
+#endif
+    setPinInput(SLEEP_GPIO);
+}
+
+/**
+ * Called by QMK when the keyboard suspends
+ */
+void suspend_power_down_kb(void) {
+  suspend_power_down_user();
+
+#ifdef RGB_MATRIX_ENABLE
+  writePinLow(IS31FL3743A_ENABLE_GPIO);
+#endif
+}
+
+/**
+ * Called by QMK when the keyboard wakes up from suspend
+ */
+void suspend_wakeup_init_kb(void) {
+  suspend_wakeup_init_user();
+
+#ifdef RGB_MATRIX_ENABLE
     setPinOutput(IS31FL3743A_ENABLE_GPIO);
     writePinHigh(IS31FL3743A_ENABLE_GPIO);
 #endif
