@@ -15,6 +15,12 @@
 // Must be ADC pins
 #define ANALOG_JOYSTICK_X_AXIS_PIN GP27
 #define ANALOG_JOYSTICK_Y_AXIS_PIN GP26
+
+// Default 20, lower is faster
+//#define ANALOG_JOYSTICK_SPEED_REGULATOR 10
+#define ANALOG_JOYSTICK_AXIS_MAX 4095
+
+//#define POINTING_DEVICE_DEBUG
 #endif
 
 // 18-digit serial number. Must be programmed at factory

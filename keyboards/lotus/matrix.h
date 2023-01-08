@@ -6,3 +6,4 @@
 #include "quantum.h"
 
 void factory_trigger_adc(void);
+int16_t custom_analog_read_pin(pin_t pin);

@@ -19,7 +19,7 @@
 #include "analog.h"
 #include "wait.h"
 
-joystick_t joystick_state = {
+joystick_t joystick_state = 
     .buttons = {0},
     .axes =
         {

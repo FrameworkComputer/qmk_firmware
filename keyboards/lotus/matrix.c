@@ -32,6 +32,7 @@ enum sample_state {
 #define ADC_GRP_BUF_DEPTH 2
 static adcsample_t prev_samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * 2)];
 static adcsample_t samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * 2)];
+static adcsample_t custom_samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_BUF_DEPTH)];
 static enum sample_state adc_state;
 
 // 3.3V with 12bit resolution
@@ -145,6 +146,7 @@ void trigger_adc(void) {
  * Trigger a single, blocking ADC conversion
  */
 void factory_trigger_adc(void) {
+    return;
     if (!letsgo) {
       print("Factory triggered ADC\n");
       letsgo = true;
@@ -155,6 +157,35 @@ void factory_trigger_adc(void) {
     memcpy(prev_samples, samples, sizeof(samples));
     handle_sample();
     //print("After handle_sample");
+}
+
+int16_t custom_analog_read_pin(pin_t pin) {
+    int channel_mask = 0;
+    switch (pin) {
+        case GP26:
+            channel_mask = RP_ADC_CH0;
+            break;
+        case GP27:
+            channel_mask = RP_ADC_CH1;
+            break;
+        case GP28:
+            channel_mask = RP_ADC_CH2;
+            break;
+        case GP29:
+            channel_mask = RP_ADC_CH3;
+            break;
+    }
+    ADCConversionGroup adcConvGroup = {
+    .circular     = false,
+    .num_channels = 1,
+    .end_cb       = &adc_end_callback,
+    .error_cb     = &adc_error_callback,
+    .channel_mask = channel_mask,
+    };
+    adcConvert(&ADCD1, &adcConvGroup,
+               custom_samples, ADC_GRP_BUF_DEPTH);
+    //uprintf("custom scan pin %ld, result: %d\n", pin, custom_samples[0]);
+    return custom_samples[0];
 }
 
 /**
@@ -371,6 +402,7 @@ void handle_idle(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
+    return false;
     print("scan\n");
 
     uint32_t current_ts = timer_read32();

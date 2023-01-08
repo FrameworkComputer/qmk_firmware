@@ -20,6 +20,9 @@
 #include "wait.h"
 #include "timer.h"
 #include <stdlib.h>
+#include "pointing_device.h"
+#include "pointing_device_internal.h"
+#include "debug.h"
 
 // Set Parameters
 uint16_t minAxisValue = ANALOG_JOYSTICK_AXIS_MIN;
@@ -50,6 +53,9 @@ int16_t axisCoordinate(pin_t pin, uint16_t origin) {
         range              = maxAxisValue - origin;
         direction          = 1;
     }
+    //pd_dprintf("pin: %ld, origin: %d, position: %d\n", pin, origin, position);
+    //pd_dprintf("dist: %d, range: %d, direction: %d\n", distanceFromOrigin, range, direction);
+    //pd_dprintf("\n");
 
     float   percent    = (float)distanceFromOrigin / range;
     int16_t coordinate = (int16_t)(percent * 100);

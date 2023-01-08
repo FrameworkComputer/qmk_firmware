@@ -147,7 +147,7 @@ ifeq ($(strip $(POINTING_DEVICE_ENABLE)), yes)
             OPT_DEFS += -DSTM32_SPI -DHAL_USE_SPI=TRUE
             QUANTUM_LIB_SRC += spi_master.c
         else ifeq ($(strip $(POINTING_DEVICE_DRIVER)), analog_joystick)
-            OPT_DEFS += -DSTM32_ADC -DHAL_USE_ADC=TRUE
+            OPT_DEFS += -DHAL_USE_ADC=TRUE
             LIB_SRC += analog.c
         else ifeq ($(strip $(POINTING_DEVICE_DRIVER)), cirque_pinnacle_i2c)
             OPT_DEFS += -DSTM32_I2C -DHAL_USE_I2C=TRUE

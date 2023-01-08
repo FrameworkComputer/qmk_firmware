@@ -8,6 +8,7 @@ RAW_ENABLE = no
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm
 
+# Conflicts with RGB pins!!! Must use non-RGB keyboard, like iso
 POINTING_DEVICE_ENABLE = yes
 POINTING_DEVICE_DRIVER = analog_joystick
 
@@ -15,6 +16,9 @@ POINTING_DEVICE_DRIVER = analog_joystick
 CUSTOM_MATRIX = lite
 SRC += matrix.c
 
-SRC += factory.c
+SRC += factory.c analog.c
+
+QUANTUM_LIB_SRC += analog.c
+LIB_SRC += analog.c
 
 DEFAULT_FOLDER = lotus/ansi
