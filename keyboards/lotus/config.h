@@ -8,7 +8,7 @@
 // Prototype for Lotus with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22
-#define PICO_LOTUS
+//#define PICO_LOTUS
 
 // 18-digit serial number. Must be programmed at factory
 // TODO: Figure out how to do that. Probably a script to compile qmk
