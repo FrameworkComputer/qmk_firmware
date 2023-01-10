@@ -237,7 +237,9 @@ def print_matrix(layout, led_to_el, normalized):
     for row in led_to_el:
         print("  {", end='')
         for col in row:
-            print(f"{col: >3}, ", end='')
+            if col == 255:
+                col = 'NO_LED'
+            print(f"{col: >6}, ", end='')
         print("},")
 
     print("}, {")
