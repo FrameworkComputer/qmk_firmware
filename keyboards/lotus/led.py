@@ -190,9 +190,11 @@ gridpad = [
 # Recommended by QMK to be the (x,y) range of position values
 LED_MAX = (224.0, 64.0)
 
+NO_LED = 255
+
 # Map LEDs to keyboard matrix and normalize LED coordinates
 def normalize(layout):
-    led_to_el = [[0 for _ in range(MATRIX_COLS)] for _ in range(MATRIX_ROWS)]
+    led_to_el = [[NO_LED for _ in range(MATRIX_COLS)] for _ in range(MATRIX_ROWS)]
     # Find smallest (offset) and largest (max) values
     offset_x = layout[0]['x']
     offset_y = layout[0]['y']
@@ -224,7 +226,8 @@ def normalize(layout):
                 continue
             (matrix_x,matrix_y) =  v['matrix']
             # Map LED IDs to keyboard matrix
-            led_to_el[matrix_y][matrix_x] = int(v['id'])
+            # Turn LED index into 0-indexed
+            led_to_el[matrix_y][matrix_x] = int(v['id']) - 1
     return led_to_el, normalized
 
 # Turn the data to C code that can be used in QMK's keymap.c
@@ -234,7 +237,7 @@ def print_matrix(layout, led_to_el, normalized):
     for row in led_to_el:
         print("  {", end='')
         for col in row:
-            print(f"{col: >2}, ", end='')
+            print(f"{col: >3}, ", end='')
         print("},")
 
     print("}, {")
