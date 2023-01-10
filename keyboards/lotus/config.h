@@ -36,7 +36,10 @@
 #define I2C1_SDA_PIN GP26
 #define I2C1_SCL_PIN GP27
 
+// RGB config
+
 #define RGB_DISABLE_WHEN_USB_SUSPENDED
+
 // RGB Matrix Animation modes. Explicitly enabled
 // For full list of effects, see:
 // https://docs.qmk.fm/#/feature_rgb_matrix?id=rgb-matrix-effects
@@ -72,6 +75,10 @@
 // enabled only if RGB_MATRIX_FRAMEBUFFER_EFFECTS is defined
 #define ENABLE_RGB_MATRIX_TYPING_HEATMAP
 #define ENABLE_RGB_MATRIX_DIGITAL_RAIN
+
+
+#define RGB_MATRIX_KEYPRESSES
+
 // enabled only of RGB_MATRIX_KEYPRESSES or RGB_MATRIX_KEYRELEASES is defined
 #define ENABLE_RGB_MATRIX_SOLID_REACTIVE_SIMPLE
 // #define ENABLE_RGB_MATRIX_SOLID_REACTIVE
