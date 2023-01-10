@@ -3,12 +3,28 @@
 
 #include "quantum.h"
 #include "matrix.h"
+#if defined(RGB_MATRIX_ENABLE)
+#include "rgb_matrix.h"
+#endif
 
 enum factory_commands {
-    f_bootloader    = 0x00,
     f_emu_keypress  = 0x01, // Next byte is keycode
     f_adc           = 0x03, // ADC trigger
+    f_bootloader    = 0xFE,
 };
+
+#if defined(RGB_MATRIX_ENABLE)
+extern uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS];
+
+void emulate_rgb_keycode_press(uint16_t target_keycode) {
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+        for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+            uint16_t keycode = keymaps[0][row][col];
+            process_rgb_matrix(row, col, keycode == target_keycode);
+        }
+    }
+}
+#endif
 
 void handle_factory_command(uint8_t *data) {
     uint8_t factory_command_id = data[0];
@@ -22,7 +38,11 @@ void handle_factory_command(uint8_t *data) {
             break;
         case f_emu_keypress:
             uprintf("Emulating keycode: %u\n", command_data[0]);
+#if defined(RGB_MATRIX_ENABLE)
+            emulate_rgb_keycode_press(command_data[0]);
+#else
             tap_code(command_data[0]);
+#endif
             break;
         case f_adc:
             factory_trigger_adc();
@@ -54,7 +74,7 @@ bool handle_hid(uint8_t *data, uint8_t length) {
             // Don't let VIA handle it
             return true;
         default:
-            uprintf("Unrecognized command ID: %u\n", command_id);
+            //uprintf("Unrecognized command ID: %u\n", command_id);
             break;
     }
     // Continue with default HID handling
