@@ -17,10 +17,12 @@
 // Using the QMK functions doesn't work yet
 #define CHIBIOS_ADC TRUE
 
+#define adc10ksample_t int
+
 bool letsgo = false;
 uint32_t prev_matrix_ts = 0;
-float adc_voltage;
-float temperature;
+adc10ksample_t adc_voltage;
+adc10ksample_t temperature;
 
 enum sample_state {
   s_never, // Never received a sample
@@ -30,12 +32,9 @@ enum sample_state {
 #define ADC_RESOLUTION 10
 #define ADC_GRP_NUM_CHANNELS 2
 #define ADC_GRP_BUF_DEPTH 2
-static adcsample_t prev_samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * 2)];
-static adcsample_t samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * 2)];
+static adcsample_t prev_samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * ADC_GRP_BUF_DEPTH)];
+static adcsample_t samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * ADC_GRP_BUF_DEPTH)];
 static enum sample_state adc_state;
-
-// 3.3V with 12bit resolution
-const float CONV_FACTOR = 3.3f / (1<<12);
 
 // Mux GPIOs
 #define MUX_A GP1
@@ -45,37 +44,49 @@ const float CONV_FACTOR = 3.3f / (1<<12);
 
 #define ADC_CH2_PIN  GP28
 // Voltage threshold - TODO: Need to adjust
-#define ADC_THRESHOLD 3.0f
+const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 3.0 * 10000;
 
-/*
- * Print two digits XX.XX
- */
-void print_float(float f) {
-  int digits = (int)f;
-  int decimals = (int)(f * 100) % 100;
+adc10ksample_t to_voltage(adcsample_t sample) {
+  // 1241 = (1 << 12) * 10000 / (3.3 * 10000)
+  int voltage = sample * 10000;
+  return voltage / 1241;
+}
+
+adc10ksample_t to_temp(adcsample_t sample) {
+  int temp = sample * 10000;
+  // Scaled up by 10000
+  //temperature = 27.0 - (temp - 0.706)/0.001721;
+  return 270000 - (((temp / 8) - 7060) /17);//.21;
+}
+void print_as_float(adc10ksample_t sample) {
+  int digits = sample / 10000;
+  int decimals = sample % 10000;
   uprintf("%d.%02d\n", digits, decimals);
 }
 
 /**
  * Average the mulitiple samples due to depth>1 together to a single value
  */
-float average_samples(adcsample_t s[], int channel) {
-  float sum = 0;
+adcsample_t average_samples(adcsample_t s[], int channel) {
+  adcsample_t sum = 0;
+  assert(ADC_GRP_BUF_DEPTH == 2);
+
   for (int i = 0; i < ADC_GRP_NUM_CHANNELS; i++) {
-    sum += (float)s[channel + (i * ADC_GRP_BUF_DEPTH)];
+    sum += s[channel + (i * ADC_GRP_BUF_DEPTH)];
   }
-  return sum / ADC_GRP_BUF_DEPTH;
+
+  return sum / ADC_GRP_NUM_CHANNELS;
 }
 
 void print_samples(adcsample_t s[]) {
   // Samples go from 0 to 4095
-  uprintf("Raw ADC samples: %d, %d, %d, %d\n", samples[0], samples[1], samples[2], samples[3]);
+  //uprintf("Raw ADC samples: %d, %d, %d, %d\n", samples[0], samples[1], samples[2], samples[3]);
 
   print("Temp: ");
-  print_float(temperature);
+  print_as_float(temperature);
    
   uprintf("ADC Voltage: ");
-  print_float(adc_voltage);
+  print_as_float(adc_voltage);
 }
 
 /**
@@ -84,20 +95,15 @@ void print_samples(adcsample_t s[]) {
  * Should be called after receiving a set of samples from the ADC
  */
 void handle_sample(void) {
-  float adv_avg = average_samples(samples, 0);
-  float temp_avg = average_samples(samples, 1);
-
-  // Convert them to voltage (0 to 3.3V)
-  float adc_v = adv_avg * CONV_FACTOR;
-  float temp_v = temp_avg * CONV_FACTOR;
+  adcsample_t adv_avg = average_samples(samples, 0);
+  adcsample_t temp_avg = average_samples(samples, 1);
 
   // Uses global variables because it might be called from an interrupt handler
   // But we might not want to act upon them from there.
   // Convert to real temperature based on RP2040 datasheet
-  temperature = 27.0 - (temp_v - 0.706)/0.001721;
-  adc_voltage = adc_v;
+  temperature = to_temp(temp_avg);
+  adc_voltage = to_voltage(adv_avg);
 
-  //print("Current:")
   //print_samples(samples);
 }
 
@@ -149,6 +155,7 @@ void factory_trigger_adc(void) {
       print("Factory triggered ADC\n");
       letsgo = true;
     }
+    // adcConvert brings frequency from 6kHz down to 360Hz
     adcConvert(&ADCD1, &adcConvGroup,
                samples, ADC_GRP_BUF_DEPTH);
     //print("After adcConvert\n");
@@ -207,7 +214,7 @@ static void mux_select_row(int row) {
 /**
  * Based on the ADC value, update the matrix for this column
  * */
-static bool interpret_adc_row(matrix_row_t cur_matrix[], float voltage, int col, int row) {
+static bool interpret_adc_row(matrix_row_t cur_matrix[], adcsample_t voltage, int col, int row) {
     bool changed = false;
 
     // By default the voltage is high (3.3V)
@@ -220,8 +227,8 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], float voltage, int col,
         key_state = 1;
     }
 
-    uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
-    print_float(voltage);
+    //uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
+    //print_float(voltage);
 
 // Don't update  matrix on Pico to avoid messing with the debug system
 // Can't attach the matrix anyways
@@ -316,11 +323,9 @@ void drive_col(int col, bool high) {
  * Read a value from the ADC and print some debugging details
  */
 static void read_adc(void) {
-    // Need to sleep a bit, otherwise we seem to get stuck
-    wait_us(5);
 #if !CHIBIOS_ADC
     uint16_t val = analogReadPin(ADC_CH2_PIN);
-    adc_voltage = val * CONV_FACTOR;
+    adc_voltage = to_voltage(val);
 #else
     if (letsgo) {
       factory_trigger_adc();
@@ -346,10 +351,10 @@ static void read_adc(void) {
     //}
 #endif // CHIBIOS_ADC
 
-    uprintf("Temperature: ");
-    print_float(temperature);
-    uprintf("ADC Voltage: ");
-    print_float(adc_voltage);
+    //uprintf("Temperature: ");
+    //print_as_float(temperature);
+    //uprintf("ADC Voltage: ");
+    //print_as_float(adc_voltage);
 }
 
 /**
@@ -360,7 +365,8 @@ static void read_adc(void) {
  */
 void handle_idle(void) {
     bool asleep = readPin(SLEEP_GPIO);
-    uprintf("Host asleep: %d\n", asleep);
+    (void)asleep;
+    //uprintf("Host asleep: %d\n", asleep);
 
     // TODO: Implement idle behavior
 }
@@ -371,12 +377,12 @@ void handle_idle(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
-    print("scan\n");
+    //print("scan\n");
 
     uint32_t current_ts = timer_read32();
     if (prev_matrix_ts) {
-      uint32_t delta = current_ts - prev_matrix_ts;
-      uprintf("%lu ms (%ld Hz)\n", delta, 1000 / delta);
+      //uint32_t delta = current_ts - prev_matrix_ts;
+      //uprintf("%lu ms (%ld Hz)\n", delta, 1000 / delta);
     }
     prev_matrix_ts = current_ts;
 
@@ -390,7 +396,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
             mux_select_row(row);
 
             // Wait for column select to settle and propagate to ADC
-            wait_us(30);
+            wait_us(1);
 
             read_adc();
 
