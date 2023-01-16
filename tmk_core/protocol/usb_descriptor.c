@@ -41,6 +41,8 @@
 #include "usb_descriptor.h"
 #include "usb_descriptor_common.h"
 
+#include "lotus.h"
+
 #ifdef JOYSTICK_ENABLE
 #    include "joystick.h"
 #endif
@@ -1077,13 +1079,14 @@ const USB_Descriptor_String_t PROGMEM ProductString = {
 };
 
 #if defined(SERIAL_NUMBER)
-const USB_Descriptor_String_t PROGMEM SerialNumberString = {
-    .Header = {
-        .Size                   = sizeof(USBSTR(SERIAL_NUMBER)),
-        .Type                   = DTYPE_String
-    },
-    .UnicodeString              = USBSTR(SERIAL_NUMBER)
-};
+extern const USB_Descriptor_String_t PROGMEM SerialNumberString;
+//const USB_Descriptor_String_t PROGMEM SerialNumberString = {
+//    .Header = {
+//        .Size                   = sizeof(USBSTR(SERIAL_NUMBER)),
+//        .Type                   = DTYPE_String
+//    },
+//    .UnicodeString              = USBSTR(SERIAL_NUMBER)
+//};
 #endif
 
 // clang-format on
@@ -1131,8 +1134,10 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
                     break;
 #if defined(SERIAL_NUMBER)
                 case 0x03:
-                    Address = &SerialNumberString;
-                    Size    = pgm_read_byte(&SerialNumberString.Header.Size);
+                    //Address = &SerialNumberString;
+                    //Size    = pgm_read_byte(&SerialNumberString.Header.Size);
+                    Address = lotus_serial_number_string();//&SerialNumberString;
+                    Size    = lotus_serial_number_string_len();//pgm_read_byte(&SerialNumberString.Header.Size);
 
                     break;
 #endif

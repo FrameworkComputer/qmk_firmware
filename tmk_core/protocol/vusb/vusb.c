@@ -735,8 +735,9 @@ const PROGMEM usbStringDescriptor_t usbStringDescriptorProduct = {
     .bString             = USBSTR(PRODUCT)
 };
 
+// THIS IS NOT USED by Lotus
 #if defined(SERIAL_NUMBER)
-const PROGMEM usbStringDescriptor_t usbStringDescriptorSerial = {
+const PROGMEM usbStringDescriptor_t usbStringDescriptorSerial = 
     .header = {
         .bLength         = sizeof(USBSTR(SERIAL_NUMBER)),
         .bDescriptorType = USBDESCR_STRING

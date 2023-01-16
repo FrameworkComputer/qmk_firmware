@@ -4,6 +4,44 @@
 #include "quantum.h"
 #include "lotus.h"
 
+// Prefix string literal with L for descriptors
+#define USBCONCAT(a, b) a##b
+#define USBSTR(s) USBCONCAT(L, s)
+USB_Descriptor_String_t PROGMEM SerialNumberString = {
+    .Header = {
+        .Size                   = sizeof(USBSTR(SERIAL_NUMBER)),
+        .Type                   = DTYPE_String
+    },
+    .UnicodeString              = USBSTR(SERIAL_NUMBER)
+};
+
+char ascii_serialnum[SERIALNUM_LEN+1];
+char utf16_serialnum[(SERIALNUM_LEN+1) * 2];
+
+void *lotus_serial_number_string(void) {
+  if (utf16_serialnum[0] != '\0') {
+    return utf16_serialnum;
+  }
+  ascii_serialnum[SERIALNUM_LEN] = '\0';
+  utf16_serialnum[SERIALNUM_LEN*2] = '\0';
+  utf16_serialnum[SERIALNUM_LEN*2 + 1] = '\0';
+  char *serialnum_ptr = (char*) (FLASH_OFFSET + LAST_4K_BLOCK);
+
+  memcpy(ascii_serialnum, serialnum_ptr, SERIALNUM_LEN);
+  for (int c = 0; c < SERIALNUM_LEN; c++) {
+      utf16_serialnum[c*2] = ascii_serialnum[c];
+  }
+
+  //SerialNumberString.UnicodeString = &utf16_serialnum[0];
+  memcpy(SerialNumberString.UnicodeString, utf16_serialnum, SERIALNUM_LEN*2);
+  SerialNumberString.Header.Size = SERIALNUM_LEN * 2;
+
+  return &SerialNumberString;
+}
+uint16_t lotus_serial_number_string_len(void) {
+  return SERIALNUM_LEN*2;
+}
+
 void keyboard_post_init_kb(void) {
   keyboard_post_init_user();
 

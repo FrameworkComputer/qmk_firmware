@@ -33,3 +33,8 @@ enum lotus_keycodes {
 #define IS31FL3743A_ENABLE_GPIO GP29
 #endif
 
+void *lotus_serial_number_string(void);
+uint16_t lotus_serial_number_string_len(void);
+#define FLASH_OFFSET 0x10000000
+#define LAST_4K_BLOCK 0xff000
+#define SERIALNUM_LEN 18

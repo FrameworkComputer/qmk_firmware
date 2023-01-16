@@ -3,6 +3,7 @@
 
 #include "quantum.h"
 #include "matrix.h"
+#include "lotus.h"
 #if defined(RGB_MATRIX_ENABLE)
 #include "rgb_matrix.h"
 #endif
@@ -27,18 +28,13 @@ void emulate_rgb_keycode_press(uint16_t target_keycode) {
 }
 #endif
 
-#define FLASH_OFFSET 0x10000000
-#define LAST_4K_BLOCK 0xff000
-#define SERIALNUM_LEN 18
+extern char ascii_serialnum[SERIALNUM_LEN+1];
+extern char utf16_serialnum[(SERIALNUM_LEN+1) * 2];
 
 void handle_factory_command(uint8_t *data) {
     uint8_t factory_command_id = data[0];
     uint8_t *command_data = &(data[1]);
     uprintf("handle_factory_command(command: %u)\n", factory_command_id);
-
-    char serialnum[SERIALNUM_LEN+1];
-    serialnum[SERIALNUM_LEN] = '\0';
-    char *serialnum_ptr = (char*) (FLASH_OFFSET + LAST_4K_BLOCK);
 
     switch (factory_command_id) {
         case f_bootloader:
@@ -59,9 +55,8 @@ void handle_factory_command(uint8_t *data) {
         case f_serialnum:
             print("Reading Device serial number\n");
 
-            memcpy(serialnum, serialnum_ptr, SERIALNUM_LEN);
 
-            uprintf("Serial number: %s\n", serialnum);
+            uprintf("Serial number: %s\n", ascii_serialnum);
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
