@@ -9,6 +9,19 @@ import os.path
 import argparse
 import json
 
+# Don't even need -b. hex has this embedded
+# > ./util/uf2conv.py .build/lotus_ansi_default.hex -o ansi.uf2 -b 0x10000000 -f rp2040 --convert --blocks-reserved 1
+# Converted to 222 blocks
+# Converted to uf2, output size: 113664, start address: 0x10000000
+# Wrote 113664 bytes to ansi.uf2
+# # 113664 / 512 = 222
+#
+# > ./util/uf2conv.py serial.bin -o serial.uf2 -b 0x100ff000 -f rp2040 --convert --blocks-offset 222
+# Converted to 1 blocks
+# Converted to uf2, output size: 512, start address: 0x100ff000
+# Wrote 512 bytes to serial.uf2
+
+
 
 UF2_MAGIC_START0 = 0x0A324655 # "UF2\n"
 UF2_MAGIC_START1 = 0x9E5D5157 # Randomly selected
@@ -124,7 +137,7 @@ def convert_to_carray(file_content):
     outp += "\n};\n"
     return bytes(outp, "utf-8")
 
-def convert_to_uf2(file_content):
+def convert_to_uf2(file_content, blocks_reserved=0, blocks_offset=0):
     global familyid
     datapadding = b""
     while len(datapadding) < 512 - 256 - 32 - 4:
@@ -139,7 +152,7 @@ def convert_to_uf2(file_content):
             flags |= 0x2000
         hd = struct.pack(b"<IIIIIIII",
             UF2_MAGIC_START0, UF2_MAGIC_START1,
-            flags, ptr + appstartaddr, 256, blockno, numblocks, familyid)
+            flags, ptr + appstartaddr, 256, blockno + blocks_offset, blocks_offset + blocks_reserved + numblocks, familyid)
         while len(chunk) < 256:
             chunk += b"\x00"
         block = hd + chunk + datapadding + struct.pack(b"<I", UF2_MAGIC_END)
@@ -153,21 +166,21 @@ class Block:
         self.addr = addr
         self.bytes = bytearray(256)
 
-    def encode(self, blockno, numblocks):
+    def encode(self, blockno, numblocks, blocks_reserved=0, blocks_offset=0):
         global familyid
         flags = 0x0
         if familyid:
             flags |= 0x2000
         hd = struct.pack("<IIIIIIII",
             UF2_MAGIC_START0, UF2_MAGIC_START1,
-            flags, self.addr, 256, blockno, numblocks, familyid)
+            flags, self.addr, 256, blockno + blocks_offset, blocks_offset + blocks_reserved + numblocks, familyid)
         hd += self.bytes[0:256]
         while len(hd) < 512 - 4:
             hd += b"\x00"
         hd += struct.pack("<I", UF2_MAGIC_END)
         return hd
 
-def convert_from_hex_to_uf2(buf):
+def convert_from_hex_to_uf2(buf, blocks_reserved=0, blocks_offset=0):
     global appstartaddr
     appstartaddr = None
     upper = 0
@@ -204,7 +217,7 @@ def convert_from_hex_to_uf2(buf):
     print(f"Converted to {numblocks} blocks")
     resfile = b""
     for i in range(0, numblocks):
-        resfile += blocks[i].encode(i, numblocks)
+        resfile += blocks[i].encode(i, numblocks, blocks_reserved, blocks_offset)
     return resfile
 
 def to_str(b):
@@ -301,12 +314,20 @@ def main():
     parser.add_argument('-f' , '--family', dest='family', type=str,
                         default="0x0",
                         help='specify familyID - number or name (default: 0x0)')
+    parser.add_argument('--blocks-offset', dest='blocks_offset', type=str,
+                        default="0x0",
+                        help='TODO')
+    parser.add_argument('--blocks-reserved', dest='blocks_reserved', type=str,
+                        default="0x0",
+                        help='TODO')
     parser.add_argument('-C' , '--carray', action='store_true',
                         help='convert binary file to a C array, not UF2')
     parser.add_argument('-i', '--info', action='store_true',
                         help='display header information from UF2, do not convert')
     args = parser.parse_args()
     appstartaddr = int(args.base, 0)
+    blocks_offset = int(args.blocks_offset, 0)
+    blocks_reserved = int(args.blocks_reserved, 0)
 
     families = load_families()
 
@@ -335,13 +356,14 @@ def main():
         elif from_uf2 and args.info:
             outbuf = ""
             convert_from_uf2(inpbuf)
+
         elif is_hex(inpbuf):
-            outbuf = convert_from_hex_to_uf2(inpbuf.decode("utf-8"))
+            outbuf = convert_from_hex_to_uf2(inpbuf.decode("utf-8"), blocks_reserved, blocks_offset)
         elif args.carray:
             outbuf = convert_to_carray(inpbuf)
             ext = "h"
         else:
-            outbuf = convert_to_uf2(inpbuf)
+            outbuf = convert_to_uf2(inpbuf, blocks_reserved, blocks_offset)
         if not args.deploy and not args.info:
             print("Converted to %s, output size: %d, start address: 0x%x" %
                   (ext, len(outbuf), appstartaddr))
