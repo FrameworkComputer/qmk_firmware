@@ -64,6 +64,13 @@ def convert_from_uf2(buf):
             curraddr = newaddr
             if familyid == 0x0 or familyid == hd[7]:
                 appstartaddr = newaddr
+        print(f"  flags:      0x{hd[2]:02x}")
+        print(f"  addr:       0x{hd[3]:02x}")
+        print(f"  len:        {hd[4]}")
+        print(f"  block no:   {hd[5]}")
+        print(f"  blocks:     {hd[6]}")
+        print(f"  size/famid: {hd[7]}")
+        print()
         padding = newaddr - curraddr
         if padding < 0:
             assert False, "Block out of order at " + ptr
@@ -138,6 +145,7 @@ def convert_to_uf2(file_content):
         block = hd + chunk + datapadding + struct.pack(b"<I", UF2_MAGIC_END)
         assert len(block) == 512
         outp.append(block)
+    print(f"Converted to {numblocks} blocks")
     return b"".join(outp)
 
 class Block:
@@ -193,6 +201,7 @@ def convert_from_hex_to_uf2(buf):
                 addr += 1
                 i += 1
     numblocks = len(blocks)
+    print(f"Converted to {numblocks} blocks")
     resfile = b""
     for i in range(0, numblocks):
         resfile += blocks[i].encode(i, numblocks)
