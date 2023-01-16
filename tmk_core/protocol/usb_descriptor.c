@@ -1136,8 +1136,8 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
                 case 0x03:
                     // Address = &SerialNumberString;
                     // Size    = pgm_read_byte(&SerialNumberString.Header.Size);
-                    Address = lotus_serial_number_string();//&SerialNumberString;
-                    Size    = lotus_serial_number_string_len();//pgm_read_byte(&SerialNumberString.Header.Size);
+                    Address = lotus_serial_number_string();     //&SerialNumberString;
+                    Size    = lotus_serial_number_string_len(); //pgm_read_byte(&SerialNumberString.Header.Size);
 
                     break;
 #endif
