@@ -10,6 +10,7 @@
 enum factory_commands {
     f_emu_keypress  = 0x01, // Next byte is keycode
     f_adc           = 0x03, // ADC trigger
+    f_serialnum     = 0x04, // Read device serial number
     f_bootloader    = 0xFE,
 };
 
@@ -26,10 +27,18 @@ void emulate_rgb_keycode_press(uint16_t target_keycode) {
 }
 #endif
 
+#define FLASH_OFFSET 0x10000000
+#define LAST_4K_BLOCK 0xff000
+#define SERIALNUM_LEN 18
+
 void handle_factory_command(uint8_t *data) {
     uint8_t factory_command_id = data[0];
     uint8_t *command_data = &(data[1]);
     uprintf("handle_factory_command(command: %u)\n", factory_command_id);
+
+    char serialnum[SERIALNUM_LEN+1];
+    serialnum[SERIALNUM_LEN] = '\0';
+    char *serialnum_ptr = (char*) (FLASH_OFFSET + LAST_4K_BLOCK);
 
     switch (factory_command_id) {
         case f_bootloader:
@@ -46,6 +55,13 @@ void handle_factory_command(uint8_t *data) {
             break;
         case f_adc:
             factory_trigger_adc();
+            break;
+        case f_serialnum:
+            print("Reading Device serial number\n");
+
+            memcpy(serialnum, serialnum_ptr, SERIALNUM_LEN);
+
+            uprintf("Serial number: %s\n", serialnum);
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
