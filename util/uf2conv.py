@@ -379,9 +379,10 @@ def main():
         else:
             if len(drives) == 0:
                 error("No drive to deploy.")
-        for d in drives:
-            print("Flashing %s (%s)" % (d, board_id(d)))
-            write_file(d + "/NEW.UF2", outbuf)
+        if outbuf:
+            for d in drives:
+                print("Flashing %s (%s)" % (d, board_id(d)))
+                write_file(d + "/NEW.UF2", outbuf)
 
 
 if __name__ == "__main__":
