@@ -28,6 +28,12 @@ void *lotus_serial_number_string(void) {
   char *serialnum_ptr = (char*) (FLASH_OFFSET + LAST_4K_BLOCK);
 
   memcpy(ascii_serialnum, serialnum_ptr, SERIALNUM_LEN);
+
+  // Replace with dummy serialnumber if the flash is erased
+  if (ascii_serialnum[0] == 0xFF) {
+      memcpy(ascii_serialnum, SERIAL_NUMBER, sizeof(SERIAL_NUMBER));
+  }
+
   for (int c = 0; c < SERIALNUM_LEN; c++) {
       utf16_serialnum[c*2] = ascii_serialnum[c];
   }
