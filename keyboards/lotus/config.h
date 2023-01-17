@@ -13,7 +13,7 @@
 // SDB is mapped to GP22
 #define PICO_LOTUS
 
-// Enable serial number
+// Enable serial number. Calls into lotus_serial_number_string* functions
 #define SERIAL_NUMBER
 
 #ifdef KEYBOARD_lotus_ansi

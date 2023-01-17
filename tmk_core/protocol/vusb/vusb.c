@@ -735,7 +735,7 @@ const PROGMEM usbStringDescriptor_t usbStringDescriptorProduct = {
     .bString             = USBSTR(PRODUCT)
 };
 
-// THIS IS NOT USED by Lotus
+// THIS IS NOT USED by Lotus. TODO: Implement flexible serial number here
 #if defined(SERIAL_NUMBER)
 const PROGMEM usbStringDescriptor_t usbStringDescriptorSerial = 
     .header = {
@@ -1009,8 +1009,8 @@ USB_PUBLIC usbMsgLen_t usbFunctionDescriptor(struct usbRequest *rq) {
                     break;
 #if defined(SERIAL_NUMBER)
                 case 3: // iSerialNumber
-                    usbMsgPtr = (usbMsgPtr_t)&usbStringDescriptorSerial;
-                    len       = usbStringDescriptorSerial.header.bLength;
+                    usbMsgPtr = (usbMsgPtr_t)lotus_serial_number_string();
+                    len       = lotus_serial_number_string_len();
                     break;
 #endif
             }
