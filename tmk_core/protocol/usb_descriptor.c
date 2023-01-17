@@ -1078,17 +1078,6 @@ const USB_Descriptor_String_t PROGMEM ProductString = {
     .UnicodeString              = USBSTR(PRODUCT)
 };
 
-#if defined(SERIAL_NUMBER)
-extern const USB_Descriptor_String_t PROGMEM SerialNumberString;
-//const USB_Descriptor_String_t PROGMEM SerialNumberString = {
-//    .Header = {
-//        .Size                   = sizeof(USBSTR(SERIAL_NUMBER)),
-//        .Type                   = DTYPE_String
-//    },
-//    .UnicodeString              = USBSTR(SERIAL_NUMBER)
-//};
-#endif
-
 // clang-format on
 
 /**
@@ -1134,6 +1123,7 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
                     break;
 #if defined(SERIAL_NUMBER)
                 case 0x03:
+                    // TODO: Give these functions a generic name and let anyone override it
                     Address = lotus_serial_number_string();
                     Size    = lotus_serial_number_string_len();
 

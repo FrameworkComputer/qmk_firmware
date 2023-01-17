@@ -9,43 +9,43 @@
 #define USBSTR(s) USBCONCAT(L, s)
 USB_Descriptor_String_t PROGMEM SerialNumberString = {
     .Header = {
-        .Size                   = sizeof(USBSTR(SERIAL_NUMBER)),
+        .Size                   = sizeof(FALLBACK_SERIAL_NUMBER),
         .Type                   = DTYPE_String
     },
-    .UnicodeString              = USBSTR(SERIAL_NUMBER)
+    .UnicodeString              = FALLBACK_SERIAL_NUMBER
 };
 
 char ascii_serialnum[SERIALNUM_LEN+1];
-char utf16_serialnum[(SERIALNUM_LEN+1) * 2];
 
 void *lotus_serial_number_string(void) {
-  if (utf16_serialnum[0] != '\0') {
-    return utf16_serialnum;
+  // Exit early, if it was previously read and converted
+  if (ascii_serialnum[0] != '\0' || ascii_serialnum[0] == 0xFF) {
+      return &SerialNumberString;
   }
-  ascii_serialnum[SERIALNUM_LEN] = '\0';
-  utf16_serialnum[SERIALNUM_LEN*2] = '\0';
-  utf16_serialnum[SERIALNUM_LEN*2 + 1] = '\0';
-  char *serialnum_ptr = (char*) (FLASH_OFFSET + LAST_4K_BLOCK);
 
+  // Read ASCII serial number from memory-mapped flash
+  char *serialnum_ptr = (char*) (FLASH_OFFSET + LAST_4K_BLOCK);
   memcpy(ascii_serialnum, serialnum_ptr, SERIALNUM_LEN);
 
-  // Replace with dummy serialnumber if the flash is erased
+  // Just keep fallback serialnumber if the flash is erased
   if (ascii_serialnum[0] == 0xFF) {
-      memcpy(ascii_serialnum, SERIAL_NUMBER, sizeof(SERIAL_NUMBER));
+      return &SerialNumberString;
   }
 
-  for (int c = 0; c < SERIALNUM_LEN; c++) {
-      utf16_serialnum[c*2] = ascii_serialnum[c];
+  // Convert to UCS-2, which is equivalent to UTF-16, if the input is ASCII
+  for (int i = 0; i < SERIALNUM_LEN; i++) {
+      if (ascii_serialnum[i] > 128) {
+          dprintf("Serial number character %d is not valid ASCII.", ascii_serialnum[i]);
+          SerialNumberString.Header.Size = i * 2;
+          break;
+      }
+      SerialNumberString.UnicodeString[i] = ascii_serialnum[i];
   }
-
-  //SerialNumberString.UnicodeString = &utf16_serialnum[0];
-  memcpy(SerialNumberString.UnicodeString, utf16_serialnum, SERIALNUM_LEN*2);
-  SerialNumberString.Header.Size = SERIALNUM_LEN * 2;
 
   return &SerialNumberString;
 }
 uint16_t lotus_serial_number_string_len(void) {
-  return SERIALNUM_LEN*2;
+  return pgm_read_byte(&SerialNumberString.Header.Size);
 }
 
 void keyboard_post_init_kb(void) {

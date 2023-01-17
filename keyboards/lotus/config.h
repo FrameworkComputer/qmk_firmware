@@ -13,9 +13,8 @@
 // SDB is mapped to GP22
 #define PICO_LOTUS
 
-// 18-digit serial number. Must be programmed at factory
-// TODO: Figure out how to do that. Probably a script to compile qmk
-#define SERIAL_NUMBER "FRALDLvvccxxxxxxxx"
+// Enable serial number
+#define SERIAL_NUMBER
 
 #ifdef KEYBOARD_lotus_ansi
     #define LED_CAPS_LOCK_PIN GP24
