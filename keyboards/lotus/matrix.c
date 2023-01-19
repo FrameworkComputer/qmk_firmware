@@ -193,18 +193,22 @@ static void mux_select_row(int row) {
     switch (row) {
         case 0:
             index = 2;
+            break;
         case 1:
             index = 0;
+            break;
         case 2:
             index = 1;
+            break;
         default:
             index = row;
+            break;
     }
 
     int bits[] = {
         (index & 0x1) > 0,
-        (index & 0x4) > 0,
-        (index & 0x8) > 0
+        (index & 0x2) > 0,
+        (index & 0x4) > 0
     };
     writePin(MUX_A, bits[0]);
     writePin(MUX_B, bits[1]);
@@ -417,7 +421,12 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
  * TODO: Do we need a de-init? Probably not.
 */
 static void adc_mux_init(void) {
-    writePinHigh(MUX_ENABLE);
+    setPinOutput(MUX_ENABLE);
+    writePinLow(MUX_ENABLE);
+
+    setPinOutput(MUX_A);
+    setPinOutput(MUX_B);
+    setPinOutput(MUX_C);
 }
 
 /**
