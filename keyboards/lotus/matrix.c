@@ -169,7 +169,11 @@ void factory_trigger_adc(void) {
 */
 void adc_gpio_init(int gpio) {
     assert(gpio >= GP26 && gpio <= GP28);
-    palSetLineMode(gpio, PAL_MODE_INPUT_ANALOG);
+    // Enable pull-up on GPIO input so that we always have high input
+    // Even on the rows that don't have the external pull-up.
+    // Otherwise they would be floating.
+    #define PAL_MODE_ADC_PULLUP           (PAL_MODE_INPUT_ANALOG | PAL_RP_PAD_PUE)
+    palSetLineMode(gpio, PAL_MODE_ADC_PULLUP);
 }
 
 /**
