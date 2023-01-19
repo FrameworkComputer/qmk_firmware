@@ -241,7 +241,7 @@ static void mux_select_row(int row) {
         (index & 0x4) > 0
     };
     (void)bits;
-    //uprintf("Mux A: %d, B: %d, C: %d, KSI%d, X%d\n", bits[0], bits[1], bits[2], row, index);
+    uprintf("Mux A: %d, B: %d, C: %d, KSI%d, X%d\n", bits[0], bits[1], bits[2], row, index);
     writePin(MUX_A, bits[0]);
     writePin(MUX_B, bits[1]);
     writePin(MUX_C, bits[2]);
@@ -290,6 +290,8 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
     }
     cur_matrix[row] = new_row;
 
+    // Return false to not send keys to the host
+    return false;
     return changed;
 }
 #endif
@@ -502,7 +504,8 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         // Drive column low so we can measure the resistors on each row in this column
         drive_col(col, false);
         for (int row = 0; row < MATRIX_ROWS; row++) {
-            if (row == 5 || row == 6) continue;
+            // Focus on rows 5 and 6 to debug them
+            if (row != 5 && row != 6) continue;
             //print("\n");
             // Read ADC for this row
             mux_select_row(row);
