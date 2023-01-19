@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
+#include "raw_hid.h"
 #include "matrix.h"
 #include "lotus.h"
 #if defined(RGB_MATRIX_ENABLE)
@@ -98,7 +99,7 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
   return handle_hid(data, length);
 }
 #ifndef VIA_ENABLE
-bool raw_hid_receive(uint8_t *data, uint8_t length) {
-  return handle_hid(data, length);
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+  handle_hid(data, length);
 }
 #endif
