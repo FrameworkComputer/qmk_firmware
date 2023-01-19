@@ -42,6 +42,30 @@ static enum sample_state adc_state;
 #define MUX_C GP3
 #define MUX_ENABLE GP4
 
+// Rows to ADC input
+#define KSI0 2
+#define KSI1 0
+#define KSI2 1
+#define KSI3 3
+
+// Columns to GPIOs
+#define KSO0  GP8
+#define KSO1  GP9
+#define KSO2  GP10
+#define KSO3  GP11
+#define KSO4  GP12
+#define KSO5  GP13
+#define KSO6  GP14
+#define KSO7  GP15
+#define KSO8  GP21
+#define KSO9  GP20
+#define KSO10 GP19
+#define KSO11 GP18
+#define KSO12 GP17
+#define KSO13 GP16
+#define KSO14 GP23
+#define KSO15 GP22
+
 #define ADC_CH2_PIN  GP28
 // Voltage threshold - TODO: Need to adjust
 const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 3.0 * 10000;
@@ -217,13 +241,13 @@ static void mux_select_row(int row) {
         (index & 0x4) > 0
     };
     (void)bits;
-    uprintf("Mux A: %d, B: %d, C: %d, KSI%d, X%d\n", bits[0], bits[1], bits[2], row, index);
+    //uprintf("Mux A: %d, B: %d, C: %d, KSI%d, X%d\n", bits[0], bits[1], bits[2], row, index);
     writePin(MUX_A, bits[0]);
     writePin(MUX_B, bits[1]);
     writePin(MUX_C, bits[2]);
 }
 
-#if 0
+#if 1
 /**
  * Based on the ADC value, update the matrix for this column
  * */
@@ -235,23 +259,35 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
     // But because every key is connected in a matrix, pressing multiple keys
     // changes the voltage at every key again. So we can't check for a specific
     // voltage but need to have a threshold.
-    uint8_t key_state = 0;
+    bool key_state = false;
     if (voltage < ADC_THRESHOLD) {
-        key_state = 1;
+        key_state = true;
     }
 
-    uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
-    print_as_float(voltage);
+    //if (key_state) {
+    if (key_state) {
+        uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
+        print_as_float(voltage);
+    }
 
 // Don't update  matrix on Pico to avoid messing with the debug system
 // Can't attach the matrix anyways
 //#ifdef PICO_LOTUS
-    (void)key_state;
-    return false;
+    //(void)key_state;
+    //return false;
 //#endif
 
-    matrix_row_t new_row = cur_matrix[row] | key_state ? (1 << col) : 0;
-    changed = cur_matrix[row] == new_row;
+    matrix_row_t new_row = cur_matrix[row];
+    if (key_state) {
+        new_row |= (1 << col);
+    } else {
+        new_row &= ~(1 << col);
+    }
+    changed = cur_matrix[row] != new_row;
+    if (key_state) {
+        uprintf("old row: %d\n", cur_matrix[row]);
+        uprintf("new row: %d\n", new_row);
+    }
     cur_matrix[row] = new_row;
 
     return changed;
@@ -325,7 +361,7 @@ void drive_col(int col, bool high) {
 //    return;
 //#endif
 
-    uprintf("Driving col %s %d, GP%d\n", high ? "HIGH" : "LOW ", col, gpio);
+    //uprintf("Driving col %s %d, GP%d\n", high ? "HIGH" : "LOW ", col, gpio);
     if (high) {
         // TODO: Could set up the pins with `setPinOutputOpenDrain` instead
         writePinHigh(gpio);
@@ -393,7 +429,6 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
     //print("scan\n");
-    wait_us(500 * 1000);
 
     uint32_t current_ts = timer_read32();
     if (prev_matrix_ts) {
@@ -404,11 +439,12 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 
     handle_idle();
 
-    // Drive all
+    //wait_us(500 * 1000);
+    // Drive all high
     for (int col = 0; col < MATRIX_COLS; col++) {
         drive_col(col, true);
     }
-    drive_col(4, false);
+    //drive_col(2, false);
 
     // Striped red/black
     //
@@ -425,7 +461,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     // Correctly works only for the col that is driven high. REVERSED!
     // If all cols are driven high. All cols work.   (high when pressed)
     // If no col is driven high.    No cols work     (high when pressed)
-    mux_select_row(2);
+    //mux_select_row(2);
 
     // Red
     //
@@ -456,34 +492,45 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     // If just col 6 is driven low. Only col 6/GP14 works
     // If just col 7 is driven low. Only col 7/GP15 works
     //mux_select_row(0);
+    //
+    //wait_us(100);
+    //read_adc();
+    //uprintf("ADC Voltage: ");
+    //print_as_float(adc_voltage);
 
-    wait_us(100);
-    read_adc();
-    uprintf("ADC Voltage: ");
-    print_as_float(adc_voltage);
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        // Drive column low so we can measure the resistors on each row in this column
+        drive_col(col, false);
+        for (int row = 0; row < MATRIX_ROWS; row++) {
+            if (row == 5 || row == 6) continue;
+            //print("\n");
+            // Read ADC for this row
+            mux_select_row(row);
 
-    //for (int col = 0; col < MATRIX_COLS; col++) {
-    //    // Drive column high so we can measure the resistors on each row in this column
-    //    drive_col(col, true);
-    //    for (int row = 0; row < MATRIX_ROWS; row++) {
-    //        print("\n");
-    //        // Read ADC for this row
-    //        mux_select_row(row);
+            // Wait for column select to settle and propagate to ADC
+            //wait_us(500 * 1000);
 
-    //        // Wait for column select to settle and propagate to ADC
-    //        wait_us(500 * 1000);
+            read_adc();
 
-    //        read_adc();
+            // Interpret ADC value as rows
+            changed |= interpret_adc_row(current_matrix, adc_voltage, col, row);
+        }
 
-    //        // Interpret ADC value as rows
-    //        changed |= interpret_adc_row(current_matrix, adc_voltage, col, row);
-    //    }
+        // Drive column high again
+        drive_col(col, true);
+    }
 
-    //    // Drive column low again
-    //    //drive_col(col, false);
-    //}
+    //uprintf("changed: %d\n", changed);
 
    return changed;
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  // If console is enabled, it will print the matrix position and status of each key pressed
+#ifdef CONSOLE_ENABLE
+    uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+#endif
+  return true;
 }
 
 /**
@@ -512,32 +559,23 @@ void matrix_init_custom(void) {
     adc_state = s_never;
 
     // KS0 - KSO7 for Keyboard and Numpad
-    setPinOutput(GP8);
-    setPinOutput(GP9);
-    setPinOutput(GP10);
-    setPinOutput(GP11);
-    setPinOutput(GP12);
-    setPinOutput(GP13);
-    setPinOutput(GP14);
-    setPinOutput(GP15);
-
+    setPinOutput(KSO0);
+    setPinOutput(KSO1);
+    setPinOutput(KSO2);
+    setPinOutput(KSO3);
+    setPinOutput(KSO4);
+    setPinOutput(KSO5);
+    setPinOutput(KSO6);
+    setPinOutput(KSO7);
     // KS08 - KS015 for Keyboard only
-    setPinOutput(GP21);
-    writePinLow(GP21);
-    setPinOutput(GP20);
-    writePinLow(GP20);
-    setPinOutput(GP19);
-    writePinLow(GP19);
-    setPinOutput(GP18);
-    writePinLow(GP18);
-    setPinOutput(GP17);
-    writePinLow(GP17);
-    setPinOutput(GP16);
-    writePinLow(GP16);
-    setPinOutput(GP23);
-    writePinLow(GP23);
-    setPinOutput(GP22);
-    writePinLow(GP22);
+    setPinOutput(KSO8);
+    setPinOutput(KSO9);
+    setPinOutput(KSO10);
+    setPinOutput(KSO11);
+    setPinOutput(KSO12);
+    setPinOutput(KSO13);
+    setPinOutput(KSO14);
+    setPinOutput(KSO15);
 
     const ADCConfig adcConfig = {
         // Default clock divider
