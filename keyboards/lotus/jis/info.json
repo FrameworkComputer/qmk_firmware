@@ -5,7 +5,7 @@
     "bootloader": "rp2040",
     "features": {
         "bootmagic": false,
-        "mousekey": true,
+        "mousekey": false,
         "extrakey": true,
         "console": true,
         "command": false,
