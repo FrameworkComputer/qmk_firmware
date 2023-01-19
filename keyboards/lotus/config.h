@@ -11,7 +11,7 @@
 // Prototype for Lotus with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22
-#define PICO_LOTUS
+//#define PICO_LOTUS
 
 // Enable serial number. Calls into lotus_serial_number_string* functions
 #define SERIAL_NUMBER

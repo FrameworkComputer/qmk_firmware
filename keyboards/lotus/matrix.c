@@ -181,10 +181,12 @@ static void mux_select_row(int row) {
     assert(col >= 0 && col <= 7);
 
     // Not in order - need to remap them
+
     // X0 - KSI1
     // X1 - KSI2
     // X2 - KSI0
     // X3 - KSI3
+    // Only for keyboard, not for num-/grid-pad
     // X4 - KSI4
     // X5 - KSI5
     // X6 - KSI6
@@ -210,15 +212,18 @@ static void mux_select_row(int row) {
         (index & 0x2) > 0,
         (index & 0x4) > 0
     };
+    (void)bits;
+    uprintf("Mux A: %d, B: %d, C: %d, KSI%d, X%d\n", bits[0], bits[1], bits[2], row, index);
     writePin(MUX_A, bits[0]);
     writePin(MUX_B, bits[1]);
     writePin(MUX_C, bits[2]);
 }
 
+#if 0
 /**
  * Based on the ADC value, update the matrix for this column
  * */
-static bool interpret_adc_row(matrix_row_t cur_matrix[], adcsample_t voltage, int col, int row) {
+static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage, int col, int row) {
     bool changed = false;
 
     // By default the voltage is high (3.3V)
@@ -231,15 +236,15 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adcsample_t voltage, in
         key_state = 1;
     }
 
-    //uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
-    //print_float(voltage);
+    uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
+    print_as_float(voltage);
 
 // Don't update  matrix on Pico to avoid messing with the debug system
 // Can't attach the matrix anyways
-#ifdef PICO_LOTUS
+//#ifdef PICO_LOTUS
     (void)key_state;
     return false;
-#endif
+//#endif
 
     matrix_row_t new_row = cur_matrix[row] | key_state ? (1 << col) : 0;
     changed = cur_matrix[row] == new_row;
@@ -247,6 +252,7 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adcsample_t voltage, in
 
     return changed;
 }
+#endif
 
 /**
  * Drive the GPIO for a column low or high.
@@ -310,11 +316,12 @@ void drive_col(int col, bool high) {
     }
 
 // Don't drive columns on pico because we're using these GPIOs for other purposes
-#ifdef PICO_LOTUS
-    (void)gpio;
-    return;
-#endif
+//#ifdef PICO_LOTUS
+//    (void)gpio;
+//    return;
+//#endif
 
+    uprintf("Driving col %s %d, GP%d\n", high ? "HIGH" : "LOW ", col, gpio);
     if (high) {
         // TODO: Could set up the pins with `setPinOutputOpenDrain` instead
         writePinHigh(gpio);
@@ -382,6 +389,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
     //print("scan\n");
+    wait_us(500 * 1000);
 
     uint32_t current_ts = timer_read32();
     if (prev_matrix_ts) {
@@ -392,25 +400,84 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 
     handle_idle();
 
+    // Drive all
     for (int col = 0; col < MATRIX_COLS; col++) {
-        // Drive column low so we can measure the resistors on each row in this column
-        drive_col(col, false);
-        for (int row = 0; row < MATRIX_ROWS; row++) {
-            // Read ADC for this row
-            mux_select_row(row);
-
-            // Wait for column select to settle and propagate to ADC
-            wait_us(1);
-
-            read_adc();
-
-            // Interpret ADC value as rows
-            changed |= interpret_adc_row(current_matrix, adc_voltage, col, row);
-        }
-
-        // Drive column high again
         drive_col(col, true);
     }
+    drive_col(4, false);
+
+    // Striped red/black
+    //
+    // Shows low when not pressing. High when pressing. REVERSED!
+    //
+    // If no col is driven high.     No cols work. (Row always low)
+    // If all cols are driven high.  Col 4 works. (high when pressed)
+    // If just col 4 is driven high. Col 4 works. (high when pressed)
+    //mux_select_row(3);
+
+    // Black
+    // Shows low when not pressing. High when pressing. REVERSED!
+    //
+    // Correctly works only for the col that is driven high. REVERSED!
+    // If all cols are driven high. All cols work.   (high when pressed)
+    // If no col is driven high.    No cols work     (high when pressed)
+    mux_select_row(2);
+
+    // Red
+    //
+    // High when not pressing. Low when pressing.
+    // If no col is driven low.     No cols work.
+    // If all cols are driven low.  All cols work. (low when pressed)
+    // If just col 0 is driven low. Only col 0/GP8 works
+    // If just col 1 is driven low. Only col 1/GP9 works
+    // If just col 2 is driven low. Only col 2/GP10 works
+    // If just col 3 is driven low. Only col 3/GP11 works
+    // If just col 4 is driven low. Only col 4/GP12 works
+    // If just col 5 is driven low. Only col 5/GP13 works
+    // If just col 6 is driven low. Only col 6/GP14 works
+    // If just col 7 is driven low. Only col 7/GP15 works
+    //mux_select_row(1);
+
+    // Blue.
+    // High when not pressing. Low when pressing.
+    // 
+    // If no col is driven low.     No cols work.
+    // If all cols are driven low.  All cols work. (low when pressed)
+    // If just col 0 is driven low. Only col 0/GP8 works
+    // If just col 1 is driven low. Only col 1/GP9 works
+    // If just col 2 is driven low. Only col 2/GP10 works
+    // If just col 3 is driven low. Only col 3/GP11 works
+    // If just col 4 is driven low. Only col 4/GP12 works
+    // If just col 5 is driven low. Only col 5/GP13 works
+    // If just col 6 is driven low. Only col 6/GP14 works
+    // If just col 7 is driven low. Only col 7/GP15 works
+    //mux_select_row(0);
+
+    wait_us(100);
+    read_adc();
+    uprintf("ADC Voltage: ");
+    print_as_float(adc_voltage);
+
+    //for (int col = 0; col < MATRIX_COLS; col++) {
+    //    // Drive column high so we can measure the resistors on each row in this column
+    //    drive_col(col, true);
+    //    for (int row = 0; row < MATRIX_ROWS; row++) {
+    //        print("\n");
+    //        // Read ADC for this row
+    //        mux_select_row(row);
+
+    //        // Wait for column select to settle and propagate to ADC
+    //        wait_us(500 * 1000);
+
+    //        read_adc();
+
+    //        // Interpret ADC value as rows
+    //        changed |= interpret_adc_row(current_matrix, adc_voltage, col, row);
+    //    }
+
+    //    // Drive column low again
+    //    //drive_col(col, false);
+    //}
 
    return changed;
 }
@@ -439,6 +506,34 @@ void matrix_init_custom(void) {
     adc_mux_init();
     adc_gpio_init(ADC_CH2_PIN);
     adc_state = s_never;
+
+    // KS0 - KSO7 for Keyboard and Numpad
+    setPinOutput(GP8);
+    setPinOutput(GP9);
+    setPinOutput(GP10);
+    setPinOutput(GP11);
+    setPinOutput(GP12);
+    setPinOutput(GP13);
+    setPinOutput(GP14);
+    setPinOutput(GP15);
+
+    // KS08 - KS015 for Keyboard only
+    setPinOutput(GP21);
+    writePinLow(GP21);
+    setPinOutput(GP20);
+    writePinLow(GP20);
+    setPinOutput(GP19);
+    writePinLow(GP19);
+    setPinOutput(GP18);
+    writePinLow(GP18);
+    setPinOutput(GP17);
+    writePinLow(GP17);
+    setPinOutput(GP16);
+    writePinLow(GP16);
+    setPinOutput(GP23);
+    writePinLow(GP23);
+    setPinOutput(GP22);
+    writePinLow(GP22);
 
     const ADCConfig adcConfig = {
         // Default clock divider
