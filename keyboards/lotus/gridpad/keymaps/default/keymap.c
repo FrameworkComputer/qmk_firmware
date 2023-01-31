@@ -45,8 +45,8 @@ const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
 led_config_t g_led_config = { {
   // Key Matrix to LED Index
   {     4,      7,      6,      9,      0,      1,      3,     11, },
-  {     8,     20,     21,     23,     15,     16,     18,     19, },
-  {    12,      5,      2, NO_LED,     17, NO_LED,     13,     10, },
+  {     8,     20,     21,     23,     15,     14,     18,     19, },
+  {    12,      5,      2, NO_LED,     17,     16,     13,     10, },
   {NO_LED, NO_LED, NO_LED, NO_LED,     22, NO_LED, NO_LED, NO_LED, },
 }, {
   // LED Index to Physical Position
