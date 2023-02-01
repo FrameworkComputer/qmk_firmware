@@ -5,6 +5,9 @@
 
 #include <config_common.h>
 
+// Allow (emulated) EEPROM reset using VIA
+#define VIA_EEPROM_ALLOW_RESET
+
 // Prints every second how many matrix scans were done (Frequency in Hz)
 #define DEBUG_MATRIX_SCAN_RATE
 
