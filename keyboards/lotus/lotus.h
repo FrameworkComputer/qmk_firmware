@@ -35,6 +35,7 @@ enum lotus_keycodes {
 
 void *lotus_serial_number_string(void);
 uint16_t lotus_serial_number_string_len(void);
+// The serial number is written to the last 4K block in the first 1M of flash
 #define FLASH_OFFSET 0x10000000
 #define LAST_4K_BLOCK 0xff000
 #define SERIALNUM_LEN 18
@@ -42,5 +43,6 @@ uint16_t lotus_serial_number_string_len(void);
 // 18-digit serial number. Must be programmed at factory
 // TODO: Figure out how to do that. Probably a script to compile qmk
 // Must be wide-string (UTF-16)
-#define FALLBACK_SERIAL_NUMBER L"FRALDLvvccxxxxxxxx"
+// LDL = Keyboard White Backlight
+#define FALLBACK_SERIAL_NUMBER L"FRALDLENA100000000"
 _Static_assert(sizeof(FALLBACK_SERIAL_NUMBER) == (SERIALNUM_LEN+1)*2, "Fallback serial number must be same length");
