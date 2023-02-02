@@ -1,7 +1,7 @@
 name: PR Lint Format
 
-permissions:
-  contents: read
+#permissions:
+#  contents: read
 
 on:
   pull_request:
