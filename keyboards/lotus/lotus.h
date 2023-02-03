@@ -15,6 +15,8 @@
     #include "numpad.h"
 #elif KEYBOARD_lotus_gridpad
     #include "gridpad.h"
+#elif KEYBOARD_lotus_ledmatrix
+    #include "ledmatrix.h"
 #endif
 
 enum lotus_keycodes {
