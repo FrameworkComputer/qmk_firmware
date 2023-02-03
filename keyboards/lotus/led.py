@@ -15,6 +15,16 @@ from collections import OrderedDict
 
 # Rows and columns in the electrical keyboard matrix.
 # Equivalent to QMK's macros: MATRIX_ROWS and MATRIX_COLS
+matrices = {
+    'ansi': {
+        'rows': 8,
+        'cols': 16,
+     },
+    'gridpad': {
+        'rows': 4,
+        'cols': 8,
+     },
+}
 # Keyboard
 MATRIX_ROWS = 8
 MATRIX_COLS = 16
@@ -187,14 +197,19 @@ gridpad = [
     { "id": "13", "x":1523, "y": 519, "matrix": (0,2) },
 ]
 
+model_data = {
+    'ansi': ansi,
+    'gridpad': gridpad,
+}
+
 # Recommended by QMK to be the (x,y) range of position values
 LED_MAX = (224.0, 64.0)
 
 NO_LED = 255
 
 # Map LEDs to keyboard matrix and normalize LED coordinates
-def normalize(layout):
-    led_to_el = [[NO_LED for _ in range(MATRIX_COLS)] for _ in range(MATRIX_ROWS)]
+def normalize(layout, model):
+    led_to_el = [[NO_LED for _ in range(matrices[model]['cols'])] for _ in range(matrices[model]['rows'])]
     # Find smallest (offset) and largest (max) values
     offset_x = layout[0]['x']
     offset_y = layout[0]['y']
@@ -263,9 +278,10 @@ def print_matrix(layout, led_to_el, normalized):
             print("\n  ", end='')
     print("} };")
 
-def main(data):
+def main(model):
+    data = model_data[model]
     # Normalize data and convert to C code
-    led_to_el, normalized = normalize(data)
+    led_to_el, normalized = normalize(data, model)
     print_matrix(data, led_to_el, normalized)
 
     # Draw led positions to visually check them with the reference design
@@ -278,4 +294,5 @@ def main(data):
 
 if __name__ == "__main__":
     # Can choose which dataset to process
-    main(ansi)
+    model = 'ansi'
+    main(model)
