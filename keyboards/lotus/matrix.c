@@ -505,7 +505,6 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         drive_col(col, false);
         for (int row = 0; row < MATRIX_ROWS; row++) {
             // Debug for keyboard. Row 5 and 6 don't seem to work
-            if (row == 5 || row == 6) continue;
             //print("\n");
             // Read ADC for this row
             mux_select_row(row);
@@ -579,6 +578,10 @@ void matrix_init_custom(void) {
     setPinOutput(KSO13);
     setPinOutput(KSO14);
     setPinOutput(KSO15);
+
+    // Set unused pins to input to avoid interfering. They're hooked up to rows 5 and 6
+    setPinInput(GP6);
+    setPinInput(GP7);
 
     const ADCConfig adcConfig = {
         // Default clock divider
