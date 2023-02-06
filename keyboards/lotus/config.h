@@ -35,6 +35,7 @@
 // On the Raspberry Pi Pico this is the green LED on the board, good for prototyping
 #define BACKLIGHT_PWM_DRIVER    PWMD4
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
+#define BACKLIGHT_BREATHING
 
 // I2C for the RBG controller
 #define I2C_DRIVER I2CD1
