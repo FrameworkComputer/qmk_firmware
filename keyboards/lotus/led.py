@@ -11,6 +11,7 @@ All our LEDs are behind keys. However, LED_FLAG_MODIFIER might be useful for
 some keys. Not sure what that means, though.
 """
 
+import argparse
 from collections import OrderedDict
 
 # Rows and columns in the electrical keyboard matrix.
@@ -23,6 +24,10 @@ matrices = {
     'gridpad': {
         'rows': 4,
         'cols': 8,
+     },
+    'ledmatrix': {
+        'rows': 34,
+        'cols': 9,
      },
 }
 # Keyboard
@@ -197,9 +202,23 @@ gridpad = [
     { "id": "13", "x":1523, "y": 519, "matrix": (0,2) },
 ]
 
+ledmatrix = [
+]
+for row in range(matrices['ledmatrix']['rows']):
+    for col in range(matrices['ledmatrix']['cols']):
+        c = {
+            # id is 1 indexed
+            "id": str(1 + col + row * matrices['ledmatrix']['cols']),
+            "x":col * 10,
+            "y": row * 10,
+            "matrix": (col, row)
+        }
+        ledmatrix.append(c)
+
 model_data = {
     'ansi': ansi,
     'gridpad': gridpad,
+    'ledmatrix': ledmatrix,
 }
 
 # Recommended by QMK to be the (x,y) range of position values
@@ -278,21 +297,37 @@ def print_matrix(layout, led_to_el, normalized):
             print("\n  ", end='')
     print("} };")
 
-def main(model):
+def main(model, plot=False):
     data = model_data[model]
     # Normalize data and convert to C code
     led_to_el, normalized = normalize(data, model)
     print_matrix(data, led_to_el, normalized)
 
     # Draw led positions to visually check them with the reference design
-    import matplotlib.pyplot as plt
-    a = [[x, y] for _i, (x, y) in normalized.items()]
-    scatter = plt.scatter(*zip(*a))
-    ax = scatter.axes
-    ax.invert_yaxis()
-    plt.show()
+    if plot:
+        import matplotlib.pyplot as plt
+        a = [[x, y] for _i, (x, y) in normalized.items()]
+        scatter = plt.scatter(*zip(*a))
+        ax = scatter.axes
+        ax.invert_yaxis()
+        plt.show()
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('model', choices=['ansi', 'gridpad', 'ledmatrix'])
+    parser.add_argument("--plot", help="visualize the LED positions as a plot",
+                        action="store_true")
+    args = parser.parse_args()
+
     # Can choose which dataset to process
-    model = 'ansi'
-    main(model)
+    #main(args.model, args.plot)
+    for row in range(matrices[args.model]['rows']):
+        for col in range(matrices[args.model]['cols']):
+            c = {
+                # id is 1 indexed
+                "id": str(1 + col + row * matrices[args.model]['cols']),
+                "x":col * 10,
+                "y": row * 10,
+                "matrix": (col, row)
+            }
+            print(f"{{0, CS{row + 1}_SW{col + 1}}}, // LED {c['id']}")

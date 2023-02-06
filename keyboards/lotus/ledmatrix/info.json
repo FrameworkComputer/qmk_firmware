@@ -1,5 +1,5 @@
 {
-    "keyboard_name": "Lotus Keyboard",
+    "keyboard_name": "Lotus LED Matrix",
     "manufacturer": "Framework Computer Inc",
     "maintainer": "JohnAZoidberg",
     "bootloader": "rp2040",
@@ -17,11 +17,8 @@
     "url": "https://frame.work",
     "usb": {
         "device_version": "0.1.0",
-        "pid": "0x0012",
+        "pid": "0x0020",
         "vid": "0x32AC"
-    },
-    "backlight": {
-        "pin": "GP25"
     },
     "layout_aliases": {
       "LAYOUT_default": "LAYOUT"

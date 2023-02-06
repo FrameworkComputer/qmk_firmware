@@ -23,14 +23,25 @@
 #include <stdbool.h>
 #include "progmem.h"
 
+#ifdef RGB_MATRIX_ENABLE
 typedef struct is31_led {
-    uint32_t driver : 2;
-    uint32_t r : 10;
-    uint32_t g : 10;
-    uint32_t b : 10;
+    uint8_t driver;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 } __attribute__((packed)) is31_led;
 
-extern const is31_led PROGMEM g_is31_leds[RGB_MATRIX_LED_COUNT];
+extern const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT];
+
+#elif defined(LED_MATRIX_ENABLE)
+typedef struct is31_led {
+    uint8_t driver;
+    uint8_t v;
+} __attribute__((packed)) is31_led;
+
+extern const is31_led __flash g_is31_leds[LED_MATRIX_LED_COUNT];
+#endif
+
 
 void IS31FL3741_init(uint8_t addr);
 void IS31FL3741_write_register(uint8_t addr, uint8_t reg, uint8_t data);
