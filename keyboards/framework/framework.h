@@ -13,6 +13,7 @@
     #include "jis.h"
 #elif KEYBOARD_framework_numpad
     #include "numpad.h"
+    #define PAD_FN 1
 #elif KEYBOARD_framework_gridpad
     #include "gridpad.h"
 #endif

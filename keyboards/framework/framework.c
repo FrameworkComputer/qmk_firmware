@@ -74,6 +74,20 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         unregister_code(KC_P);
       }
       return false; // Skip all further processing of this key
+#ifdef PAD_FN
+    case LT(0,KC_C):
+        if (record->tap.count) {
+            tap_code(KC_NUM); // Intercept hold function to send Numlock
+        } else if (record->event.pressed) {
+          // Intercept tap function to temporarily enable FN layer
+          if (record->event.pressed) {
+            layer_on(PAD_FN);
+          } else {
+            layer_off(PAD_FN);
+          }
+        }
+        return false;
+#endif
     default:
       return true; // Process all other keycodes normally
   }
