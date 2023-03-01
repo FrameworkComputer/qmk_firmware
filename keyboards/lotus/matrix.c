@@ -500,6 +500,8 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     //uprintf("ADC Voltage: ");
     //print_as_float(adc_voltage);
 
+    // Go through every matrix column (KSO) and drive them low individually
+    // Then go through every matrix row (KSI), select it with the mux and check their ADC value
     for (int col = 0; col < MATRIX_COLS; col++) {
         // Drive column low so we can measure the resistors on each row in this column
         drive_col(col, false);

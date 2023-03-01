@@ -31,7 +31,7 @@
 #endif
 
 // PWM single one backlight configuration
-// The RP2040 datasheet says GPIO25 maps to PWM channel 4B
+// GPIO25 maps to PWM channel 4B of the RP2040
 // On the Raspberry Pi Pico this is the green LED on the board, good for prototyping
 #define BACKLIGHT_PWM_DRIVER    PWMD4
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
