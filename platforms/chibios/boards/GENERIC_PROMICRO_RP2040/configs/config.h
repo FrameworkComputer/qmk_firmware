@@ -8,7 +8,6 @@
  *========================**/
 
 #if !defined(I2C_DRIVER)
-// changed from I2CD2 based on 91cfd80a8138414f5c061ef30d3b84e003fc6f78
 #    define I2C_DRIVER I2CD1
 #endif
 

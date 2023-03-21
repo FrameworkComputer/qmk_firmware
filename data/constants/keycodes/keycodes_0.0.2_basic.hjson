@@ -1,5 +1,21 @@
 {
     "keycodes": {
+        "0x00C1": {
+            "group": "media",
+            "key": "KC_MISSION_CONTROL",
+            "label": "Open Mission Control",
+            "aliases": [
+                "KC_MCTL"
+            ]
+        },
+        "0x00C2": {
+            "group": "media",
+            "key": "KC_LAUNCHPAD",
+            "label": "Open Launchpad",
+            "aliases": [
+                "KC_LPAD"
+            ]
+        },
         "0x00E8": {
             "group": "media",
             "key": "KC_AIRPLANE_MODE",
