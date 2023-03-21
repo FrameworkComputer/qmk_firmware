@@ -14,7 +14,7 @@ BACKLIGHT_DRIVER = pwm
 
 # Custom matrix scanning code via ADC
 CUSTOM_MATRIX = lite
-SRC += matrix.c
+SRC += matrix.c analog.c
 
 SRC += factory.c
 

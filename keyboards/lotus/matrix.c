@@ -15,13 +15,14 @@
 
 // Use raw ChibiOS ADC functions instead of those from QMK
 // Using the QMK functions doesn't work yet
-#define CHIBIOS_ADC TRUE
+#define CHIBIOS_ADC FALSE
 
 #define adc10ksample_t int
 
-bool letsgo = false;
 uint32_t prev_matrix_ts = 0;
 adc10ksample_t adc_voltage;
+#if CHIBIOS_ADC
+bool letsgo = false;
 adc10ksample_t temperature;
 
 enum sample_state {
@@ -35,6 +36,7 @@ enum sample_state {
 static adcsample_t prev_samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * ADC_GRP_BUF_DEPTH)];
 static adcsample_t samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP_NUM_CHANNELS * ADC_GRP_BUF_DEPTH)];
 static enum sample_state adc_state;
+#endif
 
 // Mux GPIOs
 #define MUX_A GP1
@@ -71,9 +73,14 @@ static enum sample_state adc_state;
 const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 3.0 * 10000;
 
 adc10ksample_t to_voltage(adcsample_t sample) {
+#if CHIBIOS_ADC
   // 1241 = (1 << 12) * 10000 / (3.3 * 10000)
   int voltage = sample * 10000;
   return voltage / 1241;
+#else
+  int voltage = sample * 33000;
+  return voltage / 1023;
+#endif
 }
 
 adc10ksample_t to_temp(adcsample_t sample) {
@@ -88,6 +95,7 @@ void print_as_float(adc10ksample_t sample) {
   uprintf("%d.%02d\n", digits, decimals);
 }
 
+#if CHIBIOS_ADC
 /**
  * Average the mulitiple samples due to depth>1 together to a single value
  */
@@ -187,6 +195,11 @@ void factory_trigger_adc(void) {
     handle_sample();
     //print("After handle_sample");
 }
+#else
+void factory_trigger_adc(void) {
+    print("NOT IMPLEMENTED - Factory triggered ADC\n");
+}
+#endif
 
 /**
  * Tell RP2040 ADC controller to initialize a specific GPIO for ADC input
@@ -377,8 +390,12 @@ void drive_col(int col, bool high) {
  */
 static void read_adc(void) {
 #if !CHIBIOS_ADC
-    uint16_t val = analogReadPin(ADC_CH2_PIN);
+    // Can't use analogReadPin because it gets rid of the internal pullup on this pin
+    //uint16_t val = analogReadPin(ADC_CH2_PIN);
+    uint16_t val = adc_read(pinToMux(ADC_CH2_PIN));
     adc_voltage = to_voltage(val);
+    //uprintf("ADC raw %d, Voltage: ", val);
+    //print_as_float(to_voltage(val));
 #else
     if (letsgo) {
       factory_trigger_adc();
@@ -442,7 +459,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     handle_idle();
 
     //wait_us(500 * 1000);
-    // Drive all high
+    // Drive all high to deselect them
     for (int col = 0; col < MATRIX_COLS; col++) {
         drive_col(col, true);
     }
@@ -560,7 +577,6 @@ void matrix_init_custom(void) {
 
     adc_mux_init();
     adc_gpio_init(ADC_CH2_PIN);
-    adc_state = s_never;
 
     // KS0 - KSO7 for Keyboard and Numpad
     setPinOutput(KSO0);
@@ -585,6 +601,8 @@ void matrix_init_custom(void) {
     setPinInput(GP6);
     setPinInput(GP7);
 
+#if CHIBIOS_ADC
+    adc_state = s_never;
     const ADCConfig adcConfig = {
         // Default clock divider
         .div_int  = 0,
@@ -609,4 +627,5 @@ void matrix_init_custom(void) {
 
     // TODO: Not sure we ever need to stop. Perhaps to save power.
     // adcStopConversion(&ADCD1);
+#endif
 }
