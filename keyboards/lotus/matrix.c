@@ -48,7 +48,7 @@
 #define ADC_CH2_PIN  GP28
 
 // Voltage threshold - anything below that counts as pressed
-const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 3.0 * 10000;
+const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 2.9 * 10000;
 
 adc10ksample_t to_voltage(adcsample_t sample) {
   int voltage = sample * 33000;
