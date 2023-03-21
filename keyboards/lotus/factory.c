@@ -11,7 +11,6 @@
 
 enum factory_commands {
     f_emu_keypress  = 0x01, // Next byte is keycode
-    f_adc           = 0x03, // ADC trigger
     f_serialnum     = 0x04, // Read device serial number
     f_bootloader    = 0xFE,
 };
@@ -48,9 +47,6 @@ void handle_factory_command(uint8_t *data) {
 #else
             tap_code(command_data[0]);
 #endif
-            break;
-        case f_adc:
-            factory_trigger_adc();
             break;
         case f_serialnum:
             print("Reading Device serial number\n");
