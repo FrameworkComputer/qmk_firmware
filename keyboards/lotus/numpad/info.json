@@ -16,7 +16,7 @@
     "processor": "RP2040",
     "url": "https://frame.work",
     "usb": {
-        "device_version": "0.1.3",
+        "device_version": "0.1.4",
         "pid": "0x0014",
         "vid": "0x32AC"
     },
