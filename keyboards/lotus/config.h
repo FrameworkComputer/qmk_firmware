@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <config_common.h>
-
 // Allow (emulated) EEPROM reset using VIA
 #define VIA_EEPROM_ALLOW_RESET
 
