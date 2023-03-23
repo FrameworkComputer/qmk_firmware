@@ -21,15 +21,15 @@ backlight options.
 
 Make example for this keyboard (after setting up your build environment):
 
-    qmk compile -kb lotus/ansi -km default
-    qmk compile -kb lotus/iso -km default
-    qmk compile -kb lotus/jis -km default
-    qmk compile -kb lotus/numpad -km default
-    qmk compile -kb lotus/gridpad -km default
+    qmk compile -kb framework/ansi -km default
+    qmk compile -kb framework/iso -km default
+    qmk compile -kb framework/jis -km default
+    qmk compile -kb framework/numpad -km default
+    qmk compile -kb framework/gridpad -km default
 
 Flashing example for the ANSI keyboard:
 
-    qmk compile -kb lotus/ansi -km default
+    qmk compile -kb framework/ansi -km default
 
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
 

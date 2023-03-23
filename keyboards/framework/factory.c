@@ -4,7 +4,7 @@
 #include "quantum.h"
 #include "raw_hid.h"
 #include "matrix.h"
-#include "lotus.h"
+#include "framework.h"
 #if defined(RGB_MATRIX_ENABLE)
 #include "rgb_matrix.h"
 #endif

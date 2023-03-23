@@ -125,7 +125,7 @@ def keymap_check(kb, km):
     invalid_files = git_get_ignored_files(keymap_path.parent.as_posix())
     for file in invalid_files:
         # Ignore via files, I'm comitting  them to this branch for now
-        if file.startswith('keyboards/lotus/kle/via'):
+        if file.startswith('keyboards/framework/kle/via'):
             continue
         cli.log.error(f'{kb}/{km}: The file "{file}" should not exist!')
         ok = False

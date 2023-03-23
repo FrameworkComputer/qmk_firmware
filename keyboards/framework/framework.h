@@ -5,19 +5,19 @@
 
 #include "quantum.h"
 
-#ifdef KEYBOARD_lotus_ansi
+#ifdef KEYBOARD_framework_ansi
     #include "ansi.h"
-#elif KEYBOARD_lotus_iso
+#elif KEYBOARD_framework_iso
     #include "iso.h"
-#elif KEYBOARD_lotus_jis
+#elif KEYBOARD_framework_jis
     #include "jis.h"
-#elif KEYBOARD_lotus_numpad
+#elif KEYBOARD_framework_numpad
     #include "numpad.h"
-#elif KEYBOARD_lotus_gridpad
+#elif KEYBOARD_framework_gridpad
     #include "gridpad.h"
 #endif
 
-enum lotus_keycodes {
+enum framework_keycodes {
   // Custom keycode to change screen modes (e.g. enable external screen)
   KC_SCRN = SAFE_RANGE,
 };

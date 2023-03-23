@@ -14,18 +14,18 @@
 // SDB is mapped to GP22
 //#define PICO_FL16
 
-// Enable serial number. Calls into lotus_serial_number_string* functions
+// Enable serial number. Calls into dyn_serial_number_string* functions
 #define SERIAL_NUMBER
 
-#ifdef KEYBOARD_lotus_ansi
+#ifdef KEYBOARD_framework_ansi
     #define LED_CAPS_LOCK_PIN GP24
-#elif KEYBOARD_lotus_iso
+#elif KEYBOARD_framework_iso
     #define LED_CAPS_LOCK_PIN GP24
-#elif KEYBOARD_lotus_jis
+#elif KEYBOARD_framework_jis
     #define LED_CAPS_LOCK_PIN GP24
-#elif KEYBOARD_lotus_numpad
+#elif KEYBOARD_framework_numpad
     #define LED_NUM_LOCK_PIN GP24
-#elif KEYBOARD_lotus_gridpad
+#elif KEYBOARD_framework_gridpad
 #endif
 
 // PWM single one backlight configuration

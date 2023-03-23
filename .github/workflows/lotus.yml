@@ -1,4 +1,4 @@
-name: Build Lotus Firmware
+name: Build Framework Laptop 16 Firmware
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     - lotus
 
 jobs:
-  lotus-build:
+  fl16-build:
     runs-on: ubuntu-latest
 
     container: qmkfm/qmk_cli
@@ -21,34 +21,34 @@ jobs:
     - name: Install dependencies
       run: pip3 install -r requirements-dev.txt
 
-    - name: Lint lotus
+    - name: Lint Framework Laptop 16
       run: |
-        qmk lint -kb lotus/ansi -km default
-        qmk lint -kb lotus/iso -km default
-        qmk lint -kb lotus/jis -km default
-        qmk lint -kb lotus/numpad -km default
-        qmk lint -kb lotus/gridpad -km default
+        qmk lint -kb framework/ansi -km default
+        qmk lint -kb framework/iso -km default
+        qmk lint -kb framework/jis -km default
+        qmk lint -kb framework/numpad -km default
+        qmk lint -kb framework/gridpad -km default
 
-    - name: Build Lotus ANSI variant
-      run: qmk compile -kb lotus/ansi -km default
+    - name: Build Framework Laptop 16 ANSI variant
+      run: qmk compile -kb framework/ansi -km default
 
-    - name: Build Lotus ISO variant
-      run: qmk compile -kb lotus/iso -km default
+    - name: Build Framework Laptop 16 ISO variant
+      run: qmk compile -kb framework/iso -km default
 
-    - name: Build Lotus JIS variant
-      run: qmk compile -kb lotus/jis -km default
+    - name: Build Framework Laptop 16 JIS variant
+      run: qmk compile -kb framework/jis -km default
 
-    - name: Build Lotus Numpad
-      run: qmk compile -kb lotus/numpad -km default
+    - name: Build Framework Laptop 16 Numpad
+      run: qmk compile -kb framework/numpad -km default
 
-    - name: Build Lotus Gridpad
-      run: qmk compile -kb lotus/gridpad -km default
+    - name: Build Framework Laptop 16 Gridpad
+      run: qmk compile -kb framework/gridpad -km default
 
     - uses: actions/upload-artifact@v3
       with:
-        name: lotus_kb_qmk.${{github.sha}}
+        name: fl16_kb_qmk.${{github.sha}}
         path: |
-          lotus_*.uf2
+          framework_*.uf2
 
 #  tests:
 #    runs-on: ubuntu-latest

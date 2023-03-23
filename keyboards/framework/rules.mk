@@ -18,4 +18,4 @@ SRC += matrix.c analog.c
 
 SRC += dyn_serial.c factory.c
 
-DEFAULT_FOLDER = lotus/ansi
+DEFAULT_FOLDER = framework/ansi

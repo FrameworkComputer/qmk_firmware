@@ -10,7 +10,7 @@ import argparse
 import json
 
 # Don't even need -b. hex has this embedded
-# > ./util/uf2conv.py .build/lotus_ansi_default.hex -o ansi.uf2 -b 0x10000000 -f rp2040 --convert --blocks-reserved 1
+# > ./util/uf2conv.py .build/framework_ansi_default.hex -o ansi.uf2 -b 0x10000000 -f rp2040 --convert --blocks-reserved 1
 # Converted to 222 blocks
 # Converted to uf2, output size: 113664, start address: 0x10000000
 # Wrote 113664 bytes to ansi.uf2

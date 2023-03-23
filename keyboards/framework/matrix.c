@@ -11,7 +11,7 @@
 #include "chprintf.h"
 
 #include "matrix.h"
-#include "lotus.h"
+#include "framework.h"
 
 #define adc10ksample_t int
 
@@ -48,7 +48,8 @@
 #define ADC_CH2_PIN  GP28
 
 // Voltage threshold - anything below that counts as pressed
-const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 2.9 * 10000;
+// 29000 = 2.9V * 10000
+const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 29000;
 
 adc10ksample_t to_voltage(adcsample_t sample) {
   int voltage = sample * 33000;
