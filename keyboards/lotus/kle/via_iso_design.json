@@ -1,5 +1,5 @@
 {
-  "name": "Framework Lotus ISO Keyboard",
+  "name": "Framework Laptop 16 ISO Keyboard",
   "vendorId": "0x32AC",
   "productId": "0x0018",
   "matrix": {"rows": 8, "cols": 16},

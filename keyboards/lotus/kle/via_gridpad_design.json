@@ -1,5 +1,5 @@
 {
-  "name": "Framework Lotus Gridpad",
+  "name": "Framework Laptop 16 Gridpad",
   "vendorId": "0x32AC",
   "productId": "0x0013",
   "matrix": {"rows": 4, "cols": 8},

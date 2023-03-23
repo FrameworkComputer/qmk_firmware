@@ -43,6 +43,9 @@ uint16_t lotus_serial_number_string_len(void);
 // 18-digit serial number. Must be programmed at factory
 // TODO: Figure out how to do that. Probably a script to compile qmk
 // Must be wide-string (UTF-16)
-// LDL = Keyboard White Backlight
-#define FALLBACK_SERIAL_NUMBER L"FRALDLENA100000000"
+// KDK = Keyboard RGB   Backlight
+// KDW = Keyboard White Backlight
+// KDN = Keyboard RGB   Gridpad
+// KDM = Keyboard White Numpad
+#define FALLBACK_SERIAL_NUMBER L"FRAKDKEN0100000000"
 _Static_assert(sizeof(FALLBACK_SERIAL_NUMBER) == (SERIALNUM_LEN+1)*2, "Fallback serial number must be same length");

@@ -1,5 +1,5 @@
 {
-  "name": "Framework Lotus ANSI Keyboard",
+  "name": "Framework Laptop 16 ANSI Keyboard",
   "vendorId": "0x32AC",
   "productId": "0x0012",
   "matrix": {"rows": 8, "cols": 16},

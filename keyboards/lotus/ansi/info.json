@@ -1,5 +1,5 @@
 {
-    "keyboard_name": "Lotus Keyboard",
+    "keyboard_name": "Laptop 16 ANSI Keyboard",
     "manufacturer": "Framework Computer Inc",
     "maintainer": "JohnAZoidberg",
     "bootloader": "rp2040",
@@ -14,7 +14,7 @@
     },
     "debounce": 5,
     "processor": "RP2040",
-    "url": "https://frame.work",
+    "url": "https://fr.mw/FRAKDKEN",
     "usb": {
         "device_version": "0.1.3",
         "pid": "0x0012",
