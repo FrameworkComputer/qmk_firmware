@@ -9,7 +9,7 @@
         "extrakey": true,
         "console": true,
         "command": false,
-        "nkro": true,
+        "nkro": false,
         "audio": false
     },
     "debounce": 5,

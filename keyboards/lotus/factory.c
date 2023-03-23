@@ -52,7 +52,11 @@ void handle_factory_command(uint8_t *data) {
             print("Reading Device serial number\n");
 
 
+#ifdef SERIAL_NUMBER
             uprintf("Serial number: %s\n", ascii_serialnum);
+#else
+            uprintf("Serial number unavailable\n");
+#endif
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);

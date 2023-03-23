@@ -4,9 +4,11 @@
 #include "quantum.h"
 #include "lotus.h"
 
+#include "usb_descriptor.h"
+#include "usb_descriptor_common.h"
+
 // Prefix string literal with L for descriptors
-#define USBCONCAT(a, b) a##b
-#define USBSTR(s) USBCONCAT(L, s)
+#ifdef SERIAL_NUMBER
 USB_Descriptor_String_t PROGMEM SerialNumberString = {
     .Header = {
         .Size                   = sizeof(FALLBACK_SERIAL_NUMBER),
@@ -47,6 +49,7 @@ void *lotus_serial_number_string(void) {
 uint16_t lotus_serial_number_string_len(void) {
   return pgm_read_byte(&SerialNumberString.Header.Size);
 }
+#endif
 
 void keyboard_post_init_kb(void) {
   keyboard_post_init_user();
