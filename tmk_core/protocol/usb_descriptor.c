@@ -41,7 +41,7 @@
 #include "usb_descriptor.h"
 #include "usb_descriptor_common.h"
 
-#include "lotus.h"
+#include "dyn_serial.h"
 
 #ifdef JOYSTICK_ENABLE
 #    include "joystick.h"
@@ -1139,8 +1139,9 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
 #if defined(SERIAL_NUMBER)
                 case 0x03:
                     // TODO: Give these functions a generic name and let anyone override it
-                    Address = lotus_serial_number_string();
-                    Size    = lotus_serial_number_string_len();
+                    // Framework 16 uses this
+                    Address = dyn_serial_number_string();
+                    Size    = dyn_serial_number_string_len();
 
                     break;
 #endif

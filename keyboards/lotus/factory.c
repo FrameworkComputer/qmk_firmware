@@ -8,6 +8,9 @@
 #if defined(RGB_MATRIX_ENABLE)
 #include "rgb_matrix.h"
 #endif
+#ifdef SERIAL_NUMBER
+#include "dyn_serial.h"
+#endif
 
 enum factory_commands {
     f_emu_keypress  = 0x01, // Next byte is keycode

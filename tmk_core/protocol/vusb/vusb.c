@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "debug.h"
 #include "wait.h"
 #include "usb_descriptor_common.h"
+#include "dyn_serial.h"
 
 #ifdef RAW_ENABLE
 #    include "raw_hid.h"
@@ -761,7 +762,7 @@ const PROGMEM usbStringDescriptor_t usbStringDescriptorProduct = {
     .bString             = USBSTR(PRODUCT)
 };
 
-// THIS IS NOT USED by Lotus. TODO: Implement flexible serial number here
+// THIS IS NOT USED by Framework 16. TODO: Implement dynamic serial number here
 #if defined(SERIAL_NUMBER)
 const PROGMEM usbStringDescriptor_t usbStringDescriptorSerial = 
     .header = {
@@ -1035,8 +1036,9 @@ USB_PUBLIC usbMsgLen_t usbFunctionDescriptor(struct usbRequest *rq) {
                     break;
 #if defined(SERIAL_NUMBER)
                 case 3: // iSerialNumber
-                    usbMsgPtr = (usbMsgPtr_t)lotus_serial_number_string();
-                    len       = lotus_serial_number_string_len();
+                    // Not using this on Framework 16
+                    usbMsgPtr = (usbMsgPtr_t)dynamic_serial_number_string();
+                    len       = dynamic_serial_number_string_len();
                     break;
 #endif
             }

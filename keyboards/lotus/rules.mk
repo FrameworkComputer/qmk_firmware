@@ -16,6 +16,6 @@ BACKLIGHT_DRIVER = pwm
 CUSTOM_MATRIX = lite
 SRC += matrix.c analog.c
 
-SRC += factory.c
+SRC += dyn_serial.c factory.c
 
 DEFAULT_FOLDER = lotus/ansi
