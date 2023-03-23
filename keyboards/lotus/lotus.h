@@ -26,7 +26,7 @@ enum lotus_keycodes {
 #define MUX_ENABLE_GPIO GP4
 #define BOOT_DONE_GPIO GP5
 // Pin SDB to enable the RGB controller
-#ifdef PICO_LOTUS
+#ifdef PICO_FL16
 // 22 only on RPi Pico because it doesn't have GP29
 #define IS31FL3743A_ENABLE_GPIO GP22
 #else

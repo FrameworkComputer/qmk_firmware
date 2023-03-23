@@ -9,10 +9,10 @@
 // Prints every second how many matrix scans were done (Frequency in Hz)
 #define DEBUG_MATRIX_SCAN_RATE
 
-// Prototype for Lotus with Raspberry Pi Pico
+// Prototype for Framework Laptop 16 with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22
-//#define PICO_LOTUS
+//#define PICO_FL16
 
 // Enable serial number. Calls into lotus_serial_number_string* functions
 #define SERIAL_NUMBER

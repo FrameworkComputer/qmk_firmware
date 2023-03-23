@@ -143,7 +143,7 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
 
 // Don't update  matrix on Pico to avoid messing with the debug system
 // Can't attach the matrix anyways
-//#ifdef PICO_LOTUS
+//#ifdef PICO_FL16
     //(void)key_state;
     //return false;
 //#endif
@@ -226,7 +226,7 @@ void drive_col(int col, bool high) {
     }
 
 // Don't drive columns on pico because we're using these GPIOs for other purposes
-//#ifdef PICO_LOTUS
+//#ifdef PICO_FL16
 //    (void)gpio;
 //    return;
 //#endif
@@ -330,7 +330,6 @@ static void adc_mux_init(void) {
  * Overriding behavior of matrix_init from quantum/matrix.c
 */
 void matrix_init_custom(void) {
-    print("Initializing Lotus\n");
     backlight_enable(); // To signal "live-ness"
 
     adc_mux_init();
