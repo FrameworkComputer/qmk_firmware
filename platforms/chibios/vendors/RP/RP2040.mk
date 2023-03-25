@@ -22,7 +22,8 @@ CFLAGS += -DPICO_NO_FPGA_CHECK \
 ##############################################################################
 PICOSDKROOT   := $(TOP_DIR)/lib/pico-sdk
 
-PICOSDKSRC     = $(PICOSDKROOT)/src/rp2_common/hardware_clocks/clocks.c \
+PICOSDKSRC     = $(PICOSDKROOT)/src/rp2_common/hardware_adc/adc.c \
+                 $(PICOSDKROOT)/src/rp2_common/hardware_clocks/clocks.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_pll/pll.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_pio/pio.c \
                  $(PICOSDKROOT)/src/rp2_common/hardware_timer/timer.c \
@@ -36,6 +37,7 @@ PICOSDKSRC     = $(PICOSDKROOT)/src/rp2_common/hardware_clocks/clocks.c \
 PICOSDKINC     = $(CHIBIOS)//os/various/pico_bindings/dumb/include \
                  $(PICOSDKROOT)/src/common/pico_base/include \
                  $(PICOSDKROOT)/src/rp2_common/pico_platform/include \
+                 $(PICOSDKROOT)/src/rp2_common/hardware_adc/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_base/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_clocks/include \
                  $(PICOSDKROOT)/src/rp2_common/hardware_claim/include \
