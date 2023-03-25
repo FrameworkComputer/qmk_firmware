@@ -1,379 +1,197 @@
+// Copyright 2023 Stefan Kerkmann (KarlK90)
 // Copyright 2022 Framework Computer
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include <stdio.h>
-#include <stdint.h>
-#include "debug.h"
-#include "analog.h"
-#include "print.h"
-#include "quantum.h"
-#include "hal_adc.h"
-#include "chprintf.h"
-
-#include "matrix.h"
+// We use the pico-sdk adc implementation as it uses a simple busy wait for the
+// ADC readout, which has much less overhead compared to the ChibiOS
+// implementation which sends the running thread sleeping and wakes it using an
+// interrupt.
+#include "hardware/adc.h"
+// Ugly workaround for pico-sdk namespace conflicts with ChibiOS
+#undef GPIO_IN
+#undef GPIO_OUT
 #include "framework.h"
 
-#define adc10ksample_t int
+// ADC pin
+static const uint32_t adc_channel = 2U;
+static const pin_t    adc_pin     = GP28;
 
-// Mux GPIOs
-#define MUX_A GP1
-#define MUX_B GP2
-#define MUX_C GP3
-#define MUX_ENABLE GP4
+// Keyboard matrix
+static const pin_t col_pins[MATRIX_COLS] = {
+    GP8,  // Col 0 - KSO0
+    GP9,  // Col 1 - KSO1
+    GP10, // Col 2 - KSO2
+    GP11, // Col 3 - KSO3
+    GP12, // Col 4 - KSO4
+    GP13, // Col 5 - KSO5
+    GP14, // Col 6 - KSO6
+    GP15, // Col 7 - KSO7
+#if MATRIX_COLS > 8
+    GP21, // Col 8 - KSO8
+    GP20, // Col 9 - KSO9
+    GP19, // Col 10 - KSO10
+    GP18, // Col 11 - KSO11
+    GP17, // Col 12 - KSO12
+    GP16, // Col 13 - KSO13
+    GP23, // Col 14 - KSO14
+    GP22  // Col 15 - KSO15
+#endif
+};
 
-// Rows to ADC input
-#define KSI0 2
-#define KSI1 0
-#define KSI2 1
-#define KSI3 3
+// ADC mux pins
+static const pin_t mux_pins[] = {
+    GP1, // Mux A
+    GP2, // Mux B
+    GP3  // Mux C
+};
+static const pin_t mux_enable = GP4;
 
-// Columns to GPIOs
-#define KSO0  GP8
-#define KSO1  GP9
-#define KSO2  GP10
-#define KSO3  GP11
-#define KSO4  GP12
-#define KSO5  GP13
-#define KSO6  GP14
-#define KSO7  GP15
-#define KSO8  GP21
-#define KSO9  GP20
-#define KSO10 GP19
-#define KSO11 GP18
-#define KSO12 GP17
-#define KSO13 GP16
-#define KSO14 GP23
-#define KSO15 GP22
-
-#define ADC_CH2_PIN  GP28
-
-// Voltage threshold - anything below that counts as pressed
-// 29000 = 2.9V * 10000
-const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 29000;
-
-adc10ksample_t to_voltage(adcsample_t sample) {
-  int voltage = sample * 33000;
-  return voltage / 1023;
-}
-
-void print_as_float(adc10ksample_t sample) {
-  int digits = sample / 10000;
-  int decimals = sample % 10000;
-  uprintf("%d.%02d\n", digits, decimals);
-}
-
-/**
- * Tell RP2040 ADC controller to initialize a specific GPIO for ADC input
-*/
-void adc_gpio_init(int gpio) {
-    assert(gpio >= GP26 && gpio <= GP28);
-    // Enable pull-up on GPIO input so that we always have high input
-    // Even on the rows that don't have the external pull-up.
-    // Otherwise they would be floating.
-    #define PAL_MODE_ADC_PULLUP           (PAL_MODE_INPUT_ANALOG | PAL_RP_PAD_PUE)
-    palSetLineMode(gpio, PAL_MODE_ADC_PULLUP);
-}
+// As the mux pins are in a consecutive order GP1, GP2 and GP3 integers up to
+// the number 7 can be directly mapped onto the GPIO port register. We just
+// have to shift the row number to the left by 1.
+static const ioportmask_t row_mux_mask                  = (1 << GP1 | 1 << GP2 | 1 << GP3);
+static const ioportmask_t row_mux_mask_lut[MATRIX_ROWS] = {
+    2 << 1, // Row 0 - KSI2
+    0 << 1, // Row 1 - KSI0
+    1 << 1, // Row 2 - KSI1
+    3 << 1, // Row 3 - KSI3
+#if MATRIX_ROWS > 4
+    4 << 1, // Row 4 - KSI4
+    5 << 1, // Row 5 - KSI5
+    6 << 1, // Row 6 - KSI6
+    7 << 1  // Row 7 - KSI7
+#endif
+};
 
 /**
- * Tell the mux to select a specific column
- *
- * Splits the positive integer (<=7) into its three component bits.
-*/
-static void mux_select_row(int row) {
-    assert(col >= 0 && col <= 7);
-
-    // Not in order - need to remap them
-
-    // X0 - KSI1
-    // X1 - KSI2
-    // X2 - KSI0
-    // X3 - KSI3
-    // Only for keyboard, not for num-/grid-pad
-    // X4 - KSI4
-    // X5 - KSI5
-    // X6 - KSI6
-    // X7 - KSI7
-    int index = 0;
-    switch (row) {
-        case 0:
-            index = 2;
-            break;
-        case 1:
-            index = 0;
-            break;
-        case 2:
-            index = 1;
-            break;
-        default:
-            index = row;
-            break;
-    }
-
-    int bits[] = {
-        (index & 0x1) > 0,
-        (index & 0x2) > 0,
-        (index & 0x4) > 0
-    };
-    (void)bits;
-    //uprintf("Mux A: %d, B: %d, C: %d, KSI%d, X%d\n", bits[0], bits[1], bits[2], row, index);
-    writePin(MUX_A, bits[0]);
-    writePin(MUX_B, bits[1]);
-    writePin(MUX_C, bits[2]);
-}
-
-/**
- * Based on the ADC value, update the matrix for this column
- * */
-static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage, int col, int row) {
-    bool changed = false;
-
-    // By default the voltage is high (3.3V)
-    // When a key is pressed it causes the voltage to go down.
-    // But because every key is connected in a matrix, pressing multiple keys
-    // changes the voltage at every key again. So we can't check for a specific
-    // voltage but need to have a threshold.
-    bool key_state = false;
-    if (voltage < ADC_THRESHOLD) {
-        key_state = true;
-    }
-
-    if (key_state) {
-        uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
-        print_as_float(voltage);
-    }
-
-// Don't update  matrix on Pico to avoid messing with the debug system
-// Can't attach the matrix anyways
-//#ifdef PICO_FL16
-    //(void)key_state;
-    //return false;
-//#endif
-
-    matrix_row_t new_row = cur_matrix[row];
-    if (key_state) {
-        new_row |= (1 << col);
-    } else {
-        new_row &= ~(1 << col);
-    }
-    changed = cur_matrix[row] != new_row;
-    if (key_state) {
-        uprintf("old row: %d\n", cur_matrix[row]);
-        uprintf("new row: %d\n", new_row);
-    }
-    cur_matrix[row] = new_row;
-
-    return changed;
-}
-
-/**
- * Drive the GPIO for a column low or high.
+ * @brief Helper function to wait until a pin  has reached the wanted target
+ * state. This only works for Push-Pull pins with enabled input stage.
  */
-void drive_col(int col, bool high) {
-    assert(col >= 0 && col <= MATRIX_COLS);
-    int gpio = 0;
-    switch (col) {
-        case 0:
-            gpio = GP8;
-            break;
-        case 1:
-            gpio = GP9;
-            break;
-        case 2:
-            gpio = GP10;
-            break;
-        case 3:
-            gpio = GP11;
-            break;
-        case 4:
-            gpio = GP12;
-            break;
-        case 5:
-            gpio = GP13;
-            break;
-        case 6:
-            gpio = GP14;
-            break;
-        case 7:
-            gpio = GP15;
-            break;
-        case 8:
-            gpio = GP21;
-            break;
-        case 9:
-            gpio = GP20;
-            break;
-        case 10:
-            gpio = GP19;
-            break;
-        case 11:
-            gpio = GP18;
-            break;
-        case 12:
-            gpio = GP17;
-            break;
-        case 13:
-            gpio = GP16;
-            break;
-        case 14:
-            gpio = GP23;
-            break;
-        case 15:
-            gpio = GP22;
-            break;
-        default:
-            // Not supposed to happen
-            assert(false);
+static void __time_critical_func(matrix_wait_for_pin)(pin_t pin, uint8_t target_state) {
+    rtcnt_t start = chSysGetRealtimeCounterX();
+    rtcnt_t end   = start + MS2RTC(REALTIME_COUNTER_CLOCK, 20);
+    while (chSysIsCounterWithinX(chSysGetRealtimeCounterX(), start, end)) {
+        if (readPin(pin) == target_state) {
             return;
-    }
-
-// Don't drive columns on pico because we're using these GPIOs for other purposes
-//#ifdef PICO_FL16
-//    (void)gpio;
-//    return;
-//#endif
-
-    //uprintf("Driving col %s %d, GP%d\n", high ? "HIGH" : "LOW ", col, gpio);
-    if (high) {
-        // TODO: Could set up the pins with `setPinOutputOpenDrain` instead
-        writePinHigh(gpio);
-    } else {
-        writePinLow(gpio);
+        }
     }
 }
 
 /**
- * Read a value from the ADC and print some debugging details
+ * @brief Helper function to wait until the IO port has reached the wanted
+ * target state. This only works for Push-Pull pins with enabled input stage.
  */
-static adc10ksample_t read_adc(void) {
-    // Can't use analogReadPin because it gets rid of the internal pullup on
-    // this pin, that we configure in matrix_init_custom
-    // uint16_t val = analogReadPin(ADC_CH2_PIN);
-    uint16_t val = adc_read(pinToMux(ADC_CH2_PIN));
-    return to_voltage(val);
+static void __time_critical_func(matrix_wait_for_port)(ioportmask_t target_bitmask) {
+    rtcnt_t start = chSysGetRealtimeCounterX();
+    rtcnt_t end   = start + MS2RTC(REALTIME_COUNTER_CLOCK, 20);
+    while (chSysIsCounterWithinX(chSysGetRealtimeCounterX(), start, end)) {
+        if (palReadGroup(IOPORT1, target_bitmask, 0) == target_bitmask) {
+            return;
+        }
+    }
 }
 
 /**
- * Handle the host going to sleep or the keyboard being idle
- * If the host is asleep the keyboard should reduce the scan rate and turn backlight off.
+ * @brief Starts the ADC peripheral and initializes the input pin.
  *
- * If the host is awake but the keyboard is idle it should enter a low-power state
  */
-bool handle_idle(void) {
-    bool asleep = readPin(SLEEP_GPIO);
-    static uint8_t prev_asleep = -1;
-    static int host_sleep = 0;
-    /* reduce the scan speed to 10Hz */
-    if (prev_asleep != asleep) {
-        prev_asleep = asleep;
-        if (!asleep) {
-            suspend_power_down_quantum();
-        } else {
-            suspend_wakeup_init_quantum();
-        }
-    }
-    if (!asleep) {
-        if (timer_elapsed32(host_sleep) < 100) {
-            port_wait_for_interrupt();
-            return true;
-        } else {
-            host_sleep = timer_read32();
-        }
-    }
-    return false;
+static void setup_adc(void) {
+    // Start ADC peripheral
+    adc_init();
+
+    // Setup ADC pin: Enable pull-up on GPIO input so that we always have high
+    // input Even on the rows that don't have the external pull-up. Otherwise
+    // they would be floating.
+    palSetLineMode(adc_pin, PAL_MODE_INPUT_ANALOG | PAL_RP_PAD_PUE);
+    adc_select_input(adc_channel);
 }
 
 /**
- * Overriding behavior of matrix_scan from quantum/matrix.c
-*/
-bool matrix_scan_custom(matrix_row_t current_matrix[]) {
-    bool changed = false;
-
-    if (handle_idle()) {
-        return false;
-    }
-
-    //wait_us(500 * 1000);
-    // Drive all high to deselect them
-    for (int col = 0; col < MATRIX_COLS; col++) {
-        drive_col(col, true);
-    }
-
-    // Go through every matrix column (KSO) and drive them low individually
-    // Then go through every matrix row (KSI), select it with the mux and check their ADC value
-    for (int col = 0; col < MATRIX_COLS; col++) {
-        // Drive column low so we can measure the resistors on each row in this column
-        drive_col(col, false);
-        for (int row = 0; row < MATRIX_ROWS; row++) {
-            // Debug for keyboard. Row 5 and 6 don't seem to work
-            //print("\n");
-            // Read ADC for this row
-            mux_select_row(row);
-
-            // Wait for column select to settle and propagate to ADC
-            //wait_us(500 * 1000);
-
-            // Interpret ADC value as rows
-            changed |= interpret_adc_row(current_matrix, read_adc(), col, row);
-        }
-
-        // Drive column high again
-        drive_col(col, true);
-    }
-
-   return changed;
-}
-
-//bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//  // If console is enabled, it will print the matrix position and status of each key pressed
-//#ifdef CONSOLE_ENABLE
-//    uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
-//#endif
-//  return true;
-//}
-
-/**
- * Enable the ADC MUX
+ * @brief Prepares the used ADC muxing pins for output.
  *
- * TODO: Do we need a de-init? Probably not.
-*/
-static void adc_mux_init(void) {
-    setPinOutput(MUX_ENABLE);
-    writePinLow(MUX_ENABLE);
+ */
+static void setup_adc_pinmux(void) {
+    // Setup ADC pinmuxing
+    setPinOutput(mux_enable);
+    writePinLow(mux_enable);
+    // TODO: MUX activated in keyboard init code, should this be moved here?
 
-    setPinOutput(MUX_A);
-    setPinOutput(MUX_B);
-    setPinOutput(MUX_C);
+    for (int mux = 0; mux < ARRAY_SIZE(mux_pins); mux++) {
+        setPinOutput(mux_pins[mux]);
+    }
+}
+
+/**
+ * @brief Prepares the used keyboard matrix GPIO pins for output and disables
+ * unused pins.
+ *
+ */
+static void setup_matrix(void) {
+    // KS0 - KSO7 for Keyboard and Numpad
+    // KS08 - KS015 for Keyboard only
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        setPinOutput(col_pins[col]);
+        writePinHigh(col_pins[col]);
+    }
+
+    // Set unused pins to input to avoid interfering. They're hooked up to rows 5 and 6.
+    setPinInput(GP6);
+    setPinInput(GP7);
 }
 
 /**
  * Overriding behavior of matrix_init from quantum/matrix.c
-*/
+ */
 void matrix_init_custom(void) {
+    setup_adc();
+    setup_adc_pinmux();
+    setup_matrix();
     backlight_enable(); // To signal "live-ness"
+}
 
-    adc_mux_init();
-    adc_gpio_init(ADC_CH2_PIN);
+/**
+ * Overriding behavior of matrix_scan from quantum/matrix.c
+ */
+bool matrix_scan_custom(matrix_row_t current_matrix[MATRIX_ROWS]) {
+    // Go through every matrix column (KSO) and drive them low individually
+    // Then go through every matrix row (KSI), select it with the mux and check
+    // their ADC value
+    bool changed = false;
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        // Select column by driving it low so we can measure the
+        // resistors on each row in this column.
+        writePinLow(col_pins[col]);
+        matrix_wait_for_pin(col_pins[col], 0);
 
-    // KS0 - KSO7 for Keyboard and Numpad
-    setPinOutput(KSO0);
-    setPinOutput(KSO1);
-    setPinOutput(KSO2);
-    setPinOutput(KSO3);
-    setPinOutput(KSO4);
-    setPinOutput(KSO5);
-    setPinOutput(KSO6);
-    setPinOutput(KSO7);
-    // KS08 - KS015 for Keyboard only
-    setPinOutput(KSO8);
-    setPinOutput(KSO9);
-    setPinOutput(KSO10);
-    setPinOutput(KSO11);
-    setPinOutput(KSO12);
-    setPinOutput(KSO13);
-    setPinOutput(KSO14);
-    setPinOutput(KSO15);
+        for (int row = 0; row < MATRIX_ROWS; row++) {
+            // To read the ADC for this row we have to:
+            // 1. Select the correct MUX configuration for this row
+            palWriteGroup(IOPORT1, row_mux_mask, 0, row_mux_mask_lut[row]);
+            matrix_wait_for_port(row_mux_mask_lut[row]);
 
-    // Set unused pins to input to avoid interfering. They're hooked up to rows 5 and 6
-    setPinInput(GP6);
-    setPinInput(GP7);
+            // 2. Read the current ADC voltage for that row By default the
+            // voltage is high (3.3V) When a key is pressed it causes the
+            // voltage to go down. But because every key is connected in a
+            // matrix, pressing multiple keys changes the voltage at every key
+            // again. So we can't check for a specific voltage but need to have
+            // a threshold.
+            const matrix_row_t old_row = current_matrix[row];
+
+            // For a pressed threshold of 2.9V = (2.9 / 3.3) * 2**10 = ~900;
+            const bool pressed = adc_read() <= 900U;
+            if (pressed) {
+                current_matrix[row] |= (1 << col);
+            } else {
+                current_matrix[row] &= ~(1 << col);
+            }
+
+            changed |= current_matrix[row] != old_row;
+        }
+
+        // De-select the column by driving it high again
+        writePinHigh(col_pins[col]);
+        matrix_wait_for_pin(col_pins[col], 1);
+    }
+
+    return changed;
 }

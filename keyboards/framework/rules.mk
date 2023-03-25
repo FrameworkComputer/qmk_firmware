@@ -14,10 +14,11 @@ BACKLIGHT_DRIVER = pwm
 
 # Custom matrix scanning code via ADC
 CUSTOM_MATRIX = lite
-SRC += matrix.c analog.c
+SRC += matrix.c
 
 SRC += dyn_serial.c factory.c
 
 DEFAULT_FOLDER = framework/ansi
 
-OPT_DEFS += -DCORTEX_ENABLE_WFI_IDLE=TRUE
+OPT_DEFS += -DCORTEX_ENABLE_WFI_IDLE= TRUE
+USE_LTO  = yes
