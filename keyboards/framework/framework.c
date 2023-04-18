@@ -70,8 +70,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         register_code(KC_LGUI);
         register_code(KC_P);
       } else {
-        unregister_code(KC_LGUI);
         unregister_code(KC_P);
+        unregister_code(KC_LGUI);
       }
       return false; // Skip all further processing of this key
     default:
