@@ -153,10 +153,10 @@ void matrix_init_custom(void) {
  * Overriding behavior of matrix_scan from quantum/matrix.c
  */
 bool matrix_scan_custom(matrix_row_t current_matrix[MATRIX_ROWS]) {
+    matrix_row_t temp_matrix[MATRIX_ROWS] = {0};
     // Go through every matrix column (KSO) and drive them low individually
     // Then go through every matrix row (KSI), select it with the mux and check
     // their ADC value
-    bool changed = false;
     for (int col = 0; col < MATRIX_COLS; col++) {
         // Select column by driving it low so we can measure the
         // resistors on each row in this column.
@@ -174,23 +174,21 @@ bool matrix_scan_custom(matrix_row_t current_matrix[MATRIX_ROWS]) {
             // voltage to go down. But because every key is connected in a
             // matrix, pressing multiple keys changes the voltage at every key
             // again. So we can't check for a specific voltage but need to have
-            // a threshold.
-            const matrix_row_t old_row = current_matrix[row];
-
-            // For a pressed threshold of 2.9V = (2.9 / 3.3) * 2**10 = ~900;
-            const bool pressed = adc_read() <= 900U;
-            if (pressed) {
-                current_matrix[row] |= (1 << col);
-            } else {
-                current_matrix[row] &= ~(1 << col);
+            // a threshold. For a pressed key we use a threshold of:
+            // 2.9V = (2.9 / 3.3) * 2**10 = ~900;
+            if (adc_read() <= 900U) {
+                temp_matrix[row] |= (1 << col);
             }
-
-            changed |= current_matrix[row] != old_row;
         }
 
         // De-select the column by driving it high again
         writePinHigh(col_pins[col]);
         matrix_wait_for_pin(col_pins[col], 1);
+    }
+
+    bool changed = memcmp(current_matrix, temp_matrix, sizeof(temp_matrix)) != 0;
+    if (changed) {
+        memcpy(current_matrix, temp_matrix, sizeof(temp_matrix));
     }
 
     return changed;
