@@ -20,6 +20,7 @@
 enum framework_keycodes {
   // Custom keycode to change screen modes (e.g. enable external screen)
   KC_SCRN = SAFE_RANGE,
+  FN_LOCK,
 };
 
 #define SLEEP_GPIO GP0
