@@ -15,7 +15,7 @@
   { KC_NO, KC_NO, KC_NO,   K60,   K61,   K46,   K50,   K51,   K84,   K44, KC_NO, KC_NO,   K58,   K83,   K43,  K119 }, \
   { KC_NO, KC_NO,  K59,  KC_NO,   K19,  K113,   K35,   K36,   K42, KC_NO,  K118, KC_NO, KC_NO,   K12, KC_NO,   K89 }, \
   { KC_NO, K127,   K16,  KC_NO,  K115,  K112,   K21,   K22,   K25, KC_NO,  K117,  K120, KC_NO,  K123, KC_NO, KC_NO }, \
-  { KC_NO, KC_NO,   K1,  KC_NO,   K30,   K32,    K6,    K7,  K121, KC_NO,  K116,        KC_NO,   K11,   K13, KC_NO }, \
+  { KC_NO, KC_NO,   K1,  KC_NO,   K30,   K32,    K6,    K7,  K121, KC_NO,  K116, KC_NO, KC_NO,   K11,   K13, KC_NO }, \
   { KC_NO, KC_NO,   K2,  KC_NO,    K4,    K3,    K5,    K8,   K10, KC_NO,    K9,   K45, KC_NO,   K26,   K15, KC_NO }, \
   { KC_NO, KC_NO, KC_NO, KC_NO,  K114,   K18,   K20,   K23,  K122, KC_NO,   K24,   K79, KC_NO,   K27,   K28, KC_NO }, \
   { KC_NO, KC_NO,  K31,  KC_NO, KC_NO,  K110,   K34,   K37,   K39, KC_NO,   K38, KC_NO, KC_NO,   K40,   K33, KC_NO }, \
