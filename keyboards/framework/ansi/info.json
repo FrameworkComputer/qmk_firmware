@@ -16,7 +16,7 @@
     "processor": "RP2040",
     "url": "https://fr.mw/FRAKDKEN",
     "usb": {
-        "device_version": "0.1.6",
+        "device_version": "0.1.7",
         "pid": "0x0012",
         "vid": "0x32AC"
     },
