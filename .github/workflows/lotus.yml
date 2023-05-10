@@ -6,6 +6,7 @@ on:
     - master
     - develop
     - lotus
+    - iso-regular-slash
 
 jobs:
   fl16-build:
