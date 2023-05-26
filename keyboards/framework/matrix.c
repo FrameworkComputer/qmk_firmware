@@ -76,7 +76,7 @@ void adc_gpio_init(int gpio) {
 
 /**
  * Tell the mux to select a specific column
- * 
+ *
  * Splits the positive integer (<=7) into its three component bits.
 */
 static void mux_select_row(int row) {
@@ -258,12 +258,28 @@ static adc10ksample_t read_adc(void) {
  *
  * If the host is awake but the keyboard is idle it should enter a low-power state
  */
-void handle_idle(void) {
+bool handle_idle(void) {
     bool asleep = readPin(SLEEP_GPIO);
-    (void)asleep;
-    //uprintf("Host asleep: %d\n", asleep);
-
-    // TODO: Implement idle behavior
+    static uint8_t prev_asleep = -1;
+    static int host_sleep = 0;
+    /* reduce the scan speed to 10Hz */
+    if (prev_asleep != asleep) {
+        prev_asleep = asleep;
+        if (!asleep) {
+            suspend_power_down_quantum();
+        } else {
+            suspend_wakeup_init_quantum();
+        }
+    }
+    if (!asleep) {
+        if (timer_elapsed32(host_sleep) < 100) {
+            port_wait_for_interrupt();
+            return true;
+        } else {
+            host_sleep = timer_read32();
+        }
+    }
+    return false;
 }
 
 /**
@@ -272,7 +288,9 @@ void handle_idle(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
-    handle_idle();
+    if (handle_idle()) {
+        return false;
+    }
 
     //wait_us(500 * 1000);
     // Drive all high to deselect them
@@ -315,7 +333,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 
 /**
  * Enable the ADC MUX
- * 
+ *
  * TODO: Do we need a de-init? Probably not.
 */
 static void adc_mux_init(void) {
