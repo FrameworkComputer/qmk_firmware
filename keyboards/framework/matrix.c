@@ -57,9 +57,9 @@ adc10ksample_t to_voltage(adcsample_t sample) {
 }
 
 void print_as_float(adc10ksample_t sample) {
-  int digits = sample / 10000;
-  int decimals = sample % 10000;
-  uprintf("%d.%02d\n", digits, decimals);
+//  int digits = sample / 10000;
+//  int decimals = sample % 10000;
+//  uprintf("%d.%02d\n", digits, decimals);
 }
 
 /**
