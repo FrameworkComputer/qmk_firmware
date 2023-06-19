@@ -64,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_SPI, RGB_VAI, _______, _______, KC_PAUS, _______, _______, _______,
         _______, _______, KC_SYRQ, RGB_RMOD,RGB_HUD, RGB_SAD, RGB_SPD, RGB_VAD, KC_SCRL, _______, _______, _______,          _______,
         _______,          _______, _______, _______, _______, KC_BRK,  _______, _______, _______, _______, _______,          _______,
-        _______, _______, _______, _______,          BL_TOGG,                   _______, _______, KC_HOME, KC_PGUP, KC_PGDN, KC_END
+        _______, _______, _______, _______,          BL_STEP,                   _______, _______, KC_HOME, KC_PGUP, KC_PGDN, KC_END
     ),
     // Function lock layer
     // Everything on F-row locked to function layer, except ESC and DEL
@@ -82,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_SPI, RGB_VAI, _______, _______, KC_PAUS, _______, _______, _______,
         _______, _______, KC_SYRQ, RGB_RMOD,RGB_HUD, RGB_SAD, RGB_SPD, RGB_VAD, KC_SCRL, _______, _______, _______,          _______,
         _______,          _______, _______, _______, _______, KC_BRK,  _______, _______, _______, _______, _______,          _______,
-        _______, _______, _______, _______,          BL_TOGG,                   _______, _______, KC_HOME, KC_PGUP, KC_PGDN, KC_END
+        _______, _______, _______, _______,          BL_STEP,                   _______, _______, KC_HOME, KC_PGUP, KC_PGDN, KC_END
     ),
 };
 
