@@ -1,6 +1,6 @@
 {
-    "keyboard_name": "Laptop 16 Gridpad",
-    "manufacturer": "Framework Computer Inc",
+    "keyboard_name": "Laptop 16 RGB Macropad",
+    "manufacturer": "Framework",
     "maintainer": "JohnAZoidberg",
     "bootloader": "rp2040",
     "features": {

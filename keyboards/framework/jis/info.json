@@ -1,6 +1,6 @@
 {
-    "keyboard_name": "Laptop 16 JIS Keyboard",
-    "manufacturer": "Framework Computer Inc",
+    "keyboard_name": "Laptop 16 Keyboard Module - JIS",
+    "manufacturer": "Framework",
     "maintainer": "JohnAZoidberg",
     "bootloader": "rp2040",
     "features": {

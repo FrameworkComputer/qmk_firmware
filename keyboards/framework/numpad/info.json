@@ -1,6 +1,6 @@
 {
-    "keyboard_name": "Laptop 16 Numpad",
-    "manufacturer": "Framework Computer Inc",
+    "keyboard_name": "Laptop 16 Numpad Module",
+    "manufacturer": "Framework",
     "maintainer": "JohnAZoidberg",
     "bootloader": "rp2040",
     "features": {
