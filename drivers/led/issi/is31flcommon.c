@@ -99,8 +99,8 @@ void IS31FL_common_init(uint8_t addr, uint8_t ssr) {
     IS31FL_write_single_register(addr, ISSI_REG_CONFIGURATION, ISSI_CONFIGURATION);
     // Set Golbal Current Control Register
     IS31FL_write_single_register(addr, ISSI_REG_GLOBALCURRENT, ISSI_GLOBALCURRENT);
-    // Set Pull up & Down for SWx CSy
-    IS31FL_write_single_register(addr, ISSI_REG_PULLDOWNUP, ISSI_PULLDOWNUP);
+    // Set Pull up & Down for SWx CSy, and enable 180 degree phase delay
+    IS31FL_write_single_register(addr, ISSI_REG_PULLDOWNUP, ISSI_PULLDOWNUP | ISSI_PHASE_DELAY);
 // Set Tempature Status
 #ifdef ISSI_REG_TEMP
     IS31FL_write_single_register(addr, ISSI_REG_TEMP, ISSI_TEMP);

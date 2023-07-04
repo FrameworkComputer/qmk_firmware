@@ -80,6 +80,7 @@
 #endif
 #ifndef ISSI_PULLDOWNUP
 #    define ISSI_PULLDOWNUP 0x33
+#    define ISSI_PHASE_DELAY 0x80
 #endif
 #ifndef ISSI_TEMP
 #    define ISSI_TEMP 0x00
