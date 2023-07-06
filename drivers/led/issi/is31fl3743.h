@@ -37,18 +37,23 @@
 // Set defaults for Spread Spectrum Register
 #ifndef ISSI_SSR_1
 #    if DRIVER_COUNT == 1
+         // Disable sync
 #        define ISSI_SSR_1 0x00
 #    else
+         // Master clock output
 #        define ISSI_SSR_1 0xC0
 #    endif
 #endif
 #ifndef ISSI_SSR_2
+     // Slave clock input
 #    define ISSI_SSR_2 0x80
 #endif
 #ifndef ISSI_SSR_3
+     // Slave clock input
 #    define ISSI_SSR_3 0x80
 #endif
 #ifndef ISSI_SSR_4
+     // Slave clock input
 #    define ISSI_SSR_4 0x80
 #endif
 

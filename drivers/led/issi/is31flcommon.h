@@ -62,7 +62,7 @@ void                          IS31FL_set_manual_scaling_buffer(void);
 void IS31FL_write_single_register(uint8_t addr, uint8_t reg, uint8_t data);
 bool IS31FL_write_multi_registers(uint8_t addr, uint8_t *source_buffer, uint8_t buffer_size, uint8_t transfer_size, uint8_t start_reg_addr);
 void IS31FL_unlock_register(uint8_t addr, uint8_t page);
-void IS31FL_common_init(uint8_t addr, uint8_t ssr);
+void IS31FL_common_init(uint8_t addr, uint8_t ssr, uint8_t phase_delay);
 
 void IS31FL_common_update_pwm_register(uint8_t addr, uint8_t index);
 void IS31FL_common_update_scaling_register(uint8_t addr, uint8_t index);

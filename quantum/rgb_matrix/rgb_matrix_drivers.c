@@ -88,13 +88,13 @@ static void init(void) {
     IS31FL3741_init(DRIVER_ADDR_1);
 
 #    elif defined(IS31FLCOMMON)
-    IS31FL_common_init(DRIVER_ADDR_1, ISSI_SSR_1);
+    IS31FL_common_init(DRIVER_ADDR_1, ISSI_SSR_1, ISSI_PHASE_DELAY);
 #        if defined(DRIVER_ADDR_2)
-    IS31FL_common_init(DRIVER_ADDR_2, ISSI_SSR_2);
+    IS31FL_common_init(DRIVER_ADDR_2, ISSI_SSR_2, 0);
 #            if defined(DRIVER_ADDR_3)
-    IS31FL_common_init(DRIVER_ADDR_3, ISSI_SSR_3);
+    IS31FL_common_init(DRIVER_ADDR_3, ISSI_SSR_3, ISSI_PHASE_DELAY);
 #                if defined(DRIVER_ADDR_4)
-    IS31FL_common_init(DRIVER_ADDR_4, ISSI_SSR_4);
+    IS31FL_common_init(DRIVER_ADDR_4, ISSI_SSR_4, 0);
 #                endif
 #            endif
 #        endif

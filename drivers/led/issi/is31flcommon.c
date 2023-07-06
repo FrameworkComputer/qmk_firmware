@@ -89,7 +89,7 @@ void IS31FL_unlock_register(uint8_t addr, uint8_t page) {
     IS31FL_write_single_register(addr, ISSI_COMMANDREGISTER, page);
 }
 
-void IS31FL_common_init(uint8_t addr, uint8_t ssr) {
+void IS31FL_common_init(uint8_t addr, uint8_t ssr, uint8_t phase_delay) {
     // Setup phase, need to take out of software shutdown and configure
     // ISSI_SSR_x is passed to allow Master / Slave setting where applicable
 
@@ -100,7 +100,7 @@ void IS31FL_common_init(uint8_t addr, uint8_t ssr) {
     // Set Golbal Current Control Register
     IS31FL_write_single_register(addr, ISSI_REG_GLOBALCURRENT, ISSI_GLOBALCURRENT);
     // Set Pull up & Down for SWx CSy, and enable 180 degree phase delay
-    IS31FL_write_single_register(addr, ISSI_REG_PULLDOWNUP, ISSI_PULLDOWNUP | ISSI_PHASE_DELAY);
+    IS31FL_write_single_register(addr, ISSI_REG_PULLDOWNUP, ISSI_PULLDOWNUP | phase_delay);
 // Set Tempature Status
 #ifdef ISSI_REG_TEMP
     IS31FL_write_single_register(addr, ISSI_REG_TEMP, ISSI_TEMP);
