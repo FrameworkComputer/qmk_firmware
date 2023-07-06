@@ -35,6 +35,9 @@
 #endif
 
 // Set defaults for Spread Spectrum Register
+#define ISSI_SSP 0x10
+#define ISSI_RNG_34 0xC
+#define ISSI_CLT_660 0x3
 #ifndef ISSI_SSR_1
 #    if DRIVER_COUNT == 1
          // Disable sync

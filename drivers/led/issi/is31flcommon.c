@@ -106,7 +106,7 @@ void IS31FL_common_init(uint8_t addr, uint8_t ssr, uint8_t phase_delay) {
     IS31FL_write_single_register(addr, ISSI_REG_TEMP, ISSI_TEMP);
 #endif
     // Set Spread Spectrum Register, passed through as sets SYNC function
-    IS31FL_write_single_register(addr, ISSI_REG_SSR, ssr);
+    IS31FL_write_single_register(addr, ISSI_REG_SSR, ssr | ISSI_SSP | ISSI_RNG_34 | ISSI_CLT_660);
 // Set PWM Frequency Enable Register if applicable
 #ifdef ISSI_REG_PWM_ENABLE
     IS31FL_write_single_register(addr, ISSI_REG_PWM_ENABLE, ISSI_PWM_ENABLE);
