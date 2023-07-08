@@ -3,6 +3,7 @@
   "vendorId": "0x32AC",
   "productId": "0x0013",
   "matrix": {"rows": 4, "cols": 8},
+  "keycodes": ["qmk_lighting"],
   "menus": ["qmk_rgb_matrix"],
   "layouts": {
     "keymap": [
