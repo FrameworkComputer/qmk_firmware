@@ -108,7 +108,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         TG(1),   RGB_RMOD,RGB_VAD, XXXXXXX,
         RGB_HUI, RGB_SAI, RGB_SPI, KC_BSPC,
         RGB_HUD, RGB_SAD, RGB_SPD, KC_ENT,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, KC_UP,   XXXXXXX, XXXXXXX,
         KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX
     ),
      /* Numpad
