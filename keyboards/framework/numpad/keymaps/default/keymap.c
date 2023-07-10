@@ -29,28 +29,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_P0,        KC_PDOT, KC_PENT
     ),
      /*
+     * Simulating numlock so that we can use extra keys for special functions.
+     * Keeping actual numlock in case users want to toggle OS state.
      *         ┌────┬────┬────┬────┐
-     *  4 keys │    │    │    │    │
+     *  4 keys │    │    │    │ Num│
      *         ├────┼────┼────┼────┤
      *  4 keys │    │    │    │    │
      *         ├────┼────┼────┼────┤
-     *  3 keys │Home│ ↑  │PgUp│    │
-     *         ├────┼────┼────┤    │
-     *  4 keys │ ←  │    │ →  │    │
+     *  3 keys │Home│ ↑  │PgUp│BL  │
+     *         ├────┼────┼────┤Brtg│
+     *  4 keys │ ←  │    │ →  │    |
      *         ├────┼────┼────┼────┤
-     *  3 keys │End │ ↓  │PdDn│    │
-     *         ├────┴────┼────┤    │
+     *  3 keys │End │ ↓  │PdDn│BL  │
+     *         ├────┴────┼────┤Step│
      *  3 keys │ Insert  │Del │    │
      *         └─────────┴────┴────┴
      * 21 total
      */
     [1] = LAYOUT(
+        _______, _______, _______, KC_NUM,
         _______, _______, _______, _______,
-        _______, ______,  _______, _______,
         KC_HOME, KC_UP,   KC_PGUP,
-        KC_LEFT, _______, KC_RGHT, _______,
+        KC_LEFT, _______, KC_RGHT, BL_BRTG,
         KC_END,  KC_DOWN, KC_PGDN,
-            KC_INS,       KC_DEL,  _______
+            KC_INS,       KC_DEL,  BL_STEP
 
     )
 
