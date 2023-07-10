@@ -15,7 +15,7 @@ uint16_t dyn_serial_number_string_len(void);
 // Must be wide-string (UTF-16)
 // KDK = Keyboard RGB   Backlight
 // KDW = Keyboard White Backlight
-// KDN = Keyboard RGB   Gridpad
+// KDN = Keyboard RGB   Macropad
 // KDM = Keyboard White Numpad
 #define FALLBACK_SERIAL_NUMBER L"FRAKDKEN0100000000"
 _Static_assert(sizeof(FALLBACK_SERIAL_NUMBER) == (SERIALNUM_LEN+1)*2, "Fallback serial number must be same length");

@@ -27,7 +27,7 @@ jobs:
         qmk lint -kb framework/iso -km default
         qmk lint -kb framework/jis -km default
         qmk lint -kb framework/numpad -km default
-        qmk lint -kb framework/gridpad -km default
+        qmk lint -kb framework/macropad -km default
 
     - name: Build Framework Laptop 16 ANSI variant
       run: qmk compile -kb framework/ansi -km default
@@ -41,8 +41,8 @@ jobs:
     - name: Build Framework Laptop 16 Numpad
       run: qmk compile -kb framework/numpad -km default
 
-    - name: Build Framework Laptop 16 Gridpad
-      run: qmk compile -kb framework/gridpad -km default
+    - name: Build Framework Laptop 16 Macropad
+      run: qmk compile -kb framework/macropad -km default
 
     - uses: actions/upload-artifact@v3
       with:

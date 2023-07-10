@@ -1,7 +1,7 @@
 // Copyright 2022 Framework Computer
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-// Same as gridpad with a few keys removed
+// Same as macropad with a few keys removed
 #define LAYOUT( \
     H1,    H2,    H3,    H4, \
    K90,   K95,  K100,  K105, \

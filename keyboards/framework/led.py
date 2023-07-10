@@ -18,7 +18,7 @@ from collections import OrderedDict
 # Keyboard
 MATRIX_ROWS = 8
 MATRIX_COLS = 16
-# Gridpad
+# Macropad
 #MATRIX_ROWS = 4
 #MATRIX_COLS = 8
 
@@ -155,7 +155,7 @@ ansi = [
     { "id": "92", "x":1120, "y": 542, "matrix": (15,2)  },
 ]
 
-gridpad = [
+macropad = [
     { "id": "6",  "x":1332, "y": 158, "matrix": (1,2) },
     { "id": "3",  "x":1395, "y": 158, "matrix": (2,2) },
     { "id": "23", "x":1460, "y": 158, "matrix": (4,3) },

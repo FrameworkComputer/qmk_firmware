@@ -6,7 +6,7 @@ RAW_ENABLE = no
 # Enabled in info.json
 # EXTRAKEY_ENABLE = yes          # Audio control and System control
 
-# Enable for all. ANSI keyboard supports RGB and white, gridpad only RGB, all others only white.
+# Enable for all. ANSI keyboard supports RGB and white, macropad only RGB, all others only white.
 # No harm in enabling it for all.
 # Also RP pico has the built-in LED wired to the same GPIO. Good for prototyping
 BACKLIGHT_ENABLE = yes

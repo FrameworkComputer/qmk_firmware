@@ -13,8 +13,8 @@
     #include "jis.h"
 #elif KEYBOARD_framework_numpad
     #include "numpad.h"
-#elif KEYBOARD_framework_gridpad
-    #include "gridpad.h"
+#elif KEYBOARD_framework_macropad
+    #include "macropad.h"
 #endif
 
 enum framework_keycodes {
