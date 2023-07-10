@@ -86,8 +86,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *  4 keys │ RGB   │RGB Nxt│ RGB + │ Sleep │
      *         │Toggle │Effect │Brightn│       │
      *         ├───────┼───────┼───────┼───────┤
-     *  4 keys │Numpad │RGB Prv│ RGB - │       │
-     *         │Layer  │Effect │Brightn│       │
+     *  4 keys │Numpad │RGB Prv│ RGB - │ RGB BL│
+     *         │Layer  │Effect │Brightn│ Step  │
      *         ├───────┼───────┼───────┼───────┤
      *  4 keys │ RGB + │ RGB + │ RGB + │  <--  │
      *         │ Hue   │ Sat   │ Speed │       │
@@ -105,7 +105,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
     [0] = LAYOUT(
         RGB_TOG, RGB_MOD, RGB_VAI, KC_SLEP,
-        TG(1),   RGB_RMOD,RGB_VAD, XXXXXXX,
+        TG(1),   RGB_RMOD,RGB_VAD, BL_STEP,
         RGB_HUI, RGB_SAI, RGB_SPI, KC_BSPC,
         RGB_HUD, RGB_SAD, RGB_SPD, KC_ENT,
         XXXXXXX, KC_UP,   XXXXXXX, XXXXXXX,
