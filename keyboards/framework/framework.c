@@ -62,7 +62,36 @@ void suspend_wakeup_init_kb(void) {
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   process_record_user(keycode, record);
 
+  uint8_t h;
+  uint8_t s;
+  uint8_t v;
+  uint8_t new_v;
+
   switch (keycode) {
+    // Implement step brightness for RGB backlight
+    case BL_STEP:
+      if (record->event.pressed) {
+        h = rgb_matrix_get_hue();
+        s = rgb_matrix_get_sat();
+        v = rgb_matrix_get_val();
+        switch (v) {
+          default: // Default when user set to a different level
+          case 0:
+            new_v = 85;
+            break;
+          case 85:
+            new_v = 170;
+            break;
+          case 170:
+            new_v = 255;
+            break;
+          case 255:
+            new_v = 0;
+            break;
+        }
+        rgb_matrix_sethsv_noeeprom(h, s, new_v);
+      }
+      return true;
     case KC_SCRN:
       // Simulate press WIN+P
       // Works (at least) on Windows and GNOME
