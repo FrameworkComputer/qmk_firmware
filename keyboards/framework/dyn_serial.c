@@ -19,6 +19,10 @@ USB_Descriptor_String_t PROGMEM SerialNumberString = {
 char ascii_serialnum[SERIALNUM_LEN+1];
 
 void *dyn_serial_number_string(void) {
+  // TODO: Fix this
+  // Need to remove the logic here because it overlaps with VIA settings
+  return &SerialNumberString;
+
   // Exit early, if it was previously read and converted
   if (ascii_serialnum[0] != '\0' || ascii_serialnum[0] == 0xFF) {
       return &SerialNumberString;
