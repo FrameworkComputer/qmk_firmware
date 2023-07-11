@@ -92,7 +92,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             new_v = 0;
             break;
         }
-        rgb_matrix_sethsv_noeeprom(h, s, new_v);
+        rgb_matrix_sethsv(h, s, new_v);
       }
       return true;
 #endif
