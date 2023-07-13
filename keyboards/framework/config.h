@@ -35,6 +35,8 @@
 #define BACKLIGHT_PWM_DRIVER    PWMD4
 #define BACKLIGHT_PWM_CHANNEL   RP2040_PWM_CHANNEL_B
 #define BACKLIGHT_BREATHING
+// Change PWM frequency to 24kHz, the default of 2048Hz causes loud noise
+#define BACKLIGHT_PWM_PERIOD BACKLIGHT_PWM_COUNTER_FREQUENCY / 24000
 
 // I2C for the RBG controller
 #define I2C_DRIVER I2CD1
