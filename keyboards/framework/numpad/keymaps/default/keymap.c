@@ -1,4 +1,4 @@
-// Copyright 2022 Framework Computer
+// Copyright 2022-2023 Framework Computer
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
@@ -20,19 +20,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *         └─────────┴────┴────┴
      * 21 total
      */
-    [0] = LAYOUT(
+    [_NUMLOCK] = LAYOUT(
         KC_ESC,  KC_CALC, KC_EQL,  KC_BSPC,
-        TG(1),   KC_PSLS, KC_PAST, KC_PMNS,
+        KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
         KC_P7,   KC_P8,   KC_P9,
         KC_P4,   KC_P5,   KC_P6,   KC_PPLS,
         KC_P1,   KC_P2,   KC_P3,
             KC_P0,        KC_PDOT, KC_PENT
     ),
      /*
-     * Simulating numlock so that we can use extra keys for special functions.
-     * Keeping actual numlock in case users want to toggle OS state.
+     * Extra keys for when numlock is disabled.
+     * Numlock keys are passed through to the number layer,
+     * and automatically remapped by the OS.
      *         ┌────┬────┬────┬────┐
-     *  4 keys │    │    │    │ Num│
+     *  4 keys │    │    │    │    │
      *         ├────┼────┼────┼────┤
      *  4 keys │    │    │    │    │
      *         ├────┼────┼────┼────┤
@@ -46,14 +47,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *         └─────────┴────┴────┴
      * 21 total
      */
-    [1] = LAYOUT(
-        _______, _______, _______, KC_NUM,
+    [_FN] = LAYOUT(
         _______, _______, _______, _______,
-        KC_HOME, KC_UP,   KC_PGUP,
-        KC_LEFT, _______, KC_RGHT, BL_BRTG,
-        KC_END,  KC_DOWN, KC_PGDN,
-            KC_INS,       KC_DEL,  BL_STEP
+        _______, _______, _______, _______,
+        _______, _______, _______,
+        _______, _______, _______, BL_BRTG,
+        _______, _______, _______,
+            _______,      _______, BL_STEP
 
     )
 
 };
+
+bool led_update_user(led_t led_state) {
+    // Change layer if numlock state changes, either triggered by OS or
+    // by numlock key on this keyboard
+    if (led_state.num_lock) {
+        layer_on(_NUMLOCK);
+    } else {
+        layer_off(_FN);
+    }
+    return true;
+}
