@@ -63,9 +63,9 @@ bool led_update_user(led_t led_state) {
     // Change layer if numlock state changes, either triggered by OS or
     // by numlock key on this keyboard
     if (led_state.num_lock) {
-        layer_on(_NUMLOCK);
-    } else {
         layer_off(_FN);
+    } else {
+        layer_on(_FN);
     }
     return true;
 }
