@@ -59,8 +59,49 @@ void suspend_wakeup_init_kb(void) {
 #endif
 }
 
+// If in BIOS mode, no matter what the keys have been remapped to, always send them as the F keys
+bool bios_mode = false;
+bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
+  // Not in bios mode, no special handling, handle as normal
+  if (!bios_mode)
+    return true;
+
+  if (record->event.key.col == 5 && record->event.key.row == 2) {
+      if (record->event.pressed) {
+        register_code(KC_F2);
+      } else {
+        unregister_code(KC_F2);
+      }
+      return false;
+  }
+
+  if (record->event.key.col == 8 && record->event.key.row == 4) {
+      if (record->event.pressed) {
+        register_code(KC_F10);
+      } else {
+        unregister_code(KC_F10);
+      }
+      return false;
+  }
+
+  if (record->event.key.col == 13 && record->event.key.row == 3) {
+      if (record->event.pressed) {
+        register_code(KC_F12);
+      } else {
+        unregister_code(KC_F12);
+      }
+      return false;
+  }
+
+  return true;
+}
+
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   process_record_user(keycode, record);
+
+  if (!handle_bios_hotkeys(keycode, record)) {
+    return false;
+  }
 
 #ifdef RGB_MATRIX_ENABLE
   uint8_t h;

@@ -15,6 +15,7 @@
 enum factory_commands {
     f_emu_keypress  = 0x01, // Next byte is keycode
     f_serialnum     = 0x04, // Read device serial number
+    f_bios_mode     = 0x05, // Read device serial number
     f_bootloader    = 0xFE,
 };
 
@@ -60,6 +61,12 @@ void handle_factory_command(uint8_t *data) {
 #else
             uprintf("Serial number unavailable\n");
 #endif
+            break;
+        case f_bios_mode:
+            if (command_data[0] == 0x01)
+                bios_mode = true;
+            else
+                bios_mode = false;
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
