@@ -36,6 +36,8 @@
 #    include "is31fl3741.h"
 #elif defined(IS31FLCOMMON)
 #    include "is31flcommon.h"
+#elif defined(AW20198)
+#    include "aw20xxx.h"
 #elif defined(CKLED2001)
 #    include "ckled2001.h"
 #elif defined(AW20216)
