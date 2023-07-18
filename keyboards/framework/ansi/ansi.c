@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
+#include "aw20xxx.h"
 
 #define CS19_SW12 0x00
 #define CS20_SW12 0x01
@@ -175,7 +176,7 @@
 #define CS36_SW20 0xA1
 
 // TODO: Should have attribute __flash. But won't compile if I add it
-const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
+const aw20_led g_aw20_leds[RGB_MATRIX_LED_COUNT] = {
 /* Refer to IS31 manual for these locations
  *   driver
  *   |    R location

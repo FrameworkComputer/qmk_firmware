@@ -4,6 +4,8 @@
 #include QMK_KEYBOARD_H
 #include "framework.h"
 
+#include "aw20xxx.h"
+
 enum _layers {
   _BASE,
   _FN,
