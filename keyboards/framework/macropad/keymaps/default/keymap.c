@@ -3,7 +3,9 @@
 
 #include QMK_KEYBOARD_H
 
-const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
+#include "aw20xxx.h"
+
+const aw20_led g_aw20_leds[RGB_MATRIX_LED_COUNT] = {
 /* Refer to IS31 manual for these locations
  *   driver
  *   |   R location
