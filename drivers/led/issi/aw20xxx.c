@@ -34,6 +34,9 @@
 #    define AW20_PERSISTENCE 0
 #endif
 
+uint8_t aw20xxx_chip_id[4] = {};
+uint8_t chip_init_index = 0;
+
 // Transfer buffer for TWITransmitData()
 uint8_t g_twi_transfer_buffer[20];
 
@@ -71,8 +74,10 @@ bool AW20_write_multi_registers(uint8_t addr, uint8_t *source_buffer, uint8_t bu
     return true;
 }
 
-bool AW20_read(uint8_t addr, uint8_t *value) {
-    return i2c_transmit(addr << 1, value, 1, AW20_TIMEOUT) != 0;
+bool AW20_read(uint8_t addr, uint8_t reg, uint8_t *value) {
+    if (i2c_transmit(addr << 1, &reg, 1, AW20_TIMEOUT) != 0)
+        return false;
+    return i2c_receive(addr << 1, value, 1, AW20_TIMEOUT) != 0;
 }
 
 bool AW20_write(uint8_t addr, uint8_t reg, uint8_t data) {
@@ -97,32 +102,58 @@ uint8_t AW20_set_page(uint8_t addr, uint8_t page) {
 
 uint8_t AW20_set_config(uint8_t addr, uint8_t regaddr, uint8_t value) {
     uint8_t ret = AW20_set_page(addr, AW20198_PAGE_FUNC);
-    if (ret) {
+    if (!ret) {
         return ret;
     }
 
     return AW20_write(addr, regaddr, value);
 }
 
-uint8_t  AW20_reset(uint8_t addr) {
+uint8_t AW20_reset(uint8_t addr) {
     return AW20_set_config(addr, AW20_REG_RESET, AW20198_RESET_MAGIC);
 }
 
+uint8_t AW20_chip_swen(uint8_t addr) {
+    uint8_t ret = AW20_set_page(addr, AW20198_PAGE_FUNC);
+    if (!ret) {
+        return ret;
+    }
+
+    uint8_t val;
+    AW20_read(addr, AW20198_REG_GCR, &val);
+    val &= BIT_CHIPEN_DIS;
+    val |= BIT_CHIPEN_EN;
+    AW20_write(addr, AW20198_REG_GCR, val);
+    return true;
+}
+
+bool AW20_set_global_current(uint8_t addr, uint8_t gcr) {
+    return AW20_set_config(addr, AW20198_REG_GCC, gcr);
+}
+
 void AW20_common_init(uint8_t addr, uint8_t ssr) {
-    //uint8_t chip_id;
-    //uint8_t rv;
+    uint8_t rv;
 
     // chip_hwen()
 
     print("Initiating AW20198 reset");
     AW20_reset(addr); // soft_rst
 
-    // chip_swen
+    AW20_chip_swen(addr);
 
-    //rv = AW_20_read(AW20_REG_RSTN, &chip_id);
+    // Is 0x60 when we expect 0x71
+    rv = AW20_read(addr, AW20_REG_RESET, &aw20xxx_chip_id[chip_init_index]);
+    chip_init_index++;
+    rv = rv+1;
 
-    // set_global_current(0xFF)
+    AW20_set_config(addr, AW20_REG_PCCR, PWMFRQ_62k);// | PHSEL_THREE);
+    //AW20_set_config(addr, AW20_REG_PCCR, PWMFRQ_31k);
+
+    AW20_set_global_current(addr, 0xFF);
+
+    // Enable page 4
     // i2c_writebyte(MICXR, 0x04)
+    //AW20_write(addr, AW20198_REG_MIXCR, val);
 
 //    // Setup phase, need to take out of software shutdown and configure
 //    // AW20_SSR_x is passed to allow Master / Slave setting where applicable
@@ -139,8 +170,8 @@ void AW20_common_init(uint8_t addr, uint8_t ssr) {
 //#ifdef AW20_REG_TEMP
 //    AW20_write(addr, AW20_REG_TEMP, AW20_TEMP);
 //#endif
-//    // Set Spread Spectrum Register, passed through as sets SYNC function
-//    AW20_write(addr, AW20_REG_SSR, ssr);
+    // Set Spread Spectrum Register, passed through as sets SYNC function
+    AW20_write(addr, AW20_REG_SSR, ssr);// | SLEW_SRF_6NS | SLEW_SSR_6NS);
 //// Set PWM Frequency Enable Register if applicable
 //#ifdef AW20_REG_PWM_ENABLE
 //    AW20_write(addr, AW20_REG_PWM_ENABLE, AW20_PWM_ENABLE);
@@ -154,10 +185,18 @@ void AW20_common_init(uint8_t addr, uint8_t ssr) {
     wait_ms(10);
 }
 
+void print_chip_ids(void) {
+    dprintf("Chip ID\n");
+    dprintf("  %02X\n", aw20xxx_chip_id[0]);
+    dprintf("  %02X\n", aw20xxx_chip_id[1]);
+    dprintf("  %02X\n", aw20xxx_chip_id[2]);
+    dprintf("  %02X\n", aw20xxx_chip_id[3]);
+}
+
 void AW20_common_update_pwm_register(uint8_t addr, uint8_t index) {
+    //dprintf("Chip ID: %02X\n", aw20xxx_chip_id);
     if (g_pwm_buffer_update_required[index]) {
-        // Queue up the correct page
-        //IS31FL_unlock_register(addr, AW20_PAGE_PWM);
+        // Select the correct page
         AW20_set_page(addr, AW20198_PAGE_PWM);
 
         // Hand off the update to AW20_write_multi_registers
@@ -170,6 +209,7 @@ void AW20_common_update_pwm_register(uint8_t addr, uint8_t index) {
 
 #ifdef AW20_MANUAL_SCALING
 void AW20_set_manual_scaling_buffer(void) {
+    //dprintf("Chip ID: %02X\n", aw20xxx_chip_id);
     for (int i = 0; i < AW20_MANUAL_SCALING; i++) {
         aw20_led scale = g_aw20_scaling[i];
 #    ifdef RGB_MATRIX_ENABLE
@@ -192,9 +232,9 @@ void AW20_set_manual_scaling_buffer(void) {
 #endif
 
 void AW20_common_update_scaling_register(uint8_t addr, uint8_t index) {
+    //dprintf("Chip ID: %02X\n", aw20xxx_chip_id);
     if (g_scaling_buffer_update_required[index]) {
         // Queue up the correct page
-        //IS31FL_unlock_register(addr, AW20_PAGE_SCALING);
         AW20_set_page(addr, AW20198_PAGE_SCALE);
 
         // Hand off the update to AW20_write_multi_registers
@@ -208,6 +248,7 @@ void AW20_common_update_scaling_register(uint8_t addr, uint8_t index) {
 #ifdef RGB_MATRIX_ENABLE
 // Colour is set by adjusting PWM register
 void AW20_RGB_set_color(int index, uint8_t red, uint8_t green, uint8_t blue) {
+    //dprintf("Chip ID: %02X\n", aw20xxx_chip_id);
     if (index >= 0 && index < RGB_MATRIX_LED_COUNT) {
         aw20_led led = g_aw20_leds[index];
 
@@ -219,6 +260,7 @@ void AW20_RGB_set_color(int index, uint8_t red, uint8_t green, uint8_t blue) {
 }
 
 void AW20_RGB_set_color_all(uint8_t red, uint8_t green, uint8_t blue) {
+    //dprintf("Chip ID: %02X\n", aw20xxx_chip_id);
     for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
         AW20_RGB_set_color(i, red, green, blue);
     }
@@ -258,6 +300,7 @@ void AW20_simple_set_scaling_buffer(uint8_t index, bool value) {
 }
 
 void AW20_simple_set_brightness(int index, uint8_t value) {
+    //dprintf("Chip ID: %02X\n", aw20xxx_chip_id);
     if (index >= 0 && index < LED_MATRIX_LED_COUNT) {
         aw20_led led = g_aw20_leds[index];
         g_pwm_buffer[led.driver][led.v] = value;
@@ -266,6 +309,7 @@ void AW20_simple_set_brightness(int index, uint8_t value) {
 }
 
 void AW20_simple_set_brigntness_all(uint8_t value) {
+    //dprintf("Chip ID: %02X\n", aw20xxx_chip_id);
     for (int i = 0; i < LED_MATRIX_LED_COUNT; i++) {
         AW20_simple_set_brightness(i, value);
     }

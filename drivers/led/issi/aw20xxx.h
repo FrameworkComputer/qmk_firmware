@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include "progmem.h"
 
+extern uint8_t aw20xxx_chip_id[4];
 
 #define AW20_TIMEOUT 100
 
@@ -41,7 +42,7 @@
 #define AW20198_PAGE_PAT 0xC3
 #define AW20198_PAGE_PWM_SCALE 0xC4
 
-//#define AW20198_REG_GCR 0x00
+#define AW20198_REG_GCR 0x00
 #define AW20198_REG_GCR_SWSEL_MASK 0xF0
 #define AW20198_REG_GCR_SWSEL_SHIFT 4
 #define AW20198_REG_GCR_SW1_ACTIVE 0
@@ -56,11 +57,14 @@
 #define AW20198_REG_GCR_SW1_TO_SW10_ACTIVE 9
 #define AW20198_REG_GCR_SW1_TO_SW11_ACTIVE 10
 
-//#define AW20198_REG_GCC 0x01
+#define AW20198_REG_GCC 0x01
 #define AW20198_REG_MIXCR 0x46
 #define AW20198_REG_PAGE 0xF0
 
 #define AW20198_RESET_MAGIC 0xAE
+
+#define BIT_CHIPEN_DIS			(~(1<<0))
+#define BIT_CHIPEN_EN			(0x1)
 
 #ifdef RGB_MATRIX_ENABLE
 typedef struct aw20_led {
@@ -126,17 +130,17 @@ void AW20_simple_set_brigntness_all(uint8_t value);
 #    if DRIVER_COUNT == 1
 #        define AW20_SSR_1 0x00
 #    else
-#        define AW20_SSR_1 0xC0
+#        define AW20_SSR_1 0x80
 #    endif
 #endif
 #ifndef AW20_SSR_2
-#    define AW20_SSR_2 0x80
+#    define AW20_SSR_2 0x40
 #endif
 #ifndef AW20_SSR_3
-#    define AW20_SSR_3 0x80
+#    define AW20_SSR_3 0x40
 #endif
 #ifndef AW20_SSR_4
-#    define AW20_SSR_4 0x80
+#    define AW20_SSR_4 0x40
 #endif
 
 // Command Registers
@@ -157,9 +161,27 @@ void AW20_simple_set_brigntness_all(uint8_t value);
 #define AW20_REG_TEMP 0x27
 #define AW20_REG_SSR 0x28
 #define AW20_REG_PWM_CLOCK 0x28
+#define AW20_REG_PCCR 0x29
 #define AW20_REG_UVLO 0x2A
 #define AW20_REG_SRCR 0x2B
 #define AW20_REG_RESET 0x2F
+
+#define PWMFRQ_62k 0x00
+#define PWMFRQ_31k 0x20
+#define PWMFRQ_15k 0x40
+#define PWMFRQ_7k  0x60
+
+#define PHSEL_SYNC   0x00
+#define PHSEL_INVERT 0x01
+#define PHSEL_THREE  0x10
+
+#define SLEW_SSR_1NS 0x00 // Default
+#define SLEW_SSR_6NS 0x04
+
+#define SLEW_SRF_1NS  0x00
+#define SLEW_SRF_3NS  0x01
+#define SLEW_SRF_6NS  0x02 // Default
+#define SLEW_SRF_10NS 0x03
 
 // Set defaults for Function Registers
 #ifndef AW20_CONFIGURATION
