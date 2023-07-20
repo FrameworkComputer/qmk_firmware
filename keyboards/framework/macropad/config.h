@@ -7,3 +7,6 @@
 #define DRIVER_COUNT 1
 #define DRIVER_ADDR_1 0b0100000
 #define RGB_MATRIX_LED_COUNT 24
+// Enable only the first 4 SW and disable software shutdown
+// Otherwise voltage on SW pins without LEDs causes voltage rise and noise
+#define ISSI_CONFIGURATION 0x71
