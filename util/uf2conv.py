@@ -388,8 +388,8 @@ def main():
         if ext == "uf2" and not args.convert and not args.info:
             drives = get_drives()
             if len(drives) == 0:
-                error("No drive to deploy.")
-                if args.wait:
+                #error("No drive to deploy.")
+                if args.wait or True:
                     print("Waiting for drive to deploy...")
                     while len(drives) == 0:
                         sleep(0.1)
