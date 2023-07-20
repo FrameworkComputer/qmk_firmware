@@ -139,6 +139,9 @@ void AW20_common_init(uint8_t addr, uint8_t ssr) {
     print("Initiating AW20198 reset");
     AW20_reset(addr); // soft_rst
 
+    // Enable only the rows we use
+    AW20_set_config(addr, AW20198_REG_GCR, AW20198_REG_GCR_SW1_TO_SW9_ACTIVE);
+
     AW20_chip_swen(addr);
 
     // Is 0x60 when we expect 0x71

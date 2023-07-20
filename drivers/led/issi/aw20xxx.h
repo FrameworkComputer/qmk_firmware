@@ -29,13 +29,6 @@ extern uint8_t aw20xxx_chip_id[4];
 
 #define AW20_TIMEOUT 100
 
-/* This depends on AD0 and AD1. (GRD, GRD) = 0x20. */
-#define AW20198_I2C_ADDR_FLAG 0x20
-
-#define AW20198_ROW_SIZE 6
-#define AW20198_COL_SIZE 11
-#define AW20198_GRID_SIZE (AW20198_COL_SIZE * AW20198_ROW_SIZE)
-
 #define AW20198_PAGE_FUNC 0xC0
 #define AW20198_PAGE_PWM 0xC1
 #define AW20198_PAGE_SCALE 0xC2
@@ -174,6 +167,13 @@ void AW20_simple_set_brigntness_all(uint8_t value);
 #define PHSEL_SYNC   0x00
 #define PHSEL_INVERT 0x01
 #define PHSEL_THREE  0x10
+
+#define SSE_ENABLE  0x10
+#define SSE_DISABLE 0x00
+#define SSR_5PCT    0x00
+#define SSR_15PCT   0x04
+#define SSR_25PCT   0x08
+#define SSR_35PCT   0x0C
 
 #define SLEW_SSR_1NS 0x00 // Default
 #define SLEW_SSR_6NS 0x04
