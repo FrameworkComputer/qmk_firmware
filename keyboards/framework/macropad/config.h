@@ -10,3 +10,7 @@
 // Enable only the first 4 SW and disable software shutdown
 // Otherwise voltage on SW pins without LEDs causes voltage rise and noise
 #define ISSI_CONFIGURATION 0x71
+
+// Limit current to ensure max current draw is just about 500mA
+// when white at 100% brightness
+#define ISSI_GLOBALCURRENT 185

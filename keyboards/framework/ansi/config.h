@@ -11,3 +11,7 @@
 #define DRIVER_2_LED_TOTAL 49
 #define RGB_MATRIX_LED_COUNT (DRIVER_1_LED_TOTAL + DRIVER_2_LED_TOTAL)
 #define ISSI_CONFIGURATION 0x21 // Enable only the first 9 SW and disable software shutdown
+
+// Limit current to ensure max current draw is just about 500mA
+// when white att 100% brightness
+#define ISSI_GLOBALCURRENT  104
