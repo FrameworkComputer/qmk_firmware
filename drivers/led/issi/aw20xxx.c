@@ -131,6 +131,27 @@ bool AW20_set_global_current(uint8_t addr, uint8_t gcr) {
     return AW20_set_config(addr, AW20198_REG_GCC, gcr);
 }
 
+bool AW20_set_active_rows(uint8_t addr, uint8_t sw) {
+    uint8_t ret = AW20_set_page(addr, AW20198_PAGE_FUNC);
+    if (!ret) {
+        return ret;
+    }
+
+    uint8_t val;
+    AW20_read(addr, AW20198_REG_GCR, &val);
+
+
+    uint8_t gcr_sw = 10;
+    if (sw >= 11) {
+        gcr_sw = sw-1;
+    }
+    val &= ~AW20198_REG_GCR_SWSEL_MASK;
+    val |= gcr_sw << AW20198_REG_GCR_SWSEL_SHIFT;
+
+    AW20_write(addr, AW20198_REG_GCR, val);
+    return true;
+}
+
 void AW20_common_init(uint8_t addr, uint8_t ssr) {
     uint8_t rv;
 
@@ -139,8 +160,8 @@ void AW20_common_init(uint8_t addr, uint8_t ssr) {
     print("Initiating AW20198 reset");
     AW20_reset(addr); // soft_rst
 
-    // Enable only the rows we use
-    AW20_set_config(addr, AW20198_REG_GCR, AW20198_REG_GCR_SW1_TO_SW9_ACTIVE);
+    // Enable only the first 9 rows
+    AW20_set_active_rows(addr, 9);
 
     AW20_chip_swen(addr);
 
