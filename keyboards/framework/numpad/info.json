@@ -9,7 +9,7 @@
         "extrakey": true,
         "console": true,
         "command": false,
-        "nkro": false,
+        "nkro": true,
         "audio": false
     },
     "debounce": 5,
@@ -18,7 +18,8 @@
     "usb": {
         "device_version": "0.2.1",
         "pid": "0x0014",
-        "vid": "0x32AC"
+        "vid": "0x32AC",
+        "force_nkro": true
     },
     "backlight": {
         "pin": "GP25"
