@@ -104,6 +104,14 @@ void backlight_enable(void) {
     backlight_set(backlight_config.level);
 }
 
+void backlight_enable_old_level(void) {
+    if (backlight_config.enable) return; // do nothing if backlight is already on
+
+    eeconfig_update_backlight(backlight_config.raw);
+    dprintf("backlight enable\n");
+    backlight_set(backlight_config.level);
+}
+
 /** \brief Disable backlight
  *
  * FIXME: needs doc
