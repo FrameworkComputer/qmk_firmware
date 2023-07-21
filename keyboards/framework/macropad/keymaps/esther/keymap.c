@@ -7,33 +7,33 @@
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
      *         ┌───────┬───────┬───────┬───────┐
-     *  4 keys │ RGB   │RGB Nxt│ RGB + │ Sleep │
-     *         │Toggle │Effect │Brightn│       │
+     *  4 keys │ RGB + │ RGB - │RGB Nxt│RGB Prv│
+     *         │Brightn│Brightn│Effect │Effect │
      *         ├───────┼───────┼───────┼───────┤
-     *  4 keys │Numpad │RGB Prv│ RGB - │ RGB BL│
-     *         │Layer  │Effect │Brightn│ Step  │
+     *  4 keys │Numpad │       │       │ CTRL+A│
+     *         │Layer  │       │       │       │
      *         ├───────┼───────┼───────┼───────┤
-     *  4 keys │ RGB + │ RGB + │ RGB + │  <--  │
-     *         │ Hue   │ Sat   │ Speed │       │
-     *         ├───────┼───────┼───────┼───────┤
-     *  4 keys │ RGB - │ RGB - │ RGB - │ Enter │
-     *         │ Hue   │ Sat   │ Speed │       │
-     *         ├───────┼───────┼───────┼───────┤
-     *  4 keys │       │  Up   │       │       │
+     *  4 keys │ Enter │       │       │ Delete│
      *         │       │       │       │       │
      *         ├───────┼───────┼───────┼───────┤
-     *  4 keys │ Left  │ Down  │ Right │       │
+     *  4 keys │ Save  │  A    │  V    │ Cut   │
      *         │       │       │       │       │
+     *         ├───────┼───────┼───────┼───────┤
+     *  4 keys │   +   │ CTRL  │ Undo  │ Copy  │
+     *         │       │  +    │       │       │
+     *         ├───────┼───────┼───────┼───────┤
+     *  4 keys │   -   │ CTRL  │ Redo  │ Paste │
+     *         │       │  -    │       │       │
      *         └───────┴───────┴───────┴───────┴
      * 24 total
      */
     [0] = LAYOUT(
-        RGB_TOG, RGB_MOD, RGB_VAI, KC_SLEP,
-        TG(1),   RGB_RMOD,RGB_VAD, BL_STEP,
-        RGB_HUI, RGB_SAI, RGB_SPI, KC_BSPC,
-        RGB_HUD, RGB_SAD, RGB_SPD, KC_ENT,
-        XXXXXXX, KC_UP,   XXXXXXX, XXXXXXX,
-        KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX
+        RGB_VAI, RGB_VAD,   RGB_MOD, RGB_RMOD,
+        TG(1),   XXXXXXX,   XXXXXXX, C(KC_A),
+        KC_ENT,  XXXXXXX,   XXXXXXX, KC_DEL,
+        C(KC_S), KC_A,      KC_V,    C(KC_X),
+        KC_PPLS, C(KC_EQL), C(KC_Z), C(KC_C),
+        KC_PMNS, C(KC_MINS),C(KC_Y), C(KC_V)
     ),
      /* Numpad
      *         ┌────┬────┬────┬────┐
