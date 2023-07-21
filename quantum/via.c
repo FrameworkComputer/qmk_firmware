@@ -24,6 +24,7 @@
 
 #include "via.h"
 
+#include "platforms/bootloader.h"
 #include "raw_hid.h"
 #include "dynamic_keymap.h"
 #include "eeprom.h"
