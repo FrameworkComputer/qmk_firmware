@@ -270,7 +270,7 @@ bool handle_idle(void) {
     }
 #endif
 #ifdef BACKLIGHT_ENABLE
-    if (!is_backlight_enabled() != asleep) {
+    if (is_backlight_enabled() != !asleep) {
         if (asleep) {
             backlight_disable();
         } else {

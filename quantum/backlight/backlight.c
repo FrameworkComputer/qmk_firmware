@@ -107,6 +107,7 @@ void backlight_enable(void) {
 void backlight_enable_old_level(void) {
     if (backlight_config.enable) return; // do nothing if backlight is already on
 
+    backlight_config.enable = true;
     eeconfig_update_backlight(backlight_config.raw);
     dprintf("backlight enable\n");
     backlight_set(backlight_config.level);
