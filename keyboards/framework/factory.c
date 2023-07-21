@@ -65,10 +65,17 @@ void handle_factory_command(uint8_t *data) {
 #endif
             break;
         case f_bios_mode:
-            if (command_data[0] == 0x01)
+            if (command_data[0] == 0x01) {
                 bios_mode = true;
-            else
+                // Red
+                rgb_matrix_sethsv_noeeprom(0, 0xFF, 0xFF);
+                rgb_matrix_mode_noeeprom(1);
+            } else {
+                // White
+                rgb_matrix_sethsv_noeeprom(0, 0, 0xFF);
+                rgb_matrix_mode_noeeprom(1);
                 bios_mode = false;
+            }
             break;
         case f_factory_mode:
             enable_factory_mode(command_data[0] == 0x01);
