@@ -3,6 +3,7 @@
 
 #include "quantum.h"
 #include "framework.h"
+#include "os_detection.h"
 
 void keyboard_post_init_kb(void) {
   keyboard_post_init_user();
@@ -62,6 +63,31 @@ void suspend_wakeup_init_kb(void) {
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   process_record_user(keycode, record);
 
+  //os_variant_t os = detected_host_os();
+  //switch (os) {
+  //    case OS_UNSURE:
+  //      rgb_matrix_sethsv(0, 0, 255); // White
+  //      break;
+  //    case OS_LINUX:
+  //      // Works on laptop and android
+  //      rgb_matrix_sethsv(213, 255, 255); // purple
+  //      break;
+  //    case OS_WINDOWS:
+  //      // works
+  //      rgb_matrix_sethsv(170, 255, 255); // blue
+  //      break;
+  //    case OS_MACOS:
+  //      rgb_matrix_sethsv(85, 255, 255); // green
+  //      break;
+  //    case OS_IOS:
+  //      // works on M1 mac
+  //      rgb_matrix_sethsv(43, 255, 255); // yellow
+  //      break;
+  //    default:
+  //      rgb_matrix_sethsv(125, 255, 255); // cyan
+  //      break;
+  //}
+
   switch (keycode) {
     case KC_SCRN:
       // Simulate press WIN+P
@@ -74,6 +100,16 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         unregister_code(KC_LGUI);
       }
       return false; // Skip all further processing of this key
+    case STORE_SETUPS:
+        if (record->event.pressed) {
+            store_setups_in_eeprom();
+        }
+        return false;
+    case PRINT_SETUPS:
+        if (record->event.pressed) {
+            print_stored_setups();
+        }
+        return false;
     default:
       return true; // Process all other keycodes normally
   }

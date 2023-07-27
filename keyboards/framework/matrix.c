@@ -137,10 +137,10 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
         key_state = true;
     }
 
-    if (key_state) {
-        uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
-        print_as_float(voltage);
-    }
+    //if (key_state) {
+    //    uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
+    //    print_as_float(voltage);
+    //}
 
 // Don't update  matrix on Pico to avoid messing with the debug system
 // Can't attach the matrix anyways
@@ -156,10 +156,10 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
         new_row &= ~(1 << col);
     }
     changed = cur_matrix[row] != new_row;
-    if (key_state) {
-        uprintf("old row: %d\n", cur_matrix[row]);
-        uprintf("new row: %d\n", new_row);
-    }
+    //if (key_state) {
+    //    uprintf("old row: %d\n", cur_matrix[row]);
+    //    uprintf("new row: %d\n", new_row);
+    //}
     cur_matrix[row] = new_row;
 
     return changed;

@@ -21,3 +21,6 @@ SRC += dyn_serial.c factory.c
 DEFAULT_FOLDER = framework/ansi
 
 OPT_DEFS += -DCORTEX_ENABLE_WFI_IDLE=TRUE
+
+OS_DETECTION_ENABLE = yes
+OS_DETECTION_DEBUG_ENABLE = yes
