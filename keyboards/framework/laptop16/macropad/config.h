@@ -5,11 +5,11 @@
 #define MATRIX_ROWS 4
 
 #define DRIVER_COUNT 1
-#define DRIVER_ADDR_1 0b0100000
+#define DRIVER_ADDR_1 0b0110000
 #define RGB_MATRIX_LED_COUNT 24
-// Enable only the first 4 SW and disable software shutdown
+// Enable only SW1-SW4 and disable software shutdown
 // Otherwise voltage on SW pins without LEDs causes voltage rise and noise
-#define ISSI_CONFIGURATION 0x71
+#define ISSI_CONFIGURATION 0b1010001
 
 // Limit current to ensure max current draw is just about 500mA
 // when white at 100% brightness
