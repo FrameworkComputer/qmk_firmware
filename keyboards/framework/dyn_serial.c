@@ -18,26 +18,53 @@ USB_Descriptor_String_t PROGMEM SerialNumberString = {
 
 char ascii_serialnum[SERIALNUM_LEN+1];
 
-void *dyn_serial_number_string(void) {
-  // TODO: Fix this
-  // Need to remove the logic here because it overlaps with VIA settings
-  return &SerialNumberString;
+struct __attribute__((__packed__)) serialnum_raw {
+  uint8_t sn_rev;
+  uint8_t serialnum[SERIALNUM_LEN];
+  uint8_t crc32[4];
+};
 
-  // Exit early, if it was previously read and converted
-  if (ascii_serialnum[0] != '\0' || ascii_serialnum[0] == 0xFF) {
+uint32_t crc32b(uint8_t *message, size_t msg_len) {
+   uint8_t byte;
+   uint32_t crc;
+   uint32_t mask;
+
+   crc = 0xFFFFFFFF;
+   for (size_t i = 0; i < msg_len; i++) {
+      byte = message[i];
+      crc = crc ^ byte;
+      for (int j = 0; j < 8; j++) {
+         mask = -(crc & 1);
+         crc = (crc >> 1) ^ (0xEDB88320 & mask);
+      }
+   }
+   return ~crc;
+}
+
+void *dyn_serial_number_string(void) {
+  // Read ASCII serial number from memory-mapped flash
+  void *serialnum_ptr = (void*) (FLASH_OFFSET + LAST_4K_BLOCK);
+  struct serialnum_raw *serialnum_raw = serialnum_ptr;
+
+  // Only rev 1 supported
+  if (serialnum_raw->sn_rev != 1) {
       return &SerialNumberString;
   }
 
-  // Read ASCII serial number from memory-mapped flash
-  char *serialnum_ptr = (char*) (FLASH_OFFSET + LAST_4K_BLOCK);
-  memcpy(ascii_serialnum, serialnum_ptr, SERIALNUM_LEN);
+  uint32_t crc32 = crc32b(serialnum_ptr, SERIALNUM_LEN+1);
+  // Make sure it's little-endian
+  uint32_t crc32_read = (serialnum_raw->crc32[3] << 24) +
+    (serialnum_raw->crc32[2] << 16) +
+    (serialnum_raw->crc32[1] << 8) +
+    serialnum_raw->crc32[0];
 
-  // Just keep fallback serialnumber if the flash is erased
-  if (ascii_serialnum[0] == 0xFF) {
+  // CRC invalid, fall back to defult serial number
+  if (crc32_read != crc32) {
       return &SerialNumberString;
   }
 
   // Convert to UCS-2, which is equivalent to UTF-16, if the input is ASCII
+  memcpy(ascii_serialnum, serialnum_raw->serialnum, SERIALNUM_LEN);
   for (int i = 0; i < SERIALNUM_LEN; i++) {
       if (ascii_serialnum[i] > 128) {
           dprintf("Serial number character %d is not valid ASCII.", ascii_serialnum[i]);
