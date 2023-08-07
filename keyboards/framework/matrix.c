@@ -51,6 +51,8 @@
 // 29000 = 2.9V * 10000
 const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 29000;
 
+bool have_slept = false;
+
 adc10ksample_t to_voltage(adcsample_t sample) {
   int voltage = sample * 33000;
   return voltage / 1023;
@@ -273,7 +275,12 @@ bool handle_idle(void) {
     if (is_backlight_enabled() != !asleep) {
         if (asleep) {
             backlight_disable();
-        } else {
+            have_slept = true;
+        } else if (have_slept) {
+            // For some reason this will not set the proper value right after
+            // turning on. But the quantum code will have set it properly
+            // already, so there's no need to run this. Unless we actually wake
+            // up from sleep.
             backlight_enable_old_level();
         }
     }
@@ -369,7 +376,6 @@ static void adc_mux_init(void) {
  * Overriding behavior of matrix_init from quantum/matrix.c
 */
 void matrix_init_custom(void) {
-    backlight_enable(); // To signal "live-ness"
 
     adc_mux_init();
     adc_gpio_init(ADC_CH2_PIN);
