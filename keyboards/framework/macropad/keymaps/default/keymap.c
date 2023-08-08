@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-
+#include "factory.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
@@ -84,3 +84,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_U,    KC_V,    KC_W,    KC_X
     )
 };
+
+void enable_factory_mode(bool enable) {
+    if (enable)
+        layer_on(2);
+    else
+        layer_off(2);
+}

@@ -4,6 +4,7 @@
 #include "quantum.h"
 #include "raw_hid.h"
 #include "matrix.h"
+#include "factory.h"
 #include "framework.h"
 #if defined(RGB_MATRIX_ENABLE)
 #include "rgb_matrix.h"
@@ -70,15 +71,16 @@ void handle_factory_command(uint8_t *data) {
                 bios_mode = false;
             break;
         case f_factory_mode:
-            if (command_data[0] == 0x01)
-                layer_on(2);
-            else
-                layer_off(2);
+            enable_factory_mode(command_data[0] == 0x01);
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
             break;
     }
+}
+
+__attribute__ ((weak))
+void enable_factory_mode(bool enable) {
 }
 
 bool handle_hid(uint8_t *data, uint8_t length) {
