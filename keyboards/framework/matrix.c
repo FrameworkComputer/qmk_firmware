@@ -58,12 +58,6 @@ adc10ksample_t to_voltage(adcsample_t sample) {
     return voltage / 1023;
 }
 
-void print_as_float(adc10ksample_t sample) {
-    int digits   = sample / 10000;
-    int decimals = sample % 10000;
-    uprintf("%d.%02d\n", digits, decimals);
-}
-
 /**
  * Tell RP2040 ADC controller to initialize a specific GPIO for ADC input
  */
@@ -85,7 +79,6 @@ static void mux_select_row(int row) {
     assert(col >= 0 && col <= 7);
 
     // Not in order - need to remap them
-
     // X0 - KSI1
     // X1 - KSI2
     // X2 - KSI0
@@ -112,8 +105,6 @@ static void mux_select_row(int row) {
     }
 
     int bits[] = {(index & 0x1) > 0, (index & 0x2) > 0, (index & 0x4) > 0};
-    (void)bits;
-    // uprintf("Mux A: %d, B: %d, C: %d, KSI%d, X%d\n", bits[0], bits[1], bits[2], row, index);
     writePin(MUX_A, bits[0]);
     writePin(MUX_B, bits[1]);
     writePin(MUX_C, bits[2]);
@@ -133,11 +124,6 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
     bool key_state = false;
     if (voltage < ADC_THRESHOLD) {
         key_state = true;
-    }
-
-    if (key_state) {
-        uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
-        print_as_float(voltage);
     }
 
     // Don't update  matrix on Pico to avoid messing with the debug system
@@ -230,7 +216,6 @@ void drive_col(int col, bool high) {
     //    return;
     //#endif
 
-    // uprintf("Driving col %s %d, GP%d\n", high ? "HIGH" : "LOW ", col, gpio);
     if (high) {
         // TODO: Could set up the pins with `setPinOutputOpenDrain` instead
         writePinHigh(gpio);
@@ -245,7 +230,6 @@ void drive_col(int col, bool high) {
 static adc10ksample_t read_adc(void) {
     // Can't use analogReadPin because it gets rid of the internal pullup on
     // this pin, that we configure in matrix_init_custom
-    // uint16_t val = analogReadPin(ADC_CH2_PIN);
     uint16_t val = adc_read(pinToMux(ADC_CH2_PIN));
     return to_voltage(val);
 }
@@ -281,27 +265,6 @@ bool handle_idle(void) {
         }
     }
 #endif
-
-    // TODO: Try this again later, but for now USB suspend should be fine
-    // This seems to cause issues with waking up the host by keypresses
-    //  static int host_sleep = 0;
-    //  /* reduce the scan speed to 10Hz */
-    //  if (prev_asleep != asleep) {
-    //      prev_asleep = asleep;
-    //      if (!asleep) {
-    //          suspend_power_down_quantum();
-    //      } else {
-    //          suspend_wakeup_init_quantum();
-    //      }
-    //  }
-    //  if (!asleep) {
-    //      if (timer_elapsed32(host_sleep) < 100) {
-    //          port_wait_for_interrupt();
-    //          return true;
-    //      } else {
-    //          host_sleep = timer_read32();
-    //      }
-    //  }
     return false;
 }
 
@@ -315,8 +278,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         return false;
     }
 
-    // wait_us(500 * 1000);
-    //  Drive all high to deselect them
+    // Drive all high to deselect them
     for (int col = 0; col < MATRIX_COLS; col++) {
         drive_col(col, true);
     }
@@ -327,13 +289,8 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         // Drive column low so we can measure the resistors on each row in this column
         drive_col(col, false);
         for (int row = 0; row < MATRIX_ROWS; row++) {
-            // Debug for keyboard. Row 5 and 6 don't seem to work
-            // print("\n");
             // Read ADC for this row
             mux_select_row(row);
-
-            // Wait for column select to settle and propagate to ADC
-            // wait_us(500 * 1000);
 
             // Interpret ADC value as rows
             changed |= interpret_adc_row(current_matrix, read_adc(), col, row);
@@ -345,14 +302,6 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 
     return changed;
 }
-
-// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//   // If console is enabled, it will print the matrix position and status of each key pressed
-//#ifdef CONSOLE_ENABLE
-//     uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
-//#endif
-//   return true;
-// }
 
 /**
  * Enable the ADC MUX

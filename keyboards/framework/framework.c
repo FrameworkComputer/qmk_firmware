@@ -25,7 +25,7 @@ void keyboard_pre_init_kb(void) {
     setPinOutput(BOOT_DONE_GPIO);
     writePinLow(BOOT_DONE_GPIO);
 
-    //// TODO: Do we ever need to disable it to save power?
+    // TODO: Do we ever need to disable it to save power?
     setPinOutput(MUX_ENABLE_GPIO);
     writePinHigh(MUX_ENABLE_GPIO);
 
@@ -59,7 +59,8 @@ void suspend_wakeup_init_kb(void) {
 #endif
 }
 
-// If in BIOS mode, no matter what the keys have been remapped to, always send them as the F keys
+// If in BIOS mode, no matter what the keys have been remapped to,
+// always send them as the F keys
 bool bios_mode = false;
 bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
     // Not in bios mode, no special handling, handle as normal
