@@ -6,21 +6,21 @@
 #include "quantum.h"
 
 #ifdef KEYBOARD_framework_ansi
-    #include "ansi.h"
+#    include "ansi.h"
 #elif KEYBOARD_framework_iso
-    #include "iso.h"
+#    include "iso.h"
 #elif KEYBOARD_framework_jis
-    #include "jis.h"
+#    include "jis.h"
 #elif KEYBOARD_framework_numpad
-    #include "numpad.h"
+#    include "numpad.h"
 #elif KEYBOARD_framework_macropad
-    #include "macropad.h"
+#    include "macropad.h"
 #endif
 
 enum framework_keycodes {
-  // Custom keycode to change screen modes (e.g. enable external screen)
-  KC_SCRN = SAFE_RANGE,
-  FN_LOCK,
+    // Custom keycode to change screen modes (e.g. enable external screen)
+    KC_SCRN = SAFE_RANGE,
+    FN_LOCK,
 };
 
 extern bool bios_mode;
@@ -31,7 +31,7 @@ extern bool bios_mode;
 // Pin SDB to enable the RGB controller
 #ifdef PICO_FL16
 // 22 only on RPi Pico because it doesn't have GP29
-#define IS31FL3743A_ENABLE_GPIO GP22
+#    define IS31FL3743A_ENABLE_GPIO GP22
 #else
-#define IS31FL3743A_ENABLE_GPIO GP29
+#    define IS31FL3743A_ENABLE_GPIO GP29
 #endif

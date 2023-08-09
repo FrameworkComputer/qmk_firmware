@@ -26,4 +26,4 @@
  * TODO: Default is 3, should it be 2?
  */
 #undef RP_IRQ_ADC1_PRIORITY
-#define RP_IRQ_ADC1_PRIORITY                2
+#define RP_IRQ_ADC1_PRIORITY 2

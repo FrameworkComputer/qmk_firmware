@@ -1,6 +1,7 @@
 // Copyright 2022 Framework Computer
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+// clang-format off
 #define LAYOUT( \
     H1,    H2,    H3,    H4, \
    K90,   K95,  K100,  K105, \

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 // JIS is based off ANSI with a few extra keys
+// clang-format off
 #define LAYOUT( \
   K110,  K112,  K113,  K114,  K115,  K116,  K117,  K118,  K119,  K120,  K121,  K122,  K123,   K76,       \
     K1,    K2,    K3,    K4,    K5,    K6,    K7,    K8,    K9,   K10,   K11,   K12,   K13,   K14,   K15,\
