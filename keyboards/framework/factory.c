@@ -7,18 +7,18 @@
 #include "factory.h"
 #include "framework.h"
 #if defined(RGB_MATRIX_ENABLE)
-#include "rgb_matrix.h"
+#    include "rgb_matrix.h"
 #endif
 #ifdef SERIAL_NUMBER
-#include "dyn_serial.h"
+#    include "dyn_serial.h"
 #endif
 
 enum factory_commands {
-    f_emu_keypress  = 0x01, // Next byte is keycode
-    f_serialnum     = 0x04, // Read device serial number
-    f_bios_mode     = 0x05, // Read device serial number
-    f_factory_mode  = 0x06, // Read device serial number
-    f_bootloader    = 0xFE,
+    f_emu_keypress = 0x01, // Next byte is keycode
+    f_serialnum    = 0x04, // Read device serial number
+    f_bios_mode    = 0x05, // Read device serial number
+    f_factory_mode = 0x06, // Read device serial number
+    f_bootloader   = 0xFE,
 };
 
 #if defined(RGB_MATRIX_ENABLE)
@@ -34,11 +34,11 @@ void emulate_rgb_keycode_press(uint16_t target_keycode) {
 }
 #endif
 
-extern char ascii_serialnum[SERIALNUM_LEN+1];
+extern char ascii_serialnum[SERIALNUM_LEN + 1];
 
 void handle_factory_command(uint8_t *data) {
-    uint8_t factory_command_id = data[0];
-    uint8_t *command_data = &(data[1]);
+    uint8_t  factory_command_id = data[0];
+    uint8_t *command_data       = &(data[1]);
     uprintf("handle_factory_command(command: %u)\n", factory_command_id);
 
     switch (factory_command_id) {
@@ -56,7 +56,6 @@ void handle_factory_command(uint8_t *data) {
             break;
         case f_serialnum:
             print("Reading Device serial number\n");
-
 
 #ifdef SERIAL_NUMBER
             uprintf("Serial number: %s\n", ascii_serialnum);
@@ -79,15 +78,13 @@ void handle_factory_command(uint8_t *data) {
     }
 }
 
-__attribute__ ((weak))
-void enable_factory_mode(bool enable) {
-}
+__attribute__((weak)) void enable_factory_mode(bool enable) {}
 
 bool handle_hid(uint8_t *data, uint8_t length) {
-    uint8_t command_id = data[0];
+    uint8_t  command_id   = data[0];
     uint8_t *command_data = &(data[1]);
 
-    //uprintf("raw_hid_receive(command: %X, length: %d)\n", command_id, length);
+    // uprintf("raw_hid_receive(command: %X, length: %d)\n", command_id, length);
 
     switch (command_id) {
         case 0x01:
@@ -104,7 +101,7 @@ bool handle_hid(uint8_t *data, uint8_t length) {
             // Don't let VIA handle it
             return true;
         default:
-            //uprintf("Unrecognized command ID: %u\n", command_id);
+            // uprintf("Unrecognized command ID: %u\n", command_id);
             break;
     }
     // Continue with default HID handling
@@ -115,10 +112,10 @@ bool handle_hid(uint8_t *data, uint8_t length) {
 // Need add both functions to make it work when
 // either RAW_ENABLE or VIA_ENABLE are enabled.
 bool via_command_kb(uint8_t *data, uint8_t length) {
-  return handle_hid(data, length);
+    return handle_hid(data, length);
 }
 #ifndef VIA_ENABLE
 void raw_hid_receive(uint8_t *data, uint8_t length) {
-  handle_hid(data, length);
+    handle_hid(data, length);
 }
 #endif
