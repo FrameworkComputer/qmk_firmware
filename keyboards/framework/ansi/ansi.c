@@ -174,6 +174,7 @@
 #define CS35_SW20 0xA0
 #define CS36_SW20 0xA1
 
+// clang-format off
 // TODO: Should have attribute __flash. But won't compile if I add it
 const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
 /* Refer to IS31 manual for these locations
@@ -412,3 +413,4 @@ led_config_t g_led_config = { {
   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
   4
 } };
+// clang-format on

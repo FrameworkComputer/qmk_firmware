@@ -3,6 +3,7 @@
 
 #include QMK_KEYBOARD_H
 
+// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
      *         ┌────┬────┬────┬────┐
@@ -58,6 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 
 };
+// clang-format on
 
 bool led_update_user(led_t led_state) {
     // Change layer if numlock state changes, either triggered by OS or

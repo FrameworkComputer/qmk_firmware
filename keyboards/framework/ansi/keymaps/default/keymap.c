@@ -4,13 +4,13 @@
 #include QMK_KEYBOARD_H
 #include "framework.h"
 
+// clang-format off
 enum _layers {
   _BASE,
   _FN,
   _FN_LOCK,
   _FM
 };
-
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
@@ -85,6 +85,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______,          BL_STEP,                   _______, _______, KC_HOME, KC_PGUP, KC_PGDN, KC_END
     ),
 };
+// clang-format on
 
 // Make sure to keep FN Lock even after reset
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
