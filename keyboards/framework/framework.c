@@ -1,4 +1,4 @@
-// Copyright 2022 Framework Computer
+// Copyright 2022-2023 Framework Computer
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "quantum.h"
@@ -137,17 +137,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             }
             return true;
 #endif
-        case KC_SCRN:
-            // Simulate press WIN+P
-            // Works (at least) on Windows and GNOME
-            if (record->event.pressed) {
-                register_code(KC_LGUI);
-                register_code(KC_P);
-            } else {
-                unregister_code(KC_P);
-                unregister_code(KC_LGUI);
-            }
-            return false; // Skip all further processing of this key
         default:
             return true; // Process all other keycodes normally
     }

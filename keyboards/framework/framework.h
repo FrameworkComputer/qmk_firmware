@@ -1,4 +1,4 @@
-// Copyright 2022 Framework Computer
+// Copyright 2022-2023 Framework Computer
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
@@ -10,9 +10,8 @@
 #endif
 
 enum framework_keycodes {
-    // Custom keycode to change screen modes (e.g. enable external screen)
-    KC_SCRN = SAFE_RANGE,
-    FN_LOCK,
+    // Function lock
+    FN_LOCK = SAFE_RANGE,
 };
 
 extern bool bios_mode;
