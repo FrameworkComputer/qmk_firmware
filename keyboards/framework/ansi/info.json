@@ -24,6 +24,9 @@
     "backlight": {
         "pin": "GP25"
     },
+    "indicators": {
+        "caps_lock": "GP24"
+    },
     "layout_aliases": {
       "LAYOUT_default": "LAYOUT"
     },

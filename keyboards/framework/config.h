@@ -29,14 +29,6 @@
 // Enable serial number. Calls into dyn_serial_number_string* functions
 #define SERIAL_NUMBER
 
-#ifdef KEYBOARD_framework_ansi
-#    define LED_CAPS_LOCK_PIN GP24
-#elif KEYBOARD_framework_iso
-#    define LED_CAPS_LOCK_PIN GP24
-#elif KEYBOARD_framework_jis
-#    define LED_CAPS_LOCK_PIN GP24
-#endif
-
 // PWM single one backlight configuration
 // GPIO25 maps to PWM channel 4B of the RP2040
 // On the Raspberry Pi Pico this is the green LED on the board, good for prototyping
