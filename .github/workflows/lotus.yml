@@ -24,26 +24,26 @@ jobs:
 
     - name: Lint Framework Laptop 16
       run: |
-        qmk lint -kb framework/ansi -km default
-        qmk lint -kb framework/iso -km default
-        qmk lint -kb framework/jis -km default
-        qmk lint -kb framework/numpad -km default
-        qmk lint -kb framework/macropad -km default
+        qmk lint -kb framework/laptop16/ansi -km default
+        qmk lint -kb framework/laptop16/iso -km default
+        qmk lint -kb framework/laptop16/jis -km default
+        qmk lint -kb framework/laptop16/numpad -km default
+        qmk lint -kb framework/laptop16/macropad -km default
 
     - name: Build Framework Laptop 16 ANSI variant
-      run: qmk compile -kb framework/ansi -km default
+      run: qmk compile -kb framework/laptop16/ansi -km default
 
     - name: Build Framework Laptop 16 ISO variant
-      run: qmk compile -kb framework/iso -km default
+      run: qmk compile -kb framework/laptop16/iso -km default
 
     - name: Build Framework Laptop 16 JIS variant
-      run: qmk compile -kb framework/jis -km default
+      run: qmk compile -kb framework/laptop16/jis -km default
 
     - name: Build Framework Laptop 16 Numpad
-      run: qmk compile -kb framework/numpad -km default
+      run: qmk compile -kb framework/laptop16/numpad -km default
 
     - name: Build Framework Laptop 16 Macropad
-      run: qmk compile -kb framework/macropad -km default
+      run: qmk compile -kb framework/laptop16/macropad -km default
 
     - uses: actions/upload-artifact@v3
       with:
