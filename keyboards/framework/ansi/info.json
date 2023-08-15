@@ -12,7 +12,6 @@
         "nkro": true,
         "audio": false
     },
-    "debounce": 5,
     "processor": "RP2040",
     "url": "https://frame.work/de/en/products/laptop16-diy-amd-7040",
     "usb": {
