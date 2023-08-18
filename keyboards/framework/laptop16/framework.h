@@ -11,7 +11,7 @@
 
 enum framework_keycodes {
     // Function lock
-    FN_LOCK = SAFE_RANGE,
+    FN_LOCK = QK_KB,
 };
 
 extern bool bios_mode;
