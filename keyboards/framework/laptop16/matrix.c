@@ -141,8 +141,7 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
     }
     changed = cur_matrix[row] != new_row;
     if (key_state) {
-        uprintf("old row: %d\n", cur_matrix[row]);
-        uprintf("new row: %d\n", new_row);
+        uprintf("Keypress at KSO%d, KSI%d - %d.%dV\n", col, row, voltage/10000, voltage%10000);
     }
     cur_matrix[row] = new_row;
 
