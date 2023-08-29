@@ -100,7 +100,9 @@
 
 // Options are 12, 10, 8, and 6 bit.
 #ifndef ADC_RESOLUTION
-#    ifdef ADC_CFGR_RES_10BITS // ADCv3, ADCv4
+#    if defined(RP2040)
+#        define ADC_RESOLUTION 10
+#    elif defined(ADC_CFGR_RES_10BITS) // ADCv3, ADCv4
 #        define ADC_RESOLUTION ADC_CFGR_RES_10BITS
 #    else // ADCv1, ADCv5, or the bodge for ADCv2 above
 #        define ADC_RESOLUTION ADC_CFGR1_RES_10BIT

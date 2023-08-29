@@ -1,13 +1,13 @@
 name: Lint Format
 
-permissions:
-  contents: read
-
-on:
-  push:
-    branches:
-    - master
-    - develop
+#permissions:
+#  contents: read
+#
+#on:
+#  push:
+#    branches:
+#    - master
+#    - develop
 
 jobs:
   lint:

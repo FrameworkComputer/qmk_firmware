@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "debug.h"
 #include "wait.h"
 #include "usb_descriptor_common.h"
+#include "dyn_serial.h"
 
 #ifdef RAW_ENABLE
 #    include "raw_hid.h"
@@ -307,6 +308,14 @@ void send_programmable_button(report_programmable_button_t *report) {
 #endif
 }
 
+void send_radio(report_radio_t *report) {
+#ifdef EXTRAKEY_ENABLE
+    if (usbInterruptIsReadyShared()) {
+        usbSetInterruptShared((void *)report, sizeof(report_radio_t));
+    }
+#endif
+}
+
 /*------------------------------------------------------------------*
  * Request from host                                                *
  *------------------------------------------------------------------*/
@@ -540,6 +549,20 @@ const PROGMEM uchar shared_hid_report[] = {
     0x75, 0x10,               //   Report Size (16)
     0x81, 0x00,               //   Input (Data, Array, Absolute)
     0xC0,                     // End Collection
+
+    0x05, 0x01,            // Usage Page (Generic Desktop)
+    0x09, 0x0C,            // USAGE (Wireless Radio Controls)
+    0xA1, 0x01,            // COLLECTION (Application)
+    0x85, REPORT_ID_RADIO, //   Report ID (Radio)
+    0x15, 0x00,            //   Logical Minimum (0)
+    0x25, 0x01,            //   Logical Maximum (1)
+    0x09, 0xC6,            //   Usage (Wireless Radio Button)
+    0x95, 0x01,            //   Report Count (1)
+    0x75, 0x01,            //   Report Size (1)
+    0x81, 0x06,            //   Input (Data, Variable, Relative)
+    0x75, 0x07,            //   Report Size (7)
+    0x81, 0x03,            //   INPUT (Constant, Variable, Absolute)
+    0xC0,                  // End Collection
 #endif
 
 #ifdef JOYSTICK_ENABLE
@@ -739,8 +762,9 @@ const PROGMEM usbStringDescriptor_t usbStringDescriptorProduct = {
     .bString             = USBSTR(PRODUCT)
 };
 
+// THIS IS NOT USED by Framework 16. TODO: Implement dynamic serial number here
 #if defined(SERIAL_NUMBER)
-const PROGMEM usbStringDescriptor_t usbStringDescriptorSerial = {
+const PROGMEM usbStringDescriptor_t usbStringDescriptorSerial = 
     .header = {
         .bLength         = sizeof(USBSTR(SERIAL_NUMBER)),
         .bDescriptorType = USBDESCR_STRING
@@ -1012,8 +1036,9 @@ USB_PUBLIC usbMsgLen_t usbFunctionDescriptor(struct usbRequest *rq) {
                     break;
 #if defined(SERIAL_NUMBER)
                 case 3: // iSerialNumber
-                    usbMsgPtr = (usbMsgPtr_t)&usbStringDescriptorSerial;
-                    len       = usbStringDescriptorSerial.header.bLength;
+                    // Not using this on Framework 16
+                    usbMsgPtr = (usbMsgPtr_t)dynamic_serial_number_string();
+                    len       = dynamic_serial_number_string_len();
                     break;
 #endif
             }

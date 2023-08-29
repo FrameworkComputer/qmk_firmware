@@ -1,23 +1,23 @@
 name: Essential files modified
 
-permissions:
-  contents: write
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-    - master
-    paths:
-    - builddefs/**/*
-    - drivers/**/*
-    - platforms/**/*
-    - quantum/**/*
-    - tests/**/*
-    - tmk_core/**/*
-    - util/**/*
-    - Makefile
-    - '*.mk'
+#permissions:
+#  contents: write
+#
+#on:
+#  workflow_dispatch:
+#  push:
+#    branches:
+#    - master
+#    paths:
+#    - builddefs/**/*
+#    - drivers/**/*
+#    - platforms/**/*
+#    - quantum/**/*
+#    - tests/**/*
+#    - tmk_core/**/*
+#    - util/**/*
+#    - Makefile
+#    - '*.mk'
 
 jobs:
   tag:

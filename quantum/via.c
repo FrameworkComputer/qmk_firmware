@@ -22,17 +22,40 @@
 #    error "DYNAMIC_KEYMAP_ENABLE is not enabled"
 #endif
 
-#include "quantum.h"
-
 #include "via.h"
 
+#include "platforms/bootloader.h"
 #include "raw_hid.h"
 #include "dynamic_keymap.h"
 #include "eeprom.h"
+#include "eeconfig.h"
+#include "matrix.h"
+#include "timer.h"
+#include "wait.h"
 #include "version.h" // for QMK_BUILDDATE used in EEPROM magic
 
-#if defined(RGB_MATRIX_ENABLE)
+#if defined(AUDIO_ENABLE)
+#    include "audio.h"
+#endif
+
+#if defined(BACKLIGHT_ENABLE)
+#    include "backlight.h"
+#endif
+
+#if defined(RGBLIGHT_ENABLE)
+#    include "rgblight.h"
+#endif
+
+#if (defined(RGB_MATRIX_ENABLE) || defined(LED_MATRIX_ENABLE))
 #    include <lib/lib8tion/lib8tion.h>
+#endif
+
+#if defined(RGB_MATRIX_ENABLE)
+#    include "rgb_matrix.h"
+#endif
+
+#if defined(LED_MATRIX_ENABLE)
+#    include "led_matrix.h"
 #endif
 
 // Can be called in an overriding via_init_kb() to test if keyboard level code usage of
@@ -141,6 +164,9 @@ __attribute__((weak)) void via_set_device_indication(uint8_t value) {
 #if defined(RGB_MATRIX_ENABLE)
     rgb_matrix_toggle_noeeprom();
 #endif // RGB_MATRIX_ENABLE
+#if defined(LED_MATRIX_ENABLE)
+    led_matrix_toggle_noeeprom();
+#endif // LED_MATRIX_ENABLE
 #if defined(AUDIO_ENABLE)
     if (value == 0) {
         wait_ms(10);
@@ -194,6 +220,7 @@ __attribute__((weak)) void via_custom_value_command_kb(uint8_t *data, uint8_t le
 //      id_qmk_backlight_channel    ->  via_qmk_backlight_command()
 //      id_qmk_rgblight_channel     ->  via_qmk_rgblight_command()
 //      id_qmk_rgb_matrix_channel   ->  via_qmk_rgb_matrix_command()
+//      id_qmk_led_matrix_channel   ->  via_qmk_led_matrix_command()
 //      id_qmk_audio_channel        ->  via_qmk_audio_command()
 //
 __attribute__((weak)) void via_custom_value_command(uint8_t *data, uint8_t length) {
@@ -219,7 +246,14 @@ __attribute__((weak)) void via_custom_value_command(uint8_t *data, uint8_t lengt
         via_qmk_rgb_matrix_command(data, length);
         return;
     }
-#endif // RGBLIGHT_ENABLE
+#endif // RGB_MATRIX_ENABLE
+
+#if defined(LED_MATRIX_ENABLE)
+    if (*channel_id == id_qmk_led_matrix_channel) {
+        via_qmk_led_matrix_command(data, length);
+        return;
+    }
+#endif // LED_MATRIX_ENABLE
 
 #if defined(AUDIO_ENABLE)
     if (*channel_id == id_qmk_audio_channel) {
@@ -361,6 +395,10 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
             break;
         }
 #endif
+        case id_bootloader_jump: {
+            bootloader_jump();
+            break;
+        }
         case id_dynamic_keymap_macro_get_count: {
             command_data[0] = dynamic_keymap_macro_get_count();
             break;
@@ -425,6 +463,10 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
 
     // Return the same buffer, optionally with values changed
     // (i.e. returning state to the host, or the unhandled state).
+    // Even when sending 32 bytes, it seems that the RP2040 receives only 31
+    // But tmk_core/protocol/chibios/usb_main.c refuses to send anything other than 32
+    // TODO: Figure out what's going on
+    length = 32;
     raw_hid_send(data, length);
 }
 
@@ -691,6 +733,90 @@ void via_qmk_rgb_matrix_save(void) {
 }
 
 #endif // RGB_MATRIX_ENABLE
+
+#if defined(LED_MATRIX_ENABLE)
+
+#    if !defined(LED_MATRIX_MAXIMUM_BRIGHTNESS) || LED_MATRIX_MAXIMUM_BRIGHTNESS > UINT8_MAX
+#        undef LED_MATRIX_MAXIMUM_BRIGHTNESS
+#        define LED_MATRIX_MAXIMUM_BRIGHTNESS UINT8_MAX
+#    endif
+
+void via_qmk_led_matrix_command(uint8_t *data, uint8_t length) {
+    // data = [ command_id, channel_id, value_id, value_data ]
+    uint8_t *command_id        = &(data[0]);
+    uint8_t *value_id_and_data = &(data[2]);
+
+    switch (*command_id) {
+        case id_custom_set_value: {
+            via_qmk_led_matrix_set_value(value_id_and_data);
+            break;
+        }
+        case id_custom_get_value: {
+            via_qmk_led_matrix_get_value(value_id_and_data);
+            break;
+        }
+        case id_custom_save: {
+            via_qmk_led_matrix_save();
+            break;
+        }
+        default: {
+            *command_id = id_unhandled;
+            break;
+        }
+    }
+}
+
+void via_qmk_led_matrix_get_value(uint8_t *data) {
+    // data = [ value_id, value_data ]
+    uint8_t *value_id   = &(data[0]);
+    uint8_t *value_data = &(data[1]);
+
+    switch (*value_id) {
+        case id_qmk_led_matrix_brightness: {
+            value_data[0] = ((uint16_t)led_matrix_get_val() * UINT8_MAX) / LED_MATRIX_MAXIMUM_BRIGHTNESS;
+            break;
+        }
+        case id_qmk_led_matrix_effect: {
+            value_data[0] = led_matrix_is_enabled() ? led_matrix_get_mode() : 0;
+            break;
+        }
+        case id_qmk_led_matrix_effect_speed: {
+            value_data[0] = led_matrix_get_speed();
+            break;
+        }
+    }
+}
+
+void via_qmk_led_matrix_set_value(uint8_t *data) {
+    // data = [ value_id, value_data ]
+    uint8_t *value_id   = &(data[0]);
+    uint8_t *value_data = &(data[1]);
+    switch (*value_id) {
+        case id_qmk_led_matrix_brightness: {
+            led_matrix_set_val_noeeprom(scale8(value_data[0], LED_MATRIX_MAXIMUM_BRIGHTNESS));
+            break;
+        }
+        case id_qmk_led_matrix_effect: {
+            if (value_data[0] == 0) {
+                led_matrix_disable_noeeprom();
+            } else {
+                led_matrix_enable_noeeprom();
+                led_matrix_mode_noeeprom(value_data[0]);
+            }
+            break;
+        }
+        case id_qmk_led_matrix_effect_speed: {
+            led_matrix_set_speed_noeeprom(value_data[0]);
+            break;
+        }
+    }
+}
+
+void via_qmk_led_matrix_save(void) {
+    eeconfig_update_led_matrix();
+}
+
+#endif // LED_MATRIX_ENABLE
 
 #if defined(AUDIO_ENABLE)
 

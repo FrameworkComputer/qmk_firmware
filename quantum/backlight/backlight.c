@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "quantum.h"
 #include "backlight.h"
 #include "eeprom.h"
 #include "eeconfig.h"
@@ -100,6 +99,15 @@ void backlight_enable(void) {
     backlight_config.enable = true;
     if (backlight_config.raw == 1) // enabled but level == 0
         backlight_config.level = 1;
+    eeconfig_update_backlight(backlight_config.raw);
+    dprintf("backlight enable\n");
+    backlight_set(backlight_config.level);
+}
+
+void backlight_enable_old_level(void) {
+    if (backlight_config.enable) return; // do nothing if backlight is already on
+
+    backlight_config.enable = true;
     eeconfig_update_backlight(backlight_config.raw);
     dprintf("backlight enable\n");
     backlight_set(backlight_config.level);

@@ -15,6 +15,14 @@
             "aliases": [
                 "KC_LPAD"
             ]
+        },
+        "0x00E8": {
+            "group": "media",
+            "key": "KC_AIRPLANE_MODE",
+            "label": "Toggle Airplane Mode",
+            "aliases": [
+                "KC_AIRP"
+            ]
         }
     }
 }

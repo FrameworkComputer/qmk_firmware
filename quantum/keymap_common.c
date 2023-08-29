@@ -22,7 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "action_layer.h"
 #include "action.h"
 #include "debug.h"
-#include "quantum.h"
+#include "keycode_config.h"
+#include "quantum_keycodes.h"
+
+#ifdef ENCODER_MAP_ENABLE
+#    include "encoder.h"
+#endif
 
 #ifdef BACKLIGHT_ENABLE
 #    include "backlight.h"
@@ -64,6 +69,9 @@ action_t action_for_keycode(uint16_t keycode) {
             break;
         case KC_AUDIO_MUTE ... KC_LAUNCHPAD:
             action.code = ACTION_USAGE_CONSUMER(KEYCODE2CONSUMER(keycode));
+            break;
+        case KC_AIRPLANE_MODE:
+            action.code = ACTION_USAGE_RADIO;
             break;
 #endif
         case KC_MS_UP ... KC_MS_ACCEL2:

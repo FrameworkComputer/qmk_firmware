@@ -1,12 +1,12 @@
 name: Update develop after master merge
 
-permissions:
-  contents: write
-
-on:
-  push:
-    branches:
-    - master
+#permissions:
+#  contents: write
+#
+#on:
+#  push:
+#    branches:
+#    - master
 
 jobs:
   develop_update:

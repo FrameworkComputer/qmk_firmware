@@ -41,6 +41,8 @@
 #include "usb_descriptor.h"
 #include "usb_descriptor_common.h"
 
+#include "dyn_serial.h"
+
 #ifdef JOYSTICK_ENABLE
 #    include "joystick.h"
 #endif
@@ -318,6 +320,20 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM SharedReport[] = {
         HID_RI_REPORT_COUNT(8, 1),
         HID_RI_REPORT_SIZE(8, 16),
         HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+    HID_RI_END_COLLECTION(0),
+
+    HID_RI_USAGE_PAGE(8, 0x01),           // Generic Desktop
+    HID_RI_USAGE(8, 0x0C),                // Wireless Radio Controls
+    HID_RI_COLLECTION(8, 0x01),           // Application
+        HID_RI_REPORT_ID(8, REPORT_ID_RADIO),
+        HID_RI_LOGICAL_MINIMUM(8, 0x00),
+        HID_RI_LOGICAL_MAXIMUM(8, 0x01),
+        HID_RI_USAGE(8, 0xC6),            // Wireless Radio Button
+        HID_RI_REPORT_COUNT(8, 1),
+        HID_RI_REPORT_SIZE(8, 1),
+        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
+        HID_RI_REPORT_SIZE(8, 7),
+        HID_RI_INPUT(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
     HID_RI_END_COLLECTION(0),
 #endif
 
@@ -1077,16 +1093,6 @@ const USB_Descriptor_String_t PROGMEM ProductString = {
     .UnicodeString              = USBSTR(PRODUCT)
 };
 
-#if defined(SERIAL_NUMBER)
-const USB_Descriptor_String_t PROGMEM SerialNumberString = {
-    .Header = {
-        .Size                   = sizeof(USBSTR(SERIAL_NUMBER)),
-        .Type                   = DTYPE_String
-    },
-    .UnicodeString              = USBSTR(SERIAL_NUMBER)
-};
-#endif
-
 // clang-format on
 
 /**
@@ -1132,8 +1138,10 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
                     break;
 #if defined(SERIAL_NUMBER)
                 case 0x03:
-                    Address = &SerialNumberString;
-                    Size    = pgm_read_byte(&SerialNumberString.Header.Size);
+                    // TODO: Give these functions a generic name and let anyone override it
+                    // Framework 16 uses this
+                    Address = dyn_serial_number_string();
+                    Size    = dyn_serial_number_string_len();
 
                     break;
 #endif

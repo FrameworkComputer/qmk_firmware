@@ -211,6 +211,7 @@ See also: [Basic Keycodes](keycodes_basic.md)
 |`KC_ASSISTANT`          |`KC_ASST`                      |Launch Context-Aware Assistant         |✔            |             |                 |
 |`KC_MISSION_CONTROL`    |`KC_MCTL`                      |Open Mission Control                   |             |✔            |                 |
 |`KC_LAUNCHPAD`          |`KC_LPAD`                      |Open Launchpad                         |             |✔            |                 |
+|`KC_AIRPLANE_MODE`      |`KC_AIRP`                      |Toggle Airplane Mode                   |✔            |             |✔                |
 
 <sup>1. The Linux kernel HID driver recognizes [nearly all keycodes](https://github.com/torvalds/linux/blob/master/drivers/hid/hid-input.c), but the default bindings depend on the DE/WM.</sup><br/>
 <sup>2. Treated as F13-F15.</sup><br/>
@@ -848,8 +849,8 @@ See also: [Unicode Support](feature_unicode.md)
 |Key                         |Aliases  |Description                                                     |
 |----------------------------|---------|----------------------------------------------------------------|
 |`UC(c)`                     |         |Send Unicode code point `c`, up to `0x7FFF`                     |
-|`X(i)`                      |         |Send Unicode code point at index `i` in `unicode_map`           |
-|`XP(i, j)`                  |         |Send Unicode code point at index `i`, or `j` if Shift/Caps is on|
+|`UM(i)`                     |         |Send Unicode code point at index `i` in `unicode_map`           |
+|`UP(i, j)`                  |         |Send Unicode code point at index `i`, or `j` if Shift/Caps is on|
 |`QK_UNICODE_MODE_NEXT`      |`UC_NEXT`|Cycle through selected input modes                              |
 |`QK_UNICODE_MODE_PREVIOUS`  |`UC_PREV`|Cycle through selected input modes in reverse                   |
 |`QK_UNICODE_MODE_MACOS`     |`UC_MAC` |Switch to macOS input                                           |
