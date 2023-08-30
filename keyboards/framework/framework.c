@@ -66,6 +66,14 @@ bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
   if (!bios_mode)
     return true;
 
+  if (record->event.key.col == 5 && record->event.key.row == 3) {
+      if (record->event.pressed) {
+        register_code(KC_F1);
+      } else {
+        unregister_code(KC_F1);
+      }
+      return false;
+  }
   if (record->event.key.col == 5 && record->event.key.row == 2) {
       if (record->event.pressed) {
         register_code(KC_F2);
@@ -74,7 +82,62 @@ bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
   }
-
+  if (record->event.key.col == 4 && record->event.key.row == 6) {
+      if (record->event.pressed) {
+        register_code(KC_F3);
+      } else {
+        unregister_code(KC_F3);
+      }
+      return false;
+  }
+  if (record->event.key.col == 4 && record->event.key.row == 3) {
+      if (record->event.pressed) {
+        register_code(KC_F4);
+      } else {
+        unregister_code(KC_F4);
+      }
+      return false;
+  }
+  if (record->event.key.col == 10 && record->event.key.row == 4) {
+      if (record->event.pressed) {
+        register_code(KC_F5);
+      } else {
+        unregister_code(KC_F5);
+      }
+      return false;
+  }
+  if (record->event.key.col == 10 && record->event.key.row == 3) {
+      if (record->event.pressed) {
+        register_code(KC_F6);
+      } else {
+        unregister_code(KC_F6);
+      }
+      return false;
+  }
+  if (record->event.key.col == 10 && record->event.key.row == 2) {
+      if (record->event.pressed) {
+        register_code(KC_F7);
+      } else {
+        unregister_code(KC_F7);
+      }
+      return false;
+  }
+  if (record->event.key.col == 15 && record->event.key.row == 1) {
+      if (record->event.pressed) {
+        register_code(KC_F8);
+      } else {
+        unregister_code(KC_F8);
+      }
+      return false;
+  }
+  if (record->event.key.col == 11 && record->event.key.row == 3) {
+      if (record->event.pressed) {
+        register_code(KC_F9);
+      } else {
+        unregister_code(KC_F9);
+      }
+      return false;
+  }
   if (record->event.key.col == 8 && record->event.key.row == 4) {
       if (record->event.pressed) {
         register_code(KC_F10);
@@ -83,7 +146,14 @@ bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
   }
-
+  if (record->event.key.col == 8 && record->event.key.row == 6) {
+      if (record->event.pressed) {
+        register_code(KC_F11);
+      } else {
+        unregister_code(KC_F11);
+      }
+      return false;
+  }
   if (record->event.key.col == 13 && record->event.key.row == 3) {
       if (record->event.pressed) {
         register_code(KC_F12);
