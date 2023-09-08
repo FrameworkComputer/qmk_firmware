@@ -14,11 +14,15 @@
 #endif
 
 enum factory_commands {
-    f_emu_keypress = 0x01, // Next byte is keycode
-    f_serialnum    = 0x04, // Read device serial number
-    f_bios_mode    = 0x05, // Read device serial number
-    f_factory_mode = 0x06, // Read device serial number
-    f_bootloader   = 0xFE,
+    f_emu_keypress  = 0x01, // Next byte is keycode
+    f_serialnum     = 0x04, // Read device serial number
+    f_bios_mode     = 0x05, // Read device serial number
+    f_factory_mode  = 0x06, // Read device serial number
+    f_lock          = 0x07, //
+    f_unlock        = 0x08, //
+    f_read          = 0x09, //
+    f_write         = 0x0A, //
+    f_bootloader    = 0xFE,
 };
 
 #if defined(RGB_MATRIX_ENABLE)
@@ -35,6 +39,107 @@ void emulate_rgb_keycode_press(uint16_t target_keycode) {
 #endif
 
 extern char ascii_serialnum[SERIALNUM_LEN + 1];
+
+#include "pico/bootrom.h"
+#include "hardware/flash.h"
+#include "hardware/sync.h"
+#include "hardware/structs/ssi.h"
+#include "hardware/structs/ioqspi.h"
+#define FLASHCMD_WRITE_STATUS 0x01
+#define FLASHCMD_PAGE_PROGRAM 0x02
+#define FLASHCMD_READ_STATUS 0x05
+#define FLASHCMD_WRITE_ENABLE 0x06
+#define FLASHCMD_WRITE_ENABLE_VOLATILE 0x50
+extern void __no_inline_not_in_flash_func(flash_put_get)(const uint8_t *tx, uint8_t *rx, size_t count, size_t rx_skip);
+extern void __no_inline_not_in_flash_func(flash_enable_xip_via_boot2)(void);
+extern void __no_inline_not_in_flash_func(flash_wait_ready)(void);
+extern void __no_inline_not_in_flash_func(flash_enable_write)(void);
+extern void __no_inline_not_in_flash_func(flash_put_cmd_addr)(uint8_t cmd, uint32_t addr);
+extern void __no_inline_not_in_flash_func(_flash_do_cmd)(uint8_t cmd, const uint8_t *tx, uint8_t *rx, size_t count);
+void __no_inline_not_in_flash_func(flash_cs_force)(bool high);
+void __no_inline_not_in_flash_func(pico_program_bulk)(uint32_t flash_address, void *buffer, size_t buffer_len) {
+    rom_connect_internal_flash_fn connect_internal_flash = (rom_connect_internal_flash_fn)rom_func_lookup_inline(ROM_FUNC_CONNECT_INTERNAL_FLASH);
+    rom_flash_exit_xip_fn         flash_exit_xip         = (rom_flash_exit_xip_fn)rom_func_lookup_inline(ROM_FUNC_FLASH_EXIT_XIP);
+    rom_flash_flush_cache_fn      flash_flush_cache      = (rom_flash_flush_cache_fn)rom_func_lookup_inline(ROM_FUNC_FLASH_FLUSH_CACHE);
+    //assert(connect_internal_flash && flash_exit_xip && flash_flush_cache);
+    uprintf("cif: %p, fex: %p, ffc: %p\r\n", connect_internal_flash, flash_exit_xip, flash_flush_cache);
+
+    __compiler_memory_barrier();
+
+    connect_internal_flash();
+    flash_exit_xip();
+    flash_enable_write();
+
+    flash_put_cmd_addr(FLASHCMD_PAGE_PROGRAM, flash_address);
+    flash_put_get((uint8_t *)buffer, NULL, buffer_len, 4);
+    flash_wait_ready();
+
+    flash_flush_cache();
+    flash_enable_xip_via_boot2();
+}
+
+
+void test_factory(uint8_t factory_command_id) {
+    //uint8_t id_out;
+    uint8_t buffer[4];
+    uint8_t stat;
+    uint32_t ints = save_and_disable_interrupts();
+
+    buffer[0] = 0x01;
+    buffer[1] = 0x02;
+    buffer[2] = 0x03;
+    buffer[3] = 0x04;
+    switch (factory_command_id) {
+        case f_lock:
+            printf("Before Lock\r\n");
+            flash_cs_force(0);
+            flash_cs_force(1);
+            //flash_enable_write();
+            // _flash_do_cmd(FLASHCMD_READ_STATUS, NULL, &stat, 1);
+            // // Protect very last 4K block
+            // stat |= 1 << 2;    // BP0==1 instead of 64K
+            // stat &= ~(1 << 3); // BP1=0
+            // stat &= ~(1 << 4); // BP2=0
+            // stat &= ~(1 << 5); // Protect top of flash
+            // stat |= 1 << 6;    // SEC1==4K instead of 64K
+            // _flash_do_cmd(FLASHCMD_WRITE_STATUS, &stat, NULL, 1);
+            printf("After Lock\r\n");
+            break;
+        case f_unlock:
+            printf("Before Unlock\r\n");
+            flash_enable_write();
+            _flash_do_cmd(FLASHCMD_READ_STATUS, NULL, &stat, 1);
+            // Protect very last 4K block
+            stat &= ~(1 << 2);    // BP0==1 instead of 64K
+            stat &= ~(1 << 3); // BP1=0
+            stat &= ~(1 << 4); // BP2=0
+            stat &= ~(1 << 5); // TB=0 Protect top of flash
+            stat |= 1 << 6;    // SEC1==4K instead of 64K
+            _flash_do_cmd(FLASHCMD_WRITE_STATUS, &stat, NULL, 1);
+            printf("After unlock\r\n");
+            break;
+        case f_read:
+            printf("Read\r\n");
+
+            void *serialnum_ptr = (void*) (FLASH_OFFSET + LAST_4K_BLOCK);
+            uint8_t *sn_raw = serialnum_ptr;
+            printf("Serialnum: %02x %02x %02x %02x\r\n", sn_raw[0], sn_raw[1], sn_raw[2], sn_raw[3]);
+
+            //flash_get_unique_id(&id_out);
+            //printf("Unique flash ID: %02x\r\n", id_out);
+            break;
+        case f_write:
+            printf("Before Write\r\n");
+            pico_program_bulk(FLASH_OFFSET + LAST_4K_BLOCK, &buffer[0], sizeof(buffer));
+            printf("After Write\r\n");
+            break;
+        default:
+            uprintf("Unknown factory command: %u\n", factory_command_id);
+            break;
+    }
+    restore_interrupts (ints);
+}
+
 
 void handle_factory_command(uint8_t *data) {
     uint8_t  factory_command_id = data[0];
@@ -71,6 +176,12 @@ void handle_factory_command(uint8_t *data) {
             break;
         case f_factory_mode:
             enable_factory_mode(command_data[0] == 0x01);
+            break;
+        case f_lock:
+        case f_unlock:
+        case f_read:
+        case f_write:
+            test_factory(factory_command_id);
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);

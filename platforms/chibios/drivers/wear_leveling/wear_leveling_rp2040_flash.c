@@ -21,6 +21,7 @@
 #    define WEAR_LEVELING_RP2040_FLASH_BULK_COUNT 64
 #endif // WEAR_LEVELING_RP2040_FLASH_BULK_COUNT
 
+#define FLASHCMD_WRITE_STATUS 0x01
 #define FLASHCMD_PAGE_PROGRAM 0x02
 #define FLASHCMD_READ_STATUS 0x05
 #define FLASHCMD_WRITE_ENABLE 0x06
@@ -34,13 +35,13 @@ static ssi_hw_t *const ssi = (ssi_hw_t *)XIP_SSI_BASE;
 check_hw_layout(ssi_hw_t, ssienr, SSI_SSIENR_OFFSET);
 check_hw_layout(ssi_hw_t, spi_ctrlr0, SSI_SPI_CTRLR0_OFFSET);
 
-static void __no_inline_not_in_flash_func(flash_enable_xip_via_boot2)(void) {
+void __no_inline_not_in_flash_func(flash_enable_xip_via_boot2)(void) {
     ((void (*)(void))BOOT2_ROM_RAM + 1)();
 }
 
 // Bitbanging the chip select using IO overrides, in case RAM-resident IRQs
 // are still running, and the FIFO bottoms out. (the bootrom does the same)
-static void __no_inline_not_in_flash_func(flash_cs_force)(bool high) {
+void __no_inline_not_in_flash_func(flash_cs_force)(bool high) {
     uint32_t field_val = high ? IO_QSPI_GPIO_QSPI_SS_CTRL_OUTOVER_VALUE_HIGH : IO_QSPI_GPIO_QSPI_SS_CTRL_OUTOVER_VALUE_LOW;
     hw_write_masked(&ioqspi_hw->io[1].ctrl, field_val << IO_QSPI_GPIO_QSPI_SS_CTRL_OUTOVER_LSB, IO_QSPI_GPIO_QSPI_SS_CTRL_OUTOVER_BITS);
 }
@@ -59,7 +60,7 @@ static int __no_inline_not_in_flash_func(flash_was_aborted)(void) {
 // If rx_skip is nonzero, this many bytes will first be consumed from the FIFO,
 // before reading a further count bytes into *rx.
 // E.g. if you have written a command+address just before calling this function.
-static void __no_inline_not_in_flash_func(flash_put_get)(const uint8_t *tx, uint8_t *rx, size_t count, size_t rx_skip) {
+void __no_inline_not_in_flash_func(flash_put_get)(const uint8_t *tx, uint8_t *rx, size_t count, size_t rx_skip) {
     // Make sure there is never more data in flight than the depth of the RX
     // FIFO. Otherwise, when we are interrupted for long periods, hardware
     // will overflow the RX FIFO.
@@ -96,14 +97,14 @@ static void __no_inline_not_in_flash_func(flash_put_get)(const uint8_t *tx, uint
 // Convenience wrapper for above
 // (And it's hard for the debug host to get the tight timing between
 // cmd DR0 write and the remaining data)
-static void __no_inline_not_in_flash_func(_flash_do_cmd)(uint8_t cmd, const uint8_t *tx, uint8_t *rx, size_t count) {
+void __no_inline_not_in_flash_func(_flash_do_cmd)(uint8_t cmd, const uint8_t *tx, uint8_t *rx, size_t count) {
     flash_cs_force(0);
     ssi->dr0 = cmd;
     flash_put_get(tx, rx, count, 1);
 }
 
 // Timing of this one is critical, so do not expose the symbol to debugger etc
-static void __no_inline_not_in_flash_func(flash_put_cmd_addr)(uint8_t cmd, uint32_t addr) {
+void __no_inline_not_in_flash_func(flash_put_cmd_addr)(uint8_t cmd, uint32_t addr) {
     flash_cs_force(0);
     addr |= cmd << 24;
     for (int i = 0; i < 4; ++i) {
@@ -113,7 +114,7 @@ static void __no_inline_not_in_flash_func(flash_put_cmd_addr)(uint8_t cmd, uint3
 }
 
 // Poll the flash status register until the busy bit (LSB) clears
-static void __no_inline_not_in_flash_func(flash_wait_ready)(void) {
+void __no_inline_not_in_flash_func(flash_wait_ready)(void) {
     uint8_t stat;
     do {
         _flash_do_cmd(FLASHCMD_READ_STATUS, NULL, &stat, 1);
@@ -121,7 +122,7 @@ static void __no_inline_not_in_flash_func(flash_wait_ready)(void) {
 }
 
 // Set the WEL bit (needed before any program/erase operation)
-static void __no_inline_not_in_flash_func(flash_enable_write)(void) {
+void __no_inline_not_in_flash_func(flash_enable_write)(void) {
     _flash_do_cmd(FLASHCMD_WRITE_ENABLE, NULL, NULL, 0);
 }
 
