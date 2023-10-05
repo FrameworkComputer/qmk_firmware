@@ -319,6 +319,9 @@ enum USB_DescriptorTypes_tmk_t
     DTYPE_Bos                       = 0x0F, /**< Indicates that the descriptor is a binary object store descriptor. */
     DTYPE_DeviceCapability          = 0x10, /**< Indicates that the descriptor is a device capability descriptor. */
 };
+
+
+// Generic device capability descriptor
 typedef struct
 {
     USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
@@ -328,15 +331,46 @@ typedef struct
     uint8_t  Bytes[]; /**< Capability-specific format
                         */
 } ATTR_PACKED USB_Descriptor_Capability_t;
+
+// USB 2.0 Extended device capability descriptor
 typedef struct
 {
     USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
     uint8_t DevCapabilityType; /**< TODO
                                 */
-    uint8_t  Bytes[4]; /**< Capability-specific format
+    uint8_t Bytes[4]; /**< Capability-specific format
                         */
 } ATTR_PACKED USB_Descriptor_Capability_Usb20Ext_t;
+
+
+// Microsoft OS 2.0 Platform Capability Descriptor Set
+typedef struct
+{
+    uint8_t  WindowsVersion[4]; /**< TODO
+                                */
+    uint16_t TotalLength; /**< Total Length of the descriptor set
+                           */
+    uint8_t  VendorCode; /**< 0x01 for Microsoft
+                          */
+    uint8_t  AltEnumCode; /**< 0 by default. non-zero if device supports non-default USB descriptors
+                          */
+} ATTR_PACKED USB_Descriptor_Capability_Msos_Set_t;
+
+// Microsoft OS 2.0 Platform Capability Descriptor Header
+typedef struct
+{
+    USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
+
+    uint8_t  DevCapabilityType; /**< 0x05
+                                */
+    uint8_t  Reserved; /**< Reserved, set as 0
+                        */
+    uint8_t  PlatformCapabilityId[16]; /**< GUID: D8DD60DF-4589-4CC7-9CD2-659D9E648A9F
+                                        */
+    USB_Descriptor_Capability_Msos_Set_t Set[1]; /**< Descriptor Set. Can have multiple in theory.
+                                                  */
+} ATTR_PACKED USB_Descriptor_Capability_Msos_t;
 
 /** \brief Standard USB BOS Descriptor (LUFA naming conventions).
     *
@@ -354,6 +388,7 @@ typedef struct
     uint8_t  NumDeviceCaps; /**< The number of separate device capability descriptors in the BOS.
                                 */
     USB_Descriptor_Capability_Usb20Ext_t Usb20ExtensionDevCap;
+    USB_Descriptor_Capability_Msos_t MsosCap;
 } ATTR_PACKED USB_Descriptor_Bos_t;
 
 /** \brief Standard USB BOS Descriptor (USB-IF naming conventions).
