@@ -492,8 +492,9 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
         .Type                   = DTYPE_Bos
     },
     // 3 Bytes (=> 5 Bytes)
-    .TotalLength                = 0x000C,
-    .NumDeviceCaps              = 0x01,
+    // Value must be header + each cap
+    .TotalLength                = 0x0048,
+    .NumDeviceCaps              = 0x02,
 
     .Usb20ExtensionDevCap       = {
         // 2 Bytes (=> 7 Bytes)
@@ -504,6 +505,30 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
         // 5 Bytes (=> 12 Bytes / 0x0C Bytes)
         .DevCapabilityType      = 2,
         .Bytes                  = {0x00, 0x00, 0x00, 0x00},
+    },
+
+    .MsosCap       = {
+        // 2 Bytes (=> 7 Bytes)
+        .Header = {
+            .Size = sizeof(USB_Descriptor_Capability_Msos_t),
+            .Type = 16,
+        },
+        // 5 Bytes (=> 12 Bytes / 0x0C Bytes)
+        .DevCapabilityType      = 5,
+        .Reserved               = 0,
+        // Microsoft OS 2.0 {D8DD60DF-4589-4CC7-9CD2-659D9E648A9F}
+        .PlatformCapabilityId   = {
+            0xDF, 0x60, 0xDD, 0xD8,
+            0x89, 0x45, 0xC7, 0x4C,
+            0x9C, 0xD2, 0x65, 0x9D,
+            0x9E, 0x64, 0x8A, 0x9F
+        },
+        .Set                    = {{
+            .WindowsVersion     = {0x00, 0x00, 0x03, 0x06}, // Windows Blue
+            .TotalLength        = 0x0048,
+            .VendorCode         = 0x01, // Microsoft
+            .AltEnumCode        = 0,
+        }},
     },
 };
 
