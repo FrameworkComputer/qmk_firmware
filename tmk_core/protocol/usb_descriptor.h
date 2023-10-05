@@ -309,3 +309,68 @@ enum usb_endpoints {
 #define DIGITIZER_EPSIZE 8
 
 uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const uint16_t wLength, const void** const DescriptorAddress);
+
+
+// Defining the types that LUFA doesn't
+enum USB_DescriptorTypes_tmk_t
+{
+    DTYPE_Otg                       = 0x09,
+    DTYPE_Debug                     = 0x0A,
+    DTYPE_Bos                       = 0x0F, /**< Indicates that the descriptor is a binary object store descriptor. */
+    DTYPE_DeviceCapability          = 0x10, /**< Indicates that the descriptor is a device capability descriptor. */
+};
+typedef struct
+{
+    USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
+
+    uint8_t DevCapabilityType; /**< TODO
+                                */
+    uint8_t  Bytes[]; /**< Capability-specific format
+                        */
+} ATTR_PACKED USB_Descriptor_Capability_t;
+typedef struct
+{
+    USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
+
+    uint8_t DevCapabilityType; /**< TODO
+                                */
+    uint8_t  Bytes[4]; /**< Capability-specific format
+                        */
+} ATTR_PACKED USB_Descriptor_Capability_Usb20Ext_t;
+
+/** \brief Standard USB BOS Descriptor (LUFA naming conventions).
+    *
+    *  Type define for a standard BOS Descriptor. This structure uses LUFA-specific element names
+    *  to make each element's purpose clearer.
+    *
+    *  \note Regardless of CPU architecture, these values should be stored as little endian.
+    */
+typedef struct
+{
+    USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
+
+    uint16_t TotalLength; /**< Length of this descriptor and all its sub descriptors.
+                            */
+    uint8_t  NumDeviceCaps; /**< The number of separate device capability descriptors in the BOS.
+                                */
+    USB_Descriptor_Capability_Usb20Ext_t Usb20ExtensionDevCap;
+} ATTR_PACKED USB_Descriptor_Bos_t;
+
+/** \brief Standard USB BOS Descriptor (USB-IF naming conventions).
+    *
+    *  Type define for a standard BOS Descriptor. This structure uses the relevant standard's given
+    *  element names to ensure compatibility with the standard.
+    *
+    *  \note Regardless of CPU architecture, these values should be stored as little endian.
+    */
+typedef struct
+{
+    uint8_t  bLength; /**< Size of the descriptor, in bytes. */
+    uint8_t  bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a
+                                *   value given by the specific class.
+                                */
+    uint16_t wTotalLength; /**< Length of this descriptor and all its sub descriptors.
+                            */
+    uint8_t  bNumDeviceCaps; /**< The number of separate device capability descriptors in the BOS.
+                                */
+} ATTR_PACKED USB_StdDescriptor_Bos_t;
