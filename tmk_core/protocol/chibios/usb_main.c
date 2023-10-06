@@ -74,6 +74,38 @@ static void keyboard_idle_timer_cb(struct ch_virtual_timer *, void *arg);
 report_keyboard_t keyboard_report_sent = {{0}};
 report_mouse_t    mouse_report_sent    = {0};
 
+static uint8_t msos_descriptor_set[] __attribute__((aligned(4))) = {
+    //
+    // Microsoft OS 2.0 Descriptor Set Header
+    //
+    0x0A, 0x00,             // wLength - 10 bytes
+    0x00, 0x00,             // MSOS20_SET_HEADER_DESCRIPTOR
+    0x00, 0x00, 0x03, 0x06, // dwWindowsVersion – 0x06030000 for Windows Blue
+    0x48, 0x00,             // wTotalLength – 72 bytes
+
+    //
+    // Microsoft OS 2.0 Registry Value Feature Descriptor
+    //
+    0x3E, 0x00,             // wLength - 62 bytes
+    0x04, 0x00,             // wDescriptorType – 4 for Registry Property
+    0x04, 0x00,             // wPropertyDataType - 4 for REG_DWORD
+    0x30, 0x00,             // wPropertyNameLength – 48 bytes
+    0x53, 0x00, 0x65, 0x00, // Property Name - "SelectiveSuspendEnabled"
+    0x6C, 0x00, 0x65, 0x00,
+    0x63, 0x00, 0x74, 0x00,
+    0x69, 0x00, 0x76, 0x00,
+    0x65, 0x00, 0x53, 0x00,
+    0x75, 0x00, 0x73, 0x00,
+    0x70, 0x00, 0x65, 0x00,
+    0x6E, 0x00, 0x64, 0x00,
+    0x45, 0x00, 0x6E, 0x00,
+    0x61, 0x00, 0x62, 0x00,
+    0x6C, 0x00, 0x65, 0x00,
+    0x64, 0x00, 0x00, 0x00,
+    0x04, 0x00,             // wPropertyDataLength – 4 bytes
+    0x01, 0x00, 0x00, 0x00  // PropertyData - 0x00000001
+};
+
 union {
     uint8_t           report_id;
     report_keyboard_t keyboard;
@@ -734,6 +766,32 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
         usbSetupTransfer(usbp, (uint8_t *)dp->ud_string, dp->ud_size, NULL);
         return TRUE;
     }
+
+    /* Handle Vendor Specific Request */
+    //if (((usbp->setup[0] & USB_RTYPE_TYPE_MASK) == USB_RTYPE_TYPE_VENDOR) && ((usbp->setup[0] & USB_RTYPE_RECIPIENT_MASK) == USB_RTYPE_RECIPIENT_DEVICE)) {
+    // Type=Vendor, Direction=Host2Dev, Recipient=Device
+    if (usbp->setup[0] == 0xC0) {
+        //dprintf("zoid. Vendor request\n");
+        //dprintf("zoid:\n  bmRequestType: %d\n  bRequest: %d\n  wValue: %d %d\n  wIndex: %d %d\n wLength: %d %d\n",
+        //    usbp->setup[0], usbp->setup[1], usbp->setup[2], usbp->setup[3], usbp->setup[4], usbp->setup[5], usbp->setup[6], usbp->setup[7]);
+    }
+    if (
+        //usbp->setup[0] == (USB_RTYPE_TYPE_VENDOR | USB_RTYPE_DIR_HOST2DEV | USB_RTYPE_RECIPIENT_DEVICE)
+        usbp->setup[0] == 0xC0
+        // Microsoft vendor code
+        && usbp->setup[1] == 0x01
+        // wValue
+        && usbp->setup[2] == 0x00 && usbp->setup[3] == 0x00
+        // wIndex: MS_OS_20_DESCRIPTOR_INDEX
+        && usbp->setup[4] == 0x07 && usbp->setup[5] == 0x00
+        // wLength: 0x0048
+        && usbp->setup[6] == 0x48 && usbp->setup[7] == 0x00
+        ) {
+        //dprint("zoid: Detected MS OS 2.0 descriptor request\n");
+        usbSetupTransfer(usbp, &msos_descriptor_set[0], 0x48, NULL);
+        return TRUE;
+    }
+    //dprint("zoid: After\n");
 
     for (int i = 0; i < NUM_USB_DRIVERS; i++) {
         if (drivers.array[i].config.int_in) {

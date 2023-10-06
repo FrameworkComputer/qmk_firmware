@@ -493,7 +493,7 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
     },
     // 3 Bytes (=> 5 Bytes)
     // Value must be header + each cap
-    .TotalLength                = 0x0048,
+    .TotalLength                = 0x0028,
     .NumDeviceCaps              = 0x02,
 
     .Usb20ExtensionDevCap       = {
@@ -507,6 +507,7 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
         .Bytes                  = {0x00, 0x00, 0x00, 0x00},
     },
 
+    // 28 Bytes (0x1C)
     .MsosCap       = {
         // 2 Bytes (=> 7 Bytes)
         .Header = {
