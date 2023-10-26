@@ -6,6 +6,8 @@
 // Allow (emulated) EEPROM reset using VIA
 #define VIA_EEPROM_ALLOW_RESET
 
+#define DYNAMIC_KEYMAP_LAYER_COUNT 10
+
 // Increase to 16K for more storage space
 // With 64K backing size, this spread the wear level over 4 blocks
 #define WEAR_LEVELING_LOGICAL_SIZE      (4*4096)
