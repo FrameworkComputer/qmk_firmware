@@ -56,6 +56,7 @@ extern void __no_inline_not_in_flash_func(flash_wait_ready)(void);
 extern void __no_inline_not_in_flash_func(flash_enable_write)(void);
 extern void __no_inline_not_in_flash_func(flash_put_cmd_addr)(uint8_t cmd, uint32_t addr);
 extern void __no_inline_not_in_flash_func(_flash_do_cmd)(uint8_t cmd, const uint8_t *tx, uint8_t *rx, size_t count);
+extern bool backing_store_init(void);
 void __no_inline_not_in_flash_func(flash_cs_force)(bool high);
 void __no_inline_not_in_flash_func(pico_program_bulk)(uint32_t flash_address, void *buffer, size_t buffer_len) {
     rom_connect_internal_flash_fn connect_internal_flash = (rom_connect_internal_flash_fn)rom_func_lookup_inline(ROM_FUNC_CONNECT_INTERNAL_FLASH);
@@ -78,11 +79,58 @@ void __no_inline_not_in_flash_func(pico_program_bulk)(uint32_t flash_address, vo
     flash_enable_xip_via_boot2();
 }
 
+static uint16_t __no_inline_not_in_flash_func(flash_read_status)(void) {
+    uint8_t data;
+    uint16_t ret;
+    rom_connect_internal_flash_fn connect_internal_flash = (rom_connect_internal_flash_fn)rom_func_lookup_inline(ROM_FUNC_CONNECT_INTERNAL_FLASH);
+    rom_flash_exit_xip_fn         flash_exit_xip         = (rom_flash_exit_xip_fn)rom_func_lookup_inline(ROM_FUNC_FLASH_EXIT_XIP);
+    rom_flash_flush_cache_fn      flash_flush_cache      = (rom_flash_flush_cache_fn)rom_func_lookup_inline(ROM_FUNC_FLASH_FLUSH_CACHE);
+    assert(connect_internal_flash && flash_exit_xip && flash_flush_cache);
+
+    backing_store_init();
+    // No flash accesses after this point
+    __compiler_memory_barrier();
+
+    connect_internal_flash();
+    flash_exit_xip();
+
+    _flash_do_cmd(FLASHCMD_READ_STATUS, NULL, &data, 1);
+    ret = data;
+    _flash_do_cmd(0x35, NULL, &data, 1);
+    ret |= data << 8;
+
+    flash_flush_cache(); // Note this is needed to remove CSn IO force as well as cache flushing
+    flash_enable_xip_via_boot2();
+    return ret;
+}
+
+static void __no_inline_not_in_flash_func(flash_write_status)(uint16_t data) {
+    rom_connect_internal_flash_fn connect_internal_flash = (rom_connect_internal_flash_fn)rom_func_lookup_inline(ROM_FUNC_CONNECT_INTERNAL_FLASH);
+    rom_flash_exit_xip_fn         flash_exit_xip         = (rom_flash_exit_xip_fn)rom_func_lookup_inline(ROM_FUNC_FLASH_EXIT_XIP);
+    rom_flash_flush_cache_fn      flash_flush_cache      = (rom_flash_flush_cache_fn)rom_func_lookup_inline(ROM_FUNC_FLASH_FLUSH_CACHE);
+    assert(connect_internal_flash && flash_exit_xip && flash_flush_cache);
+
+    backing_store_init();
+    // No flash accesses after this point
+    __compiler_memory_barrier();
+
+    connect_internal_flash();
+    flash_exit_xip();
+
+    flash_enable_write();
+    _flash_do_cmd(FLASHCMD_WRITE_STATUS, (void *)&data, NULL, 2);
+
+    flash_wait_ready();
+
+    flash_flush_cache(); // Note this is needed to remove CSn IO force as well as cache flushing
+    flash_enable_xip_via_boot2();
+    return;
+}
 
 void test_factory(uint8_t factory_command_id) {
     //uint8_t id_out;
     uint8_t buffer[4];
-    uint8_t stat;
+    uint16_t status;
     uint32_t ints = save_and_disable_interrupts();
 
     buffer[0] = 0x01;
@@ -91,47 +139,44 @@ void test_factory(uint8_t factory_command_id) {
     buffer[3] = 0x04;
     switch (factory_command_id) {
         case f_lock:
-            printf("Before Lock\r\n");
-            flash_cs_force(0);
-            flash_cs_force(1);
-            //flash_enable_write();
-            // _flash_do_cmd(FLASHCMD_READ_STATUS, NULL, &stat, 1);
-            // // Protect very last 4K block
-            // stat |= 1 << 2;    // BP0==1 instead of 64K
-            // stat &= ~(1 << 3); // BP1=0
-            // stat &= ~(1 << 4); // BP2=0
-            // stat &= ~(1 << 5); // Protect top of flash
-            // stat |= 1 << 6;    // SEC1==4K instead of 64K
-            // _flash_do_cmd(FLASHCMD_WRITE_STATUS, &stat, NULL, 1);
-            printf("After Lock\r\n");
+            //printf("Before Lock\r\n");
+            status = flash_read_status();
+            status  |= 1 << 2;    // BP0==1 instead of 64K
+            status  &= ~(1 << 3); // BP1=0
+            status  &= ~(1 << 4); // BP2=0
+            status  &= ~(1 << 5); // Protect top of flash
+            status  |= 1 << 6;    // SEC1==4K instead of 64K
+            flash_write_status(status);
+            printf("AL\r\n");
             break;
         case f_unlock:
-            printf("Before Unlock\r\n");
-            flash_enable_write();
-            _flash_do_cmd(FLASHCMD_READ_STATUS, NULL, &stat, 1);
+            //printf("Before Unlock\r\n");
+            status = flash_read_status();
             // Protect very last 4K block
-            stat &= ~(1 << 2);    // BP0==1 instead of 64K
-            stat &= ~(1 << 3); // BP1=0
-            stat &= ~(1 << 4); // BP2=0
-            stat &= ~(1 << 5); // TB=0 Protect top of flash
-            stat |= 1 << 6;    // SEC1==4K instead of 64K
-            _flash_do_cmd(FLASHCMD_WRITE_STATUS, &stat, NULL, 1);
-            printf("After unlock\r\n");
+            status &= ~(1 << 2);    // BP0==1 instead of 64K
+            status &= ~(1 << 3); // BP1=0
+            status &= ~(1 << 4); // BP2=0
+            status &= ~(1 << 5); // TB=0 Protect top of flash
+            status |= 1 << 6;    // SEC1==4K instead of 64K
+            flash_write_status(status);
+            printf("AUL\r\n");
             break;
         case f_read:
-            printf("Read\r\n");
+            //printf("Read\r\n");
 
             void *serialnum_ptr = (void*) (FLASH_OFFSET + LAST_4K_BLOCK);
             uint8_t *sn_raw = serialnum_ptr;
-            printf("Serialnum: %02x %02x %02x %02x\r\n", sn_raw[0], sn_raw[1], sn_raw[2], sn_raw[3]);
+            uprintf("Serialnum: %02x %02x %02x %02x\r\n", sn_raw[0], sn_raw[1], sn_raw[2], sn_raw[3]);
 
+            status = flash_read_status();
+            uprintf("Status:%02x\r\n", status);
             //flash_get_unique_id(&id_out);
             //printf("Unique flash ID: %02x\r\n", id_out);
             break;
         case f_write:
-            printf("Before Write\r\n");
+            //printf("Before Write\r\n");
             pico_program_bulk(FLASH_OFFSET + LAST_4K_BLOCK, &buffer[0], sizeof(buffer));
-            printf("After Write\r\n");
+            printf("AW\r\n");
             break;
         default:
             uprintf("Unknown factory command: %u\n", factory_command_id);
