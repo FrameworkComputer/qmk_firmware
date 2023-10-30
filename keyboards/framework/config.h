@@ -123,6 +123,8 @@
 #define ENABLE_RGB_MATRIX_SOLID_SPLASH
 #define ENABLE_RGB_MATRIX_SOLID_MULTISPLASH
 
+#define ISSI_CUSTOM_PWM_FREQ
+
 /*
  * Feature disable options
  *  These options are also useful to firmware size reduction.
