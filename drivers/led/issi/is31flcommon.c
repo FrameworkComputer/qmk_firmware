@@ -89,6 +89,21 @@ void IS31FL_unlock_register(uint8_t addr, uint8_t page) {
     IS31FL_write_single_register(addr, ISSI_COMMANDREGISTER, page);
 }
 
+// Only known to work on IS31FL3743
+void IS31FL_common_set_pwm_frequency(uint8_t addr, uint8_t freq) {
+    // Unlock the command register & select Function Register
+    //IS31FL_unlock_register(addr, ISSI_PAGE_FUNCTION);
+
+    // Enable test mode to unlock PWM freqency register
+    IS31FL_write_single_register(addr, ISSI_REG_TEST, 0x01);
+
+    IS31FL_write_single_register(addr, ISSI_REG_CUSTOM_PWM, freq);
+
+    // Disable test mode again
+    IS31FL_write_single_register(addr, ISSI_REG_TEST, 0x00);
+}
+
+
 void IS31FL_common_init(uint8_t addr, uint8_t ssr) {
     // Setup phase, need to take out of software shutdown and configure
     // ISSI_SSR_x is passed to allow Master / Slave setting where applicable
@@ -114,6 +129,11 @@ void IS31FL_common_init(uint8_t addr, uint8_t ssr) {
 // Set PWM Frequency Register if applicable
 #ifdef ISSI_REG_PWM_SET
     IS31FL_write_single_register(addr, ISSI_REG_PWM_SET, ISSI_PWM_SET);
+#endif
+
+#ifdef ISSI_CUSTOM_PWM_FREQ
+    // Instead of default 29kHz increase to 32.25kHz PWM Frequency
+    IS31FL_common_set_pwm_frequency(addr, ISSI_CUSTOM_PWM_32K);
 #endif
 
     // Wait 10ms to ensure the device has woken up.

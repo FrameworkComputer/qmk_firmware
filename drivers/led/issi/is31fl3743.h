@@ -114,6 +114,10 @@
 #define ISSI_PWM_REG_1ST 0x01
 #define ISSI_SCL_REG_1ST 0x01
 
+#define ISSI_REG_TEST 0xE0
+#define ISSI_REG_CUSTOM_PWM 0xE2
+#define ISSI_CUSTOM_PWM_32K 0xE0
+
 // Map CS SW locations to order in PWM / Scaling buffers
 // This matches the ORDER in the Datasheet Register not the POSITION
 // It will always count from 0x00 to (ISSI_MAX_LEDS - 1)
