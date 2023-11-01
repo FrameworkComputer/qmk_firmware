@@ -13,6 +13,7 @@
         "audio": false
     },
     "debounce": 5,
+    "debounce_type": "sym_defer_pk",
     "processor": "RP2040",
     "url": "https://fr.mw/FRAKDMEN",
     "usb": {
