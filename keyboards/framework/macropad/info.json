@@ -12,7 +12,7 @@
         "nkro": true,
         "audio": false
     },
-    "debounce": 5,
+    "debounce": 10,
     "processor": "RP2040",
     "url": "https://fr.mw/FRAKDNEN",
     "usb": {
