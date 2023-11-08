@@ -1,0 +1,42 @@
+{
+    "keyboard_name": "Laptop 16 3x3 Onekey Module",
+    "manufacturer": "Framework",
+    "maintainer": "JohnAZoidberg",
+    "bootloader": "rp2040",
+    "features": {
+        "bootmagic": false,
+        "mousekey": false,
+        "extrakey": true,
+        "console": true,
+        "command": false,
+        "nkro": true,
+        "audio": false
+    },
+    "debounce": 5,
+    "processor": "RP2040",
+    "url": "https://fr.mw/FRAKDMEN",
+    "usb": {
+        "device_version": "0.2.3",
+        "pid": "0x0014",
+        "vid": "0x32AC",
+        "force_nkro": true
+    },
+    "backlight": {
+        "pin": "GP25"
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                { "label": "7", "x": 0, "y": 0, "h": 1.25 },
+                { "label": "8", "x": 1.25, "y": 0, "h": 1.25 },
+                { "label": "9", "x": 2.5, "y": 0, "h": 1.25 },
+                { "label": "4", "x": 0, "y": 1.5, "h": 1.25 },
+                { "label": "5", "x": 1.25, "y": 1.5, "h": 1.25 },
+                { "label": "6", "x": 2.5, "y": 1.5, "h": 1.25 },
+                { "label": "1", "x": 0, "y": 3, "h": 1.25 },
+                { "label": "2", "x": 1.25, "y": 3, "h": 1.25 },
+                { "label": "3", "x": 2.5, "y": 3, "h": 1.25 }
+            ]
+        }
+    }
+}

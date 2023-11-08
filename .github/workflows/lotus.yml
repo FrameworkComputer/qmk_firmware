@@ -45,6 +45,9 @@ jobs:
     - name: Build Framework Laptop 16 Macropad
       run: qmk compile -kb framework/macropad -km default
 
+    - name: Build Framework Laptop 16 3x3 Onekey
+      run: qmk compile -kb framework/onekey -km default
+
     - uses: actions/upload-artifact@v3
       with:
         name: fl16_kb_qmk.${{github.sha}}
