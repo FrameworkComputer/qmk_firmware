@@ -126,7 +126,7 @@ static void mux_select_row(int row) {
 /**
  * Based on the ADC value, update the matrix for this column
  * */
-static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage, int col, int row) {
+static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage, int col, int row, adc10ksample_t threshold) {
     bool changed = false;
 
     // By default the voltage is high (3.3V)
@@ -135,7 +135,7 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
     // changes the voltage at every key again. So we can't check for a specific
     // voltage but need to have a threshold.
     bool key_state = false;
-    if (voltage < ADC_THRESHOLD) {
+    if (voltage < threshold) {
         key_state = true;
     }
 
@@ -314,6 +314,8 @@ bool handle_idle(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
+    adc10ksample_t voltages[MATRIX_ROWS][MATRIX_COLS] = {};
+
     if (handle_idle()) {
         return false;
     }
@@ -338,12 +340,40 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
             // Wait for column select to settle and propagate to ADC
             //wait_us(500 * 1000);
 
-            // Interpret ADC value as rows
-            changed |= interpret_adc_row(current_matrix, read_adc(), col, row);
+            voltages[row][col] = read_adc();
         }
 
         // Drive column high again
         drive_col(col, true);
+    }
+
+    for (int row = 0; row < MATRIX_ROWS; row++) {
+        uint8_t pressed_in_row = 0;
+        for (int col = 0; col < MATRIX_COLS; col++) {
+            if (voltages[row][col] < ADC_THRESHOLD) {
+                pressed_in_row += 1;
+            }
+        }
+        for (int col = 0; col < MATRIX_COLS; col++) {
+            adc10ksample_t threshold = ADC_THRESHOLD;
+            switch (pressed_in_row) {
+                case 0:
+                case 1:
+                    threshold = 10000; // 1.0V
+                    break;
+                case 2:
+                    threshold = 20000; // 2.0V
+                    break;
+                case 3:
+                    threshold = 25000; // 2.5V
+                    break;
+                default:
+                    threshold = ADC_THRESHOLD;
+                    break;
+            }
+            // Interpret ADC value as rows
+            changed |= interpret_adc_row(current_matrix, voltages[row][col], col, row, threshold);
+        }
     }
 
    return changed;
