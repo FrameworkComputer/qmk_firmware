@@ -62,6 +62,16 @@ void suspend_wakeup_init_kb(void) {
 // If in BIOS mode, no matter what the keys have been remapped to, always send them as the F keys
 bool bios_mode = false;
 bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
+  dprintf("BIOS Mode: %d\n", bios_mode);
+  if (bios_mode) {
+      // Red
+      rgb_matrix_sethsv_noeeprom(0, 0xFF, 0xFF);
+      rgb_matrix_mode_noeeprom(1);
+  } else {
+      // White
+      rgb_matrix_sethsv_noeeprom(0, 0, 0xFF);
+      rgb_matrix_mode_noeeprom(1);
+  }
   // Not in bios mode, no special handling, handle as normal
   if (!bios_mode)
     return true;
