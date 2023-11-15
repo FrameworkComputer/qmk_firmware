@@ -190,6 +190,7 @@ void protocol_pre_task(void) {
                  * the bus and get our keyboard out of suspension. */
                 usbWakeupHost(&USB_DRIVER);
             }
+            usb_event_queue_task();
         }
         /* after a successful wakeup a USB_EVENT_WAKEUP is signaled to QMK by
          * ChibiOS, which triggers a wakeup callback that restores the state of
