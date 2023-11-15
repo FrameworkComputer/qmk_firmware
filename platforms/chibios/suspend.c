@@ -22,7 +22,7 @@ void suspend_power_down(void) {
     // on AVR, this enables the watchdog for 15ms (max), and goes to
     // SLEEP_MODE_PWR_DOWN
 
-    wait_ms(17);
+    wait_ms(5);
 }
 
 /** \brief suspend wakeup condition
