@@ -43,7 +43,9 @@ void suspend_power_down_kb(void) {
   suspend_power_down_user();
 
 #ifdef RGB_MATRIX_ENABLE
+#  ifndef NO_SUSPEND_POWER_DOWN
   writePinLow(IS31FL3743A_ENABLE_GPIO);
+#  endif
 #endif
 }
 
@@ -54,8 +56,9 @@ void suspend_wakeup_init_kb(void) {
   suspend_wakeup_init_user();
 
 #ifdef RGB_MATRIX_ENABLE
-    setPinOutput(IS31FL3743A_ENABLE_GPIO);
+#  ifndef NO_SUSPEND_POWER_DOWN
     writePinHigh(IS31FL3743A_ENABLE_GPIO);
+#  endif
 #endif
 }
 
