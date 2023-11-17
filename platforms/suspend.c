@@ -42,6 +42,15 @@ __attribute__((weak)) void suspend_wakeup_init_kb(void) {
  */
 bool suspend_wakeup_condition(void) {
     matrix_power_up();
+
+    // Keep animating in suspend state
+#    ifdef LED_MATRIX_ENABLE
+    led_matrix_task();
+#    endif
+#    ifdef RGB_MATRIX_ENABLE
+    rgb_matrix_task();
+#    endif
+
     matrix_scan();
     matrix_power_down();
     for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
