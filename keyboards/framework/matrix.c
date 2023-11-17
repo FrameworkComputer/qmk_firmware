@@ -267,10 +267,10 @@ bool handle_idle(void) {
     }
 #ifdef RGB_MATRIX_ENABLE
     if (rgb_matrix_get_suspend_state() != asleep) {
-        if asleep {
-            writePinLow(IS31FL3743A_ENABLE_GPIO)
+        if (asleep) {
+            writePinLow(IS31FL3743A_ENABLE_GPIO);
         } else {
-            writePinHigh(IS31FL3743A_ENABLE_GPIO)
+            writePinHigh(IS31FL3743A_ENABLE_GPIO);
         }
         rgb_matrix_set_suspend_state(asleep);
     }
