@@ -140,8 +140,8 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
     }
 
     if (key_state) {
-        uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
-        print_as_float(voltage);
+        //uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
+        //print_as_float(voltage);
     }
 
 // Don't update  matrix on Pico to avoid messing with the debug system
@@ -159,8 +159,11 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
     }
     changed = cur_matrix[row] != new_row;
     if (key_state) {
-        uprintf("Keypress at KSO%d, KSI%d - %d.%dV\n", col, row, voltage/10000, voltage%10000);
+        uprintf("Keypress at KSO%d, KSI%d - %d.%dV - [X] \n", col, row, voltage/10000, voltage%10000);
+    } else {
+        uprintf("Keypress at KSO%d, KSI%d - %d.%dV - [ ] \n", col, row, voltage/10000, voltage%10000);
     }
+
     cur_matrix[row] = new_row;
 
     return changed;
@@ -318,7 +321,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         return false;
     }
 
-    //wait_us(500 * 1000);
+    wait_us(500 * 1000);
     // Drive all high to deselect them
     for (int col = 0; col < MATRIX_COLS; col++) {
         drive_col(col, true);
@@ -339,8 +342,11 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
             //wait_us(500 * 1000);
 
             // Interpret ADC value as rows
-            changed |= interpret_adc_row(current_matrix, read_adc(), col, row);
+            adc10ksample_t voltage = read_adc();
+            changed |= interpret_adc_row(current_matrix, voltage, col, row);
+            break;
         }
+        break;
 
         // Drive column high again
         drive_col(col, true);

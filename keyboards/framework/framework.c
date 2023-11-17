@@ -9,8 +9,8 @@ void keyboard_post_init_kb(void) {
 
   // Enable debug output
   debug_enable = true;
-  debug_matrix = true;
-  debug_keyboard = true;
+  //debug_matrix = true;
+  //debug_keyboard = true;
 }
 
 /**
