@@ -526,7 +526,7 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
         },
         .Set                    = {{
             .WindowsVersion     = {0x00, 0x00, 0x03, 0x06}, // Windows Blue
-            .TotalLength        = 0x0048,
+            .TotalLength        = 0x007C,
             .VendorCode         = 0x01, // Microsoft
             .AltEnumCode        = 0,
         }},

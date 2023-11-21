@@ -74,6 +74,7 @@ static void keyboard_idle_timer_cb(struct ch_virtual_timer *, void *arg);
 report_keyboard_t keyboard_report_sent = {{0}};
 report_mouse_t    mouse_report_sent    = {0};
 
+#define MSOS_LEN 0x7C
 static uint8_t msos_descriptor_set[] __attribute__((aligned(4))) = {
     //
     // Microsoft OS 2.0 Descriptor Set Header
@@ -81,7 +82,7 @@ static uint8_t msos_descriptor_set[] __attribute__((aligned(4))) = {
     0x0A, 0x00,             // wLength - 10 bytes
     0x00, 0x00,             // MSOS20_SET_HEADER_DESCRIPTOR
     0x00, 0x00, 0x03, 0x06, // dwWindowsVersion – 0x06030000 for Windows Blue
-    0x48, 0x00,             // wTotalLength – 72 bytes
+    MSOS_LEN, 0x00,             // wTotalLength – 72+52=124 bytes
 
     //
     // Microsoft OS 2.0 Registry Value Feature Descriptor
@@ -103,7 +104,27 @@ static uint8_t msos_descriptor_set[] __attribute__((aligned(4))) = {
     0x6C, 0x00, 0x65, 0x00,
     0x64, 0x00, 0x00, 0x00,
     0x04, 0x00,             // wPropertyDataLength – 4 bytes
-    0x01, 0x00, 0x00, 0x00  // PropertyData - 0x00000001
+    0x01, 0x00, 0x00, 0x00, // PropertyData - 0x00000001
+
+    //
+    // Microsoft OS 2.0 Registry Value Feature Descriptor
+    //
+    0x34, 0x00,             // wLength - 52 bytes
+    0x04, 0x00,             // wDescriptorType – 4 for Registry Property
+    0x04, 0x00,             // wPropertyDataType - 4 for REG_DWORD
+    0x26, 0x00,             // wPropertyNameLength – 38 bytes
+    0x44, 0x00, 0x65, 0x00, // Property Name - "DefaultIdleTimeout"
+    0x66, 0x00, 0x61, 0x00,
+    0x75, 0x00, 0x6c, 0x00,
+    0x74, 0x00, 0x49, 0x00,
+    0x64, 0x00, 0x6c, 0x00,
+    0x65, 0x00, 0x54, 0x00,
+    0x69, 0x00, 0x6d, 0x00,
+    0x65, 0x00, 0x6f, 0x00,
+    0x75, 0x00, 0x74, 0x00,
+    0x00, 0x00,
+    0x04, 0x00,             // wPropertyDataLength – 4 bytes
+    0x20, 0x4e, 0x00, 0x00, // PropertyData - 0x00004320 (20000ms/20s)
 };
 
 union {
@@ -785,10 +806,10 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
         // wIndex: MS_OS_20_DESCRIPTOR_INDEX
         && usbp->setup[4] == 0x07 && usbp->setup[5] == 0x00
         // wLength: 0x0048
-        && usbp->setup[6] == 0x48 && usbp->setup[7] == 0x00
+        && usbp->setup[6] == MSOS_LEN && usbp->setup[7] == 0x00
         ) {
         //dprint("zoid: Detected MS OS 2.0 descriptor request\n");
-        usbSetupTransfer(usbp, &msos_descriptor_set[0], 0x48, NULL);
+        usbSetupTransfer(usbp, &msos_descriptor_set[0], MSOS_LEN, NULL);
         return TRUE;
     }
     //dprint("zoid: After\n");
