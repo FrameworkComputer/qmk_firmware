@@ -70,11 +70,13 @@ void handle_factory_command(uint8_t *data) {
                 // Red
                 rgb_matrix_sethsv_noeeprom(0, 0xFF, 0xFF);
                 rgb_matrix_mode_noeeprom(1);
+                writePin(GP24, 1);
             } else {
                 // White
                 rgb_matrix_sethsv_noeeprom(0, 0, 0xFF);
                 rgb_matrix_mode_noeeprom(1);
                 bios_mode = false;
+                writePin(GP24, 0);
             }
             break;
         case f_factory_mode:
