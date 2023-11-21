@@ -313,9 +313,6 @@ bool handle_idle(void) {
     return false;
 }
 
-static uint16_t keepalive_timer = 0;
-static uint16_t keepalive_count = 0;
-
 /**
  * Overriding behavior of matrix_scan from quantum/matrix.c
 */
@@ -384,23 +381,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         }
     }
 
-    if (changed) {
-        keepalive_timer = timer_read();
-        keepalive_count = 25;
-    } else {
-        // Measure how many seconds have passed
-        if (keepalive_count > 0 && TIMER_DIFF_16(timer_read(), keepalive_timer) >= 1000) {
-            keepalive_timer = timer_read();
-            keepalive_count -= 1;
-
-            // Print to the console to cause bus activity,
-            // preventing the driver from suspending the device
-            uprintf("Keepalive: %d\n", keepalive_count);
-            send_keyboard_report();
-        }
-    }
-
-    return changed;
+   return changed;
 }
 
 //bool process_record_user(uint16_t keycode, keyrecord_t *record) {
