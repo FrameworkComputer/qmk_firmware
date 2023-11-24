@@ -9,7 +9,7 @@
         "extrakey": true,
         "console": true,
         "command": false,
-        "nkro": true,
+        "nkro": false,
         "audio": false
     },
     "debounce": 5,
@@ -19,7 +19,7 @@
         "device_version": "0.2.7",
         "pid": "0x0012",
         "vid": "0x32AC",
-        "force_nkro": true
+        "force_nkro": false
     },
     "backlight": {
         "pin": "GP25"
