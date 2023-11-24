@@ -29,9 +29,11 @@ void keyboard_pre_init_kb(void) {
     setPinOutput(MUX_ENABLE_GPIO);
     writePinHigh(MUX_ENABLE_GPIO);
 
-#ifdef RGB_MATRIX_ENABLE
     setPinOutput(IS31FL3743A_ENABLE_GPIO);
+#if defined(RGB_MATRIX_ENABLE)
     writePinHigh(IS31FL3743A_ENABLE_GPIO);
+#else
+    writePinLow(IS31FL3743A_ENABLE_GPIO);
 #endif
     setPinInput(SLEEP_GPIO);
 }
