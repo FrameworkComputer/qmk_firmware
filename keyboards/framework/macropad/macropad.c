@@ -3,6 +3,7 @@
 
 #include QMK_KEYBOARD_H
 
+#if defined(RGB_MATRIX_ENABLE)
 const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
 /* Refer to IS31 manual for these locations
  *   driver
@@ -79,6 +80,7 @@ led_config_t g_led_config = { {
   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
   4, 4, 4, 4, 4, 4, 4, 4
 } };
+#endif
 
 void keyboard_post_init_user(void) {
     // Sync initial numlock state from the host

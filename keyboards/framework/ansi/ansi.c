@@ -3,6 +3,7 @@
 
 #include QMK_KEYBOARD_H
 
+#if defined(RGB_MATRIX_ENABLE)
 #define CS19_SW12 0x00
 #define CS20_SW12 0x01
 #define CS21_SW12 0x02
@@ -412,3 +413,4 @@ led_config_t g_led_config = { {
   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
   4
 } };
+#endif
