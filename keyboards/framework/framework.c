@@ -186,6 +186,13 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     // Implement step brightness for RGB backlight
 #ifdef RGB_MATRIX_ENABLE
+    case RGB_MODE_FORWARD:
+    case RGB_MODE_REVERSE:
+      // Turn on if it was off
+      if (!rgb_matrix_is_enabled()) {
+        rgb_matrix_enable();
+      }
+      return true;
     case BL_STEP:
       if (record->event.pressed) {
         h = rgb_matrix_get_hue();
