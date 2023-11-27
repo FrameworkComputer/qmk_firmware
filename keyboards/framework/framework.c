@@ -3,6 +3,7 @@
 
 #include "quantum.h"
 #include "framework.h"
+#include "os_detection.h"
 
 void keyboard_post_init_kb(void) {
   keyboard_post_init_user();
@@ -65,7 +66,7 @@ void suspend_wakeup_init_kb(void) {
 }
 
 // If in BIOS mode, no matter what the keys have been remapped to, always send them as the F keys
-bool bios_mode = false;
+bool bios_mode = true;
 bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
   // Not in bios mode, no special handling, handle as normal
   if (!bios_mode)
@@ -174,6 +175,66 @@ bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   process_record_user(keycode, record);
 
+  os_variant_t os = detected_host_os();
+#if defined(RGB_MATRIX_ENABLE)
+  //rgb_matrix_mode_noeeprom(1);
+#endif
+  bios_mode = true;
+  writePin(GP24, 0);
+//#if defined(RGB_MATRIX_ENABLE)
+//  switch (os) {
+//      case OS_UNSURE:
+//        //rgb_matrix_sethsv(0, 0, 255); // White
+//        break;
+//      case OS_LINUX:
+//        bios_mode = false
+//        writePin(GP24, 0);
+//        // Works on laptop and android
+//        //rgb_matrix_sethsv(213, 255, 255); // purple
+//        break;
+//      case OS_WINDOWS:
+//        bios_mode = false
+//        writePin(GP24, 0);
+//        // works
+//        //rgb_matrix_sethsv(170, 255, 255); // blue
+//        break;
+//      case OS_MACOS:
+//        //rgb_matrix_sethsv(85, 255, 255); // green
+//        break;
+//      case OS_UEFI:
+//      case OS_IOS:
+//        bios_mode = true
+//        writePin(GP24, 1)
+//        // works on M1 mac
+//        //rgb_matrix_sethsv(43, 255, 255); // yellow
+//        break;
+//      default:
+//        //rgb_matrix_sethsv(125, 255, 255); // cyan
+//        break;
+//  }
+//#else
+  switch (os) {
+      case OS_UNSURE:
+        break;
+      case OS_LINUX:
+        //bios_mode = false;
+        //writePin(GP24, 1);
+        break;
+      case OS_WINDOWS:
+        bios_mode = false;
+        writePin(GP24, 1);
+        break;
+      case OS_MACOS:
+        break;
+      case OS_UEFI:
+      case OS_IOS:
+        bios_mode = true;
+        writePin(GP24, 0);
+        // works on M1 mac
+        break;
+  }
+//#endif
+
   if (!handle_bios_hotkeys(keycode, record)) {
     return false;
   }
@@ -233,6 +294,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     default:
       return true; // Process all other keycodes normally
   }
+
+  return true;
 }
 
 bool led_update_kb(led_t led_state) {

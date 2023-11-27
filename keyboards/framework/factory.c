@@ -79,7 +79,7 @@ void handle_factory_command(uint8_t *data) {
                 rgb_matrix_sethsv_noeeprom(0, 0, 0xFF);
                 rgb_matrix_mode_noeeprom(1);
 #endif
-                bios_mode = false;
+                //bios_mode = false;
                 writePin(GP24, 0);
             }
             break;

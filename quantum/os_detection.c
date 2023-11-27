@@ -35,6 +35,7 @@ struct setups_data_t {
     uint8_t  cnt_02;
     uint8_t  cnt_04;
     uint8_t  cnt_ff;
+    uint8_t  cnt_zoid;
     uint16_t last_wlength;
 };
 
@@ -43,20 +44,30 @@ struct setups_data_t setups_data = {
     .cnt_02 = 0,
     .cnt_04 = 0,
     .cnt_ff = 0,
+    .cnt_zoid = 0,
 };
 
 os_variant_t detected_os = OS_UNSURE;
 
 // Some collected sequences of wLength can be found in tests.
 void make_guess(void) {
-    if (setups_data.count < 3) {
+    //if (setups_data.count < 3 && setups_data.cnt_zoid != 0) {
+    //    return;
+    //}
+    //if (setups_data.cnt_zoid == 0) {
+    //    detected_os = OS_UEFI;
+    //    return;
+    //}
+    if (setups_data.cnt_zoid == 0) {
+        detected_os = OS_UEFI;
         return;
     }
     if (setups_data.cnt_ff >= 2 && setups_data.cnt_04 >= 1) {
         detected_os = OS_WINDOWS;
         return;
     }
-    if (setups_data.count == setups_data.cnt_ff) {
+    // I changed this
+    if (setups_data.count > 3 && setups_data.count == setups_data.cnt_ff) {
         // Linux has 3 packets with 0xFF.
         detected_os = OS_LINUX;
         return;
@@ -80,6 +91,15 @@ void make_guess(void) {
         detected_os = OS_LINUX;
         return;
     }
+    if (setups_data.cnt_zoid == 0) {
+        detected_os = OS_UEFI;
+        return;
+    }
+}
+
+void process_zoid(const uint16_t zoid) {
+    setups_data.cnt_zoid = zoid;
+    make_guess();
 }
 
 void process_wlength(const uint16_t w_length) {
@@ -99,6 +119,7 @@ void process_wlength(const uint16_t w_length) {
 }
 
 os_variant_t detected_host_os(void) {
+    make_guess();
     return detected_os;
 }
 

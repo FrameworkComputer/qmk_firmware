@@ -1177,6 +1177,9 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
             if (wLength >= sizeof(USB_Descriptor_Bos_t)) {
                 Size    = sizeof(USB_Descriptor_Bos_t);
             }
+#ifdef OS_DETECTION_ENABLE
+            process_zoid(31);
+#endif
 
             break;
         case DTYPE_String:

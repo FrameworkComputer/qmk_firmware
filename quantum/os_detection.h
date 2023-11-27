@@ -25,8 +25,10 @@ typedef enum {
     OS_WINDOWS,
     OS_MACOS,
     OS_IOS,
+    OS_UEFI,
 } os_variant_t;
 
+void process_zoid(const uint16_t zoid);
 void         process_wlength(const uint16_t w_length);
 os_variant_t detected_host_os(void);
 void         erase_wlength_data(void);

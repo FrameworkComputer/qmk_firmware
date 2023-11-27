@@ -384,19 +384,20 @@ void quantum_init(void) {
     backlight_init_ports();
 #endif
 #ifdef AUDIO_ENABLE
-    audio_init();
+    audio_init()
 #endif
 #ifdef LED_MATRIX_ENABLE
-    led_matrix_init();
+    led_matrix_init()
 #endif
 #ifdef RGB_MATRIX_ENABLE
-    rgb_matrix_init();
+    // Here
+    //rgb_matrix_init();
 #endif
 #if defined(UNICODE_COMMON_ENABLE)
-    unicode_input_mode_init();
+    unicode_input_mode_init()
 #endif
 #ifdef HAPTIC_ENABLE
-    haptic_init();
+    haptic_init()
 #endif
 }
 
@@ -408,13 +409,13 @@ void keyboard_init(void) {
     timer_init();
     sync_timer_init();
 #ifdef VIA_ENABLE
-    via_init();
+    //via_init();
 #endif
 #ifdef SPLIT_KEYBOARD
-    split_pre_init();
+    split_pre_init()
 #endif
 #ifdef ENCODER_ENABLE
-    encoder_init();
+    encoder_init()
 #endif
     matrix_init();
     quantum_init();
@@ -428,39 +429,39 @@ void keyboard_init(void) {
     st7565_init(DISPLAY_ROTATION_0);
 #endif
 #ifdef PS2_MOUSE_ENABLE
-    ps2_mouse_init();
+    ps2_mouse_init()
 #endif
 #ifdef BACKLIGHT_ENABLE
     backlight_init();
 #endif
 #ifdef RGBLIGHT_ENABLE
-    rgblight_init();
+    rgblight_init()
 #endif
 #ifdef STENO_ENABLE_ALL
-    steno_init();
+    steno_init()
 #endif
 #if defined(NKRO_ENABLE) && defined(FORCE_NKRO)
     keymap_config.nkro = 1;
     eeconfig_update_keymap(keymap_config.raw);
 #endif
 #ifdef DIP_SWITCH_ENABLE
-    dip_switch_init();
+    dip_switch_init()
 #endif
 #ifdef SLEEP_LED_ENABLE
-    sleep_led_init();
+    sleep_led_init()
 #endif
 #ifdef VIRTSER_ENABLE
     virtser_init();
 #endif
 #ifdef SPLIT_KEYBOARD
-    split_post_init();
+    split_post_init()
 #endif
 #ifdef POINTING_DEVICE_ENABLE
     // init after split init
     pointing_device_init();
 #endif
 #ifdef BLUETOOTH_ENABLE
-    bluetooth_init();
+    bluetooth_init()
 #endif
 
 #if defined(DEBUG_MATRIX_SCAN_RATE) && defined(CONSOLE_ENABLE)
