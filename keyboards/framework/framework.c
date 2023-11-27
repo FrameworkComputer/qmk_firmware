@@ -217,8 +217,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       case OS_UNSURE:
         break;
       case OS_LINUX:
-        //bios_mode = false;
-        //writePin(GP24, 1);
+        bios_mode = false;
+        writePin(GP24, 1);
         break;
       case OS_WINDOWS:
         bios_mode = false;
