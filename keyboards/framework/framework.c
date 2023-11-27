@@ -235,6 +235,12 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   }
 //#endif
 
+  // Enable NKRO only in OS. Can cause issues with some pre-boot environments
+  // Framework UEFI is ok, but I think grub can't handle it properly
+  if (!bios_mode) {
+    keymap_config.nkro = 1;
+  }
+
   if (!handle_bios_hotkeys(keycode, record)) {
     return false;
   }
