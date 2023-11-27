@@ -328,7 +328,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         //if (rgb_init_timer > 0 && TIMER_DIFF_16(timer_read(), rgb_init_timer) >= 10000) {
         //if (rgb_init_timer > 0 && TIMER_DIFF_16(timer_read(), rgb_init_timer) >= 100) {
         //if (!bios_mode || rgb_init_timer > 0 && TIMER_DIFF_16(timer_read(), rgb_init_timer) >= 10000) {
-            rgb_matrix_init();
+            //rgb_matrix_init();
             rgb_init = true;
         }
     }
