@@ -409,7 +409,7 @@ void keyboard_init(void) {
     timer_init();
     sync_timer_init();
 #ifdef VIA_ENABLE
-    //via_init();
+    via_init();
 #endif
 #ifdef SPLIT_KEYBOARD
     split_pre_init();
