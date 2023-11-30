@@ -54,10 +54,10 @@ void make_guess(void) {
     //if (setups_data.count < 3 && setups_data.cnt_zoid != 0) {
     //    return;
     //}
-    if (setups_data.cnt_zoid == 0) {
-        detected_os = OS_UEFI;
-        return;
-    }
+    //if (setups_data.cnt_zoid == 0) {
+    //    detected_os = OS_UEFI;
+    //    return;
+    //}
     if (setups_data.cnt_ff >= 2 && setups_data.cnt_04 >= 1) {
         detected_os = OS_WINDOWS;
         return;
