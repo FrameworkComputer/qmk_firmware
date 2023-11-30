@@ -66,21 +66,9 @@ void handle_factory_command(uint8_t *data) {
             break;
         case f_bios_mode:
             if (command_data[0] == 0x01) {
-                bios_mode = true;
-                // Red
-#if defined(RGB_MATRIX_ENABLE)
-                rgb_matrix_sethsv_noeeprom(0, 0xFF, 0xFF);
-                rgb_matrix_mode_noeeprom(1);
-#endif
-                writePin(GP24, 1);
+                set_bios_mode(true);
             } else {
-                // White
-#if defined(RGB_MATRIX_ENABLE)
-                rgb_matrix_sethsv_noeeprom(0, 0, 0xFF);
-                rgb_matrix_mode_noeeprom(1);
-#endif
-                //bios_mode = false;
-                writePin(GP24, 0);
+                set_bios_mode(false);
             }
             break;
         case f_factory_mode:

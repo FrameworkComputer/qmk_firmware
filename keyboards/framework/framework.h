@@ -25,6 +25,12 @@ enum framework_keycodes {
 
 extern bool bios_mode;
 
+// Uncomment this to show hotkey mode with capslock LED and backlight
+// hotkey mode on:  capslock ON,  RGB red
+// hotkey mode off: capslock OFF, RGB white
+//#define BIOS_HOTKEY_DEBUG
+void set_bios_mode(bool val);
+
 #define SLEEP_GPIO GP0
 #define MUX_ENABLE_GPIO GP4
 #define BOOT_DONE_GPIO GP5

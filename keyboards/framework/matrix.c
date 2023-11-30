@@ -313,26 +313,10 @@ bool handle_idle(void) {
     return false;
 }
 
-#ifdef RGB_MATRIX_ENABLE
-static bool rgb_init = false;
-static uint16_t rgb_init_timer = 0;
-#endif
-
 /**
  * Overriding behavior of matrix_scan from quantum/matrix.c
 */
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
-#ifdef RGB_MATRIX_ENABLE
-    if (!rgb_init) {
-        if (!bios_mode) {
-        //if (rgb_init_timer > 0 && TIMER_DIFF_16(timer_read(), rgb_init_timer) >= 10000) {
-        //if (rgb_init_timer > 0 && TIMER_DIFF_16(timer_read(), rgb_init_timer) >= 100) {
-        //if (!bios_mode || rgb_init_timer > 0 && TIMER_DIFF_16(timer_read(), rgb_init_timer) >= 10000) {
-            //rgb_matrix_init();
-            rgb_init = true;
-        }
-    }
-#endif
     bool changed = false;
 
     adc10ksample_t voltages[MATRIX_ROWS][MATRIX_COLS] = {};
@@ -452,8 +436,4 @@ void matrix_init_custom(void) {
     // Set unused pins to input to avoid interfering. They're hooked up to rows 5 and 6
     setPinInput(GP6);
     setPinInput(GP7);
-
-#ifdef RGB_MATRIX_ENABLE
-    rgb_init_timer = timer_read();
-#endif
 }

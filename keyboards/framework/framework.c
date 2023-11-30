@@ -67,6 +67,27 @@ void suspend_wakeup_init_kb(void) {
 
 // If in BIOS mode, no matter what the keys have been remapped to, always send them as the F keys
 bool bios_mode = true;
+void set_bios_mode(bool val) {
+  bios_mode = val;
+
+#ifdef BIOS_HOTKEY_DEBUG
+  if (bios_mode) {
+    // Red
+#if defined(RGB_MATRIX_ENABLE)
+    rgb_matrix_sethsv_noeeprom(0, 0xFF, 0xFF);
+    rgb_matrix_mode_noeeprom(1);
+#endif
+    writePin(GP24, 1);
+  } else {
+    // White
+#if defined(RGB_MATRIX_ENABLE)
+    rgb_matrix_sethsv_noeeprom(0, 0, 0xFF);
+    rgb_matrix_mode_noeeprom(1);
+#endif
+    writePin(GP24, 0);
+  }
+#endif
+}
 bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
   // Not in bios mode, no special handling, handle as normal
   if (!bios_mode)
@@ -176,11 +197,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   process_record_user(keycode, record);
 
   os_variant_t os = detected_host_os();
-#if defined(RGB_MATRIX_ENABLE)
-  //rgb_matrix_mode_noeeprom(1);
-#endif
-  bios_mode = true;
-  writePin(GP24, 0);
+  set_bios_mode(true);
 //#if defined(RGB_MATRIX_ENABLE)
 //  switch (os) {
 //      case OS_UNSURE:
@@ -217,19 +234,16 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       case OS_UNSURE:
         break;
       case OS_LINUX:
-        bios_mode = false;
-        writePin(GP24, 1);
+        set_bios_mode(false);
         break;
       case OS_WINDOWS:
-        bios_mode = false;
-        writePin(GP24, 1);
+        set_bios_mode(false);
         break;
       case OS_MACOS:
         break;
       case OS_UEFI:
       case OS_IOS:
-        bios_mode = true;
-        writePin(GP24, 0);
+        set_bios_mode(true);
         // works on M1 mac
         break;
   }
