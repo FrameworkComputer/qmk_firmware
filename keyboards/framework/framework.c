@@ -198,38 +198,32 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
   os_variant_t os = detected_host_os();
   set_bios_mode(true);
-//#if defined(RGB_MATRIX_ENABLE)
-//  switch (os) {
-//      case OS_UNSURE:
-//        //rgb_matrix_sethsv(0, 0, 255); // White
-//        break;
-//      case OS_LINUX:
-//        bios_mode = false
-//        writePin(GP24, 0);
-//        // Works on laptop and android
-//        //rgb_matrix_sethsv(213, 255, 255); // purple
-//        break;
-//      case OS_WINDOWS:
-//        bios_mode = false
-//        writePin(GP24, 0);
-//        // works
-//        //rgb_matrix_sethsv(170, 255, 255); // blue
-//        break;
-//      case OS_MACOS:
-//        //rgb_matrix_sethsv(85, 255, 255); // green
-//        break;
-//      case OS_UEFI:
-//      case OS_IOS:
-//        bios_mode = true
-//        writePin(GP24, 1)
-//        // works on M1 mac
-//        //rgb_matrix_sethsv(43, 255, 255); // yellow
-//        break;
-//      default:
-//        //rgb_matrix_sethsv(125, 255, 255); // cyan
-//        break;
-//  }
-//#else
+#if defined(OS_DETECTION_RGB_DEBUG) && defined(RGB_MATRIX_ENABLE)
+  rgb_matrix_mode_noeeprom(1);
+  switch (os) {
+      case OS_UNSURE:
+        rgb_matrix_sethsv(0, 0, 255); // White
+        break;
+      case OS_LINUX:
+        // Works on laptop and android
+        rgb_matrix_sethsv(213, 255, 255); // purple
+        break;
+      case OS_WINDOWS:
+        rgb_matrix_sethsv(170, 255, 255); // blue
+        break;
+      case OS_MACOS:
+        rgb_matrix_sethsv(85, 255, 255); // green
+        break;
+      case OS_UEFI:
+      case OS_IOS:
+        // works on M1 mac
+        rgb_matrix_sethsv(43, 255, 255); // yellow
+        break;
+      default:
+        rgb_matrix_sethsv(125, 255, 255); // cyan
+        break;
+  }
+#endif
   switch (os) {
       case OS_UNSURE:
         break;
