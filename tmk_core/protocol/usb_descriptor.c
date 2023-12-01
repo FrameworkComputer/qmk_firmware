@@ -493,8 +493,13 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
     },
     // 3 Bytes (=> 5 Bytes)
     // Value must be header + each cap
+#if defined(MSOS2_CAP)
     .TotalLength                = 0x0028,
     .NumDeviceCaps              = 0x02,
+#else
+    .TotalLength                = 0x000C,
+    .NumDeviceCaps              = 0x01,
+#endif
 
     .Usb20ExtensionDevCap       = {
         // 2 Bytes (=> 7 Bytes)
@@ -507,6 +512,7 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
         .Bytes                  = {0x00, 0x00, 0x00, 0x00},
     },
 
+#ifdef MSOS2_CAP
     // 28 Bytes (0x1C)
     .MsosCap       = {
         // 2 Bytes (=> 7 Bytes)
@@ -531,6 +537,7 @@ const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
             .AltEnumCode        = 0,
         }},
     },
+#endif
 };
 
 #ifndef USB_MAX_POWER_CONSUMPTION

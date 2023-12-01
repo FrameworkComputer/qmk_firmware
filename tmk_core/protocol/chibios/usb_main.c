@@ -74,6 +74,7 @@ static void keyboard_idle_timer_cb(struct ch_virtual_timer *, void *arg);
 report_keyboard_t keyboard_report_sent = {{0}};
 report_mouse_t    mouse_report_sent    = {0};
 
+#if defined(MSOS2_CAP)
 static uint8_t msos_descriptor_set[] __attribute__((aligned(4))) = {
     //
     // Microsoft OS 2.0 Descriptor Set Header
@@ -105,6 +106,7 @@ static uint8_t msos_descriptor_set[] __attribute__((aligned(4))) = {
     0x04, 0x00,             // wPropertyDataLength – 4 bytes
     0x00, 0x00, 0x00, 0x00  // PropertyData - 0x00000001
 };
+#endif
 
 union {
     uint8_t           report_id;
@@ -767,6 +769,7 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
         return TRUE;
     }
 
+#if defined(MSOS2_CAP)
     /* Handle Vendor Specific Request */
     //if (((usbp->setup[0] & USB_RTYPE_TYPE_MASK) == USB_RTYPE_TYPE_VENDOR) && ((usbp->setup[0] & USB_RTYPE_RECIPIENT_MASK) == USB_RTYPE_RECIPIENT_DEVICE)) {
     // Type=Vendor, Direction=Host2Dev, Recipient=Device
@@ -792,6 +795,7 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
         return TRUE;
     }
     //dprint("zoid: After\n");
+#endif
 
     for (int i = 0; i < NUM_USB_DRIVERS; i++) {
         if (drivers.array[i].config.int_in) {
