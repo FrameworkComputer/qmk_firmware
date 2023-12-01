@@ -312,6 +312,9 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
+#ifdef BIOS_HOTKEY_DEBUG
+// Ignore capslock updates in order to manually control it
 bool led_update_kb(led_t led_state) {
     return false;
 }
+#endif
