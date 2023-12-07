@@ -265,6 +265,11 @@ bool handle_idle(void) {
     if (prev_asleep != asleep) {
         prev_asleep = asleep;
     }
+    if (asleep) {
+        led_suspend();
+    } else {
+        led_wakeup();
+    }
 #ifdef RGB_MATRIX_ENABLE
     if (rgb_matrix_get_suspend_state() != asleep) {
         if (asleep) {
