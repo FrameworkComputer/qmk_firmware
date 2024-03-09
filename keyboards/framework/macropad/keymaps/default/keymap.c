@@ -4,6 +4,12 @@
 #include QMK_KEYBOARD_H
 #include "factory.h"
 
+enum _layers {
+  _NUMLOCK,
+  _FN,
+  _FACTORY,
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
      *         ┌────┬────┬────┬────┐
@@ -101,4 +107,13 @@ void enable_factory_mode(bool enable) {
         layer_on(_FACTORY);
     else
         layer_off(_FACTORY);
+}
+
+void keyboard_post_init_user(void) {
+    // Sync initial numlock state from the host
+    if (host_keyboard_led_state().num_lock) {
+        layer_on(_NUMLOCK);
+    } else {
+        layer_off(_FN);
+    }
 }

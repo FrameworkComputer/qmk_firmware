@@ -144,3 +144,6 @@
 //#define NO_ACTION_LAYER
 //#define NO_ACTION_TAPPING
 //#define NO_ACTION_ONESHOT
+
+/* Enable debug of matrix */
+//#define FW_DEBUG_MATRIX
