@@ -3,6 +3,7 @@
 
 #include QMK_KEYBOARD_H
 
+// clang-format off
 #if defined(RGB_MATRIX_ENABLE)
 const is31_led g_is31_leds[RGB_MATRIX_LED_COUNT] = {
 /* Refer to IS31 manual for these locations
@@ -80,13 +81,22 @@ led_config_t g_led_config = { {
   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
   4, 4, 4, 4, 4, 4, 4, 4
 } };
-#endif
 
-void keyboard_post_init_user(void) {
-    // Sync initial numlock state from the host
-    if (host_keyboard_led_state().num_lock) {
-        layer_on(_NUMLOCK);
-    } else {
-        layer_off(_FN);
-    }
-}
+/*
+* LEDS:
+*         ┌────┬────┬────┬────┐
+*  4 keys │ 5  │ 2  │ 22 │ 17 │
+*         ├────┼────┼────┼────┤
+*  4 keys │ 4  │ 0  │ 2  │ 18 │
+*         ├────┼────┼────┼────┤
+*  4 keys │ 7  │ 1  │ 21 │ 16 │
+*         ├────┼────┼────┼────┤
+*  4 keys │ 6  │ 3  │ 23 │ 19 │
+*         ├────┼────┼────┼────┤
+*  4 keys │ 9  │ 11 │ 15 │ 13 │
+*         ├────┼────┼────┼────┤
+*  4 keys │ 8  │ 10 │ 14 │ 12 │
+*         └────┴────┴────┴────┴
+*/
+#endif
+// clang-format on

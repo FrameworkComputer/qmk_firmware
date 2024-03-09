@@ -35,10 +35,11 @@ See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_to
 
 ## Bootloader
 
-Enter the bootloader in 3 ways:
+Enter the bootloader in 6 ways:
 
 * **On Framework Laptop 16 Keyboard**: Hold down left ALT and right ALT while installing the module
 * **On Framework Laptop 16 Numpad**: Hold down keys for 2 and 6 while installing the module
 * **On Raspberry Pi Pico**: Hold down bootsel button when plugging in
 * **Bootmagic reset**: Hold down the key at (0,0) in the matrix (usually the top left key or Escape) and plug in the keyboard
 * **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
+* **QMK HID**: `qmk_hid --vid 32ac --pid <PID> via --bootloader`

@@ -14,3 +14,6 @@
 // Limit current to ensure max current draw is just about 500mA
 // when white at 100% brightness
 #define ISSI_GLOBALCURRENT 185
+
+// Backlight brightness step count
+#define BACKLIGHT_LEVELS 8

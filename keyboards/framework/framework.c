@@ -10,8 +10,10 @@ void keyboard_post_init_kb(void) {
 
   // Enable debug output
   debug_enable = true;
+#if defined(FW_DEBUG_MATRIX)
   debug_matrix = true;
   debug_keyboard = true;
+#endif
 }
 
 /**
@@ -193,8 +195,23 @@ bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
+void post_process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+#if defined(RGB_MATRIX_ENABLE)
+        case BL_STEP:
+            uint8_t h = rgb_matrix_get_hue();
+            uint8_t s = rgb_matrix_get_sat();
+            uint8_t v = get_backlight_level() * (255 / BACKLIGHT_LEVELS);
+            rgb_matrix_sethsv(h, s, v);
+    }
+#endif
+    post_process_record_user(keycode, record);
+}
+
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-  process_record_user(keycode, record);
+  if(!process_record_user(keycode, record)) {
+    return false;
+  }
 
   os_variant_t os = detected_host_os();
   set_bios_mode(true);
@@ -253,13 +270,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     return false;
   }
 
-#ifdef RGB_MATRIX_ENABLE
-  uint8_t h;
-  uint8_t s;
-  uint8_t v;
-  uint8_t new_v;
-#endif
-
   switch (keycode) {
     // Implement step brightness for RGB backlight
 #ifdef RGB_MATRIX_ENABLE
@@ -268,29 +278,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       // Turn on if it was off
       if (!rgb_matrix_is_enabled()) {
         rgb_matrix_enable();
-      }
-      return true;
-    case BL_STEP:
-      if (record->event.pressed) {
-        h = rgb_matrix_get_hue();
-        s = rgb_matrix_get_sat();
-        v = rgb_matrix_get_val();
-        switch (v) {
-          default: // Default when user set to a different level
-          case 0:
-            new_v = 85;
-            break;
-          case 85:
-            new_v = 170;
-            break;
-          case 170:
-            new_v = 255;
-            break;
-          case 255:
-            new_v = 0;
-            break;
-        }
-        rgb_matrix_sethsv(h, s, new_v);
       }
       return true;
 #endif

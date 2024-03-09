@@ -15,9 +15,3 @@
   {  K108,    H1,    H2, KC_NO,    H4,  K107,  K109,  K110 }, \
   { KC_NO, KC_NO, KC_NO, KC_NO,    H3, KC_NO, KC_NO, KC_NO }, \
 }
-
-enum _layers {
-  _NUMLOCK,
-  _FN,
-  _FACTORY,
-};
