@@ -203,8 +203,8 @@ void post_process_record_kb(uint16_t keycode, keyrecord_t *record) {
             uint8_t s = rgb_matrix_get_sat();
             uint8_t v = get_backlight_level() * (255 / BACKLIGHT_LEVELS);
             rgb_matrix_sethsv(h, s, v);
-    }
 #endif
+    }
     post_process_record_user(keycode, record);
 }
 
