@@ -43,3 +43,22 @@ Enter the bootloader in 6 ways:
 * **Bootmagic reset**: Hold down the key at (0,0) in the matrix (usually the top left key or Escape) and plug in the keyboard
 * **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
 * **QMK HID**: `qmk_hid --vid 32ac --pid <PID> via --bootloader`
+
+### Linux Flash
+
+Macropad example with QMK HID and wait for it to finish.
+Your OS may ask you to mount a new USB device, which you should do.
+
+```bash
+set -e
+echo "Compiling macropad"
+qmk compile -kb framework/macropad -km default -j 8
+
+echo "Flashing macropad"
+qmk flash -kb framework/macropad -km default &
+
+echo "Trigger bootloader"
+qmk_hid --vid 32ac --pid 0013 via --bootloader || true
+
+wait
+```
