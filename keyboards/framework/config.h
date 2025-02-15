@@ -51,7 +51,7 @@
 
 // RGB config
 
-#define RGB_DISABLE_WHEN_USB_SUSPENDED
+#define RGB_MATRIX_SLEEP
 
 // RGB Matrix Animation modes. Explicitly enabled
 // For full list of effects, see:
