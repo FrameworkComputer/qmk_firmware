@@ -728,7 +728,7 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
 
 #ifdef LAMPARRAY_ENABLE
                             case LAMPARRAY_INTERFACE:
-                                switch (setup->wValue.lbyte) {
+                                switch (usbp->setup[2]) { /*LSB(wValue) */
                                     case LAMPARRAY_REPORT_ID_ATTRIBUTES:
                                         static lamparray_attributes_report_t ret = {.report_id = LAMPARRAY_REPORT_ID_ATTRIBUTES};
                                         lamparray_get_attributes(&ret.attributes);
@@ -778,7 +778,7 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
                                 break;
 #ifdef LAMPARRAY_ENABLE
                             case LAMPARRAY_INTERFACE:
-                                switch (setup->wValue.lbyte) {
+                                switch (usbp->setup[2]) { /*LSB(wValue) */
                                     case LAMPARRAY_REPORT_ID_ATTRIBUTES_REQUEST:
                                     case LAMPARRAY_REPORT_ID_RANGE_UPDATE:
                                     case LAMPARRAY_REPORT_ID_MULTI_UPDATE:

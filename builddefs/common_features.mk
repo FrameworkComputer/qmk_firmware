@@ -99,6 +99,12 @@ ifeq ($(MUSIC_ENABLE), yes)
     SRC += $(QUANTUM_DIR)/process_keycode/process_music.c
 endif
 
+LAMPARRAY_ENABLE ?= no
+ifeq ($(LAMPARRAY_ENABLE), yes)
+    SRC += $(QUANTUM_DIR)/lamparray/lamparray.c
+    SRC += $(QUANTUM_DIR)/lamparray/lamparray_rgb_matrix.c
+endif
+
 VALID_STENO_PROTOCOL_TYPES := geminipr txbolt all
 STENO_PROTOCOL ?= all
 ifeq ($(strip $(STENO_ENABLE)), yes)

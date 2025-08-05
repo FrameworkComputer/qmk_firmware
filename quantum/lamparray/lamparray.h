@@ -6,6 +6,12 @@
 #include <stdbool.h>
 #include "util.h" // PACKED
 
+#if defined(__GNUC__)
+#    define PACKED __attribute__((__packed__))
+#else
+#    define PACKED
+#endif
+
 #define LAMPARRAY_REPORT_ID_ATTRIBUTES 0x01
 #define LAMPARRAY_REPORT_ID_ATTRIBUTES_REQUEST 0x02
 #define LAMPARRAY_REPORT_ID_ATTRIBUTES_RESPONSE 0x03
