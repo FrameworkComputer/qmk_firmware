@@ -15,6 +15,8 @@ BACKLIGHT_DRIVER = pwm
 OS_DETECTION_ENABLE = yes
 #OS_DETECTION_DEBUG_ENABLE = yes
 
+LAMPARRAY_ENABLE = yes
+
 # Custom matrix scanning code via ADC
 CUSTOM_MATRIX = lite
 SRC += matrix.c analog.c
