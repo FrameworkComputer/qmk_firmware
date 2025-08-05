@@ -139,7 +139,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    include "wpm.h"
 #endif
 #ifdef LAMPARRAY_ENABLE
-#    include "lamparray.h"
+#    include "lamparray/lamparray.h"
 #endif
 
 static uint32_t last_input_modification_time = 0;

@@ -51,7 +51,7 @@ extern keymap_config_t keymap_config;
 #endif
 
 #ifdef LAMPARRAY_ENABLE
-#    include "lamparray.h"
+#    include "lamparray/lamparray.h"
 #endif
 
 /* ---------------------------------------------------------

@@ -1,8 +1,8 @@
 // Copyright 2024 QMK
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <string.h> // for memcpy
-#include "lamparray.h"
-#include "lamparray_surface.h"
+#include "lamparray/lamparray.h"
+#include "lamparray/lamparray_surface.h"
 #include "keycodes.h"
 #include "keymap_introspection.h"
 #include "action_layer.h"

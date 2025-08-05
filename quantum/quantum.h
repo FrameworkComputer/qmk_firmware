@@ -257,7 +257,7 @@ extern layer_state_t layer_state;
 #endif
 
 #ifdef LAMPARRAY_ENABLE
-#    include "lamparray.h"
+#    include "lamparray/lamparray.h"
 #endif
 
 void set_single_persistent_default_layer(uint8_t default_layer);

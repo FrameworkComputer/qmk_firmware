@@ -1,7 +1,7 @@
 // Copyright 2024 QMK
 // SPDX-License-Identifier: GPL-2.0-or-later
-#include "lamparray.h"
-#include "lamparray_surface.h"
+#include "lamparray/lamparray.h"
+#include "lamparray/lamparray_surface.h"
 #include "rgb_matrix.h"
 
 /**
