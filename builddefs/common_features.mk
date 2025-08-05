@@ -102,7 +102,7 @@ endif
 LAMPARRAY_ENABLE ?= no
 ifeq ($(LAMPARRAY_ENABLE), yes)
     SRC += $(QUANTUM_DIR)/lamparray/lamparray.c
-    SRC += $(QUANTUM_DIR)/lamparray/lamparray_rgb_matrix.c
+    #SRC += $(QUANTUM_DIR)/lamparray/lamparray_rgb_matrix.c
 endif
 
 VALID_STENO_PROTOCOL_TYPES := geminipr txbolt all
