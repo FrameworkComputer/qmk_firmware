@@ -682,6 +682,11 @@ static void set_lamparray_transfer_cb(USBDriver *usbp) {
 static bool usb_request_hook_cb(USBDriver *usbp) {
     const USBDescriptor *dp;
 
+#ifdef LAMPARRAY_ENABLE
+    static lamparray_attributes_report_t ret = {.report_id = LAMPARRAY_REPORT_ID_ATTRIBUTES};
+    static lamparray_attributes_response_report_t res = {.report_id = LAMPARRAY_REPORT_ID_ATTRIBUTES_RESPONSE};
+#endif /* LAMPARRAY_ENABLE */
+
     /* usbp->setup fields:
      *  0:   bmRequestType (bitmask)
      *  1:   bRequest
@@ -730,13 +735,11 @@ static bool usb_request_hook_cb(USBDriver *usbp) {
                             case LAMPARRAY_INTERFACE:
                                 switch (usbp->setup[2]) { /*LSB(wValue) */
                                     case LAMPARRAY_REPORT_ID_ATTRIBUTES:
-                                        static lamparray_attributes_report_t ret = {.report_id = LAMPARRAY_REPORT_ID_ATTRIBUTES};
                                         lamparray_get_attributes(&ret.attributes);
 
                                         usbSetupTransfer(usbp, (uint8_t *)&ret, sizeof(ret), NULL);
                                         return TRUE;
                                     case LAMPARRAY_REPORT_ID_ATTRIBUTES_RESPONSE:
-                                        static lamparray_attributes_response_report_t res = {.report_id = LAMPARRAY_REPORT_ID_ATTRIBUTES_RESPONSE};
                                         lamparray_get_attributes_response(&res.attributes_response);
 
                                         usbSetupTransfer(usbp, (uint8_t *)&res, sizeof(res), NULL);
