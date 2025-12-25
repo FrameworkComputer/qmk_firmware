@@ -4,6 +4,7 @@
   "productId": "0x0014",
   "matrix": {"rows": 4, "cols": 8},
   "keycodes": ["qmk_lighting"],
+  "lighting": "qmk_backlight",
   "menus": ["qmk_backlight"],
   "layouts": {
     "keymap": [
