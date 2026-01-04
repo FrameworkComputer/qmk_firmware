@@ -53,6 +53,3 @@
 #define GUI_ON  QK_MAGIC_GUI_ON
 #define GUI_OFF QK_MAGIC_GUI_OFF
 #define GUI_TOG QK_MAGIC_TOGGLE_GUI
-
-#define X(i) UM(i)
-#define XP(i, j) UM(i, j)

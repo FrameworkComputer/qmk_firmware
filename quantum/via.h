@@ -17,7 +17,6 @@
 #pragma once
 
 #include "eeconfig.h" // for EECONFIG_SIZE
-#include "action.h"
 
 // Keyboard level code can change where VIA stores the magic.
 // The magic is the build date YYMMDD encoded as BCD in 3 bytes,
@@ -110,7 +109,6 @@ enum via_channel_id {
     id_qmk_rgblight_channel   = 2,
     id_qmk_rgb_matrix_channel = 3,
     id_qmk_audio_channel      = 4,
-    id_qmk_led_matrix_channel = 5,
 };
 
 enum via_qmk_backlight_value {
@@ -130,12 +128,6 @@ enum via_qmk_rgb_matrix_value {
     id_qmk_rgb_matrix_effect       = 2,
     id_qmk_rgb_matrix_effect_speed = 3,
     id_qmk_rgb_matrix_color        = 4,
-};
-
-enum via_qmk_led_matrix_value {
-    id_qmk_led_matrix_brightness   = 1,
-    id_qmk_led_matrix_effect       = 2,
-    id_qmk_led_matrix_effect_speed = 3,
 };
 
 enum via_qmk_audio_value {
@@ -188,13 +180,6 @@ void via_qmk_rgb_matrix_command(uint8_t *data, uint8_t length);
 void via_qmk_rgb_matrix_set_value(uint8_t *data);
 void via_qmk_rgb_matrix_get_value(uint8_t *data);
 void via_qmk_rgb_matrix_save(void);
-#endif
-
-#if defined(LED_MATRIX_ENABLE)
-void via_qmk_led_matrix_command(uint8_t *data, uint8_t length);
-void via_qmk_led_matrix_set_value(uint8_t *data);
-void via_qmk_led_matrix_get_value(uint8_t *data);
-void via_qmk_led_matrix_save(void);
 #endif
 
 #if defined(AUDIO_ENABLE)

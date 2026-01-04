@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "quantum.h"
 #include "serial.h"
 #include <hal.h>
 

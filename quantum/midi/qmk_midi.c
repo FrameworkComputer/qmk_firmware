@@ -5,11 +5,6 @@
 #include "usb_descriptor.h"
 #include "process_midi.h"
 
-#ifdef AUDIO_ENABLE
-#    include "audio.h"
-#    include <math.h>
-#endif
-
 /*******************************************************************************
  * MIDI
  ******************************************************************************/

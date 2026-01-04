@@ -2,6 +2,7 @@
 
 #include "quantum.h"
 
+/* use X(n) to call the  */
 #ifdef UNICODEMAP_ENABLE
 enum unicode_name {
 OKOK,     // 

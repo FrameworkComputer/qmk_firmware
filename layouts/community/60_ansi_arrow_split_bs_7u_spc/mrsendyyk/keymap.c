@@ -109,9 +109,9 @@ void update_led(void) {
     }
 }
 
-bool led_update_user(led_t led_state) {
+void led_set_user(uint8_t usb_led) {
     // Caps Lock Indicator
-    if (led_state.caps_lock) {
+    if (IS_LED_ON(usb_led, USB_LED_CAPS_LOCK)) {
         writePinLow(B2);
         rgblight_setrgb(255, 110, 0);
     }
@@ -133,7 +133,6 @@ bool led_update_user(led_t led_state) {
         }
         update_led();
     }
-    return false;
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {

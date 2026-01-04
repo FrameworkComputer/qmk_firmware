@@ -1,9 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "action.h"
-
 void clicky_play(void);
 bool process_clicky(uint16_t keycode, keyrecord_t *record);
 

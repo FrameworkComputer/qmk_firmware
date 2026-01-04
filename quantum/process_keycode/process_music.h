@@ -16,9 +16,7 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "action.h"
+#include "quantum.h"
 
 #if defined(AUDIO_ENABLE) || (defined(MIDI_ENABLE) && defined(MIDI_BASIC))
 

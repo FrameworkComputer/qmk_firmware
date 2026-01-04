@@ -19,12 +19,16 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
+=======
+>>>>>>> parent of 533b389b97 (Merge branch 'fl16-bisect')
 enum _layers {
   _NUMLOCK,
   _FN
 };
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 //enum _layers {
@@ -34,3 +38,5 @@ enum _layers {
 >>>>>>> fl16-bisect
 =======
 >>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
+=======
+>>>>>>> parent of 533b389b97 (Merge branch 'fl16-bisect')

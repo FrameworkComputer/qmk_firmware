@@ -2,6 +2,7 @@
 # Only when disabling VIA but still wanting to use RAW, need to enable it here.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 VIA_ENABLE = yes
 =======
 VIA_ENABLE = no
@@ -9,6 +10,9 @@ VIA_ENABLE = no
 =======
 VIA_ENABLE = yes
 >>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
+=======
+VIA_ENABLE = yes
+>>>>>>> parent of 533b389b97 (Merge branch 'fl16-bisect')
 RAW_ENABLE = no
 
 # Enabled in info.json

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "keyboard.h"
+#include "quantum.h" //to get is_keyboard_left
 #include <stdint.h>
 #include "spi_master.h"
 #include "util.h"

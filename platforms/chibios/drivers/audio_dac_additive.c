@@ -16,9 +16,8 @@
  */
 
 #include "audio.h"
-#include "gpio.h"
-#include <math.h>
-#include "util.h"
+#include <ch.h>
+#include <hal.h>
 
 // Need to disable GCC's "tautological-compare" warning for this file, as it causes issues when running `KEEP_INTERMEDIATES=yes`. Corresponding pop at the end of the file.
 #pragma GCC diagnostic push

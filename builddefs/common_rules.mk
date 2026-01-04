@@ -176,7 +176,7 @@ MOVE_DEP = mv -f $(patsubst %.o,%.td,$@) $(patsubst %.o,%.d,$@)
 
 # For a ChibiOS build, ensure that the board files have the hook overrides injected
 define BOARDSRC_INJECT_HOOKS
-$(INTERMEDIATE_OUTPUT)/$(patsubst %.c,%.o,$(patsubst ./%,%,$1)): INIT_HOOK_CFLAGS += -include $(TOP_DIR)/tmk_core/protocol/chibios/init_hooks.h
+$(KEYBOARD_OUTPUT)/$(patsubst %.c,%.o,$(patsubst ./%,%,$1)): INIT_HOOK_CFLAGS += -include $(TOP_DIR)/tmk_core/protocol/chibios/init_hooks.h
 endef
 $(foreach LOBJ, $(BOARDSRC), $(eval $(call BOARDSRC_INJECT_HOOKS,$(LOBJ))))
 

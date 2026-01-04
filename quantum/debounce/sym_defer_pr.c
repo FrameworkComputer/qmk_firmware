@@ -17,8 +17,9 @@ Symmetric per-row debounce algorithm. Changes only apply when
 DEBOUNCE milliseconds have elapsed since the last change.
 */
 
-#include "debounce.h"
+#include "matrix.h"
 #include "timer.h"
+#include "quantum.h"
 #include <stdlib.h>
 
 #ifndef DEBOUNCE

@@ -17,7 +17,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "quantum_keycodes.h"
+
+#include "quantum.h"
 
 typedef union {
     uint8_t raw;

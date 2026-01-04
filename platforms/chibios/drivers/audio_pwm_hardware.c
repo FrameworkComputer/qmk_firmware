@@ -12,7 +12,8 @@
 // function.
 
 #include "audio.h"
-#include "gpio.h"
+#include "ch.h"
+#include "hal.h"
 
 #if !defined(AUDIO_PIN)
 #    error "Audio feature enabled, but no pin selected - see docs/feature_audio under the ARM PWM settings"

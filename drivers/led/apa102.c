@@ -16,7 +16,7 @@
  */
 
 #include "apa102.h"
-#include "gpio.h"
+#include "quantum.h"
 
 #ifndef APA102_NOPS
 #    if defined(__AVR__)

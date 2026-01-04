@@ -14,10 +14,7 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "action.h"
-#include "keyboard.h"
+#include "quantum.h"
 
 uint16_t get_last_keycode(void);             /**< Keycode of the last key. */
 uint8_t  get_last_mods(void);                /**< Mods active with the last key. */

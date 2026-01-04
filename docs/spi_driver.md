@@ -1,8 +1,8 @@
-# SPI Master Driver :id=spi-master-driver
+# SPI Master Driver
 
 The SPI Master drivers used in QMK have a set of common functions to allow portability between MCUs.
 
-## AVR Configuration :id=avr-configuration
+## AVR Configuration
 
 No special setup is required - just connect the `SS`, `SCK`, `MOSI` and `MISO` pins of your SPI devices to the matching pins on the MCU:
 
@@ -16,7 +16,7 @@ No special setup is required - just connect the `SS`, `SCK`, `MOSI` and `MISO` p
 You may use more than one slave select pin, not just the `SS` pin. This is useful when you have multiple devices connected and need to communicate with them individually.
 `SPI_SS_PIN` can be passed to `spi_start()` to refer to `SS`.
 
-## ChibiOS/ARM Configuration :id=arm-configuration
+## ChibiOS/ARM Configuration
 
 You'll need to determine which pins can be used for SPI -- as an example, STM32 parts generally have multiple SPI peripherals, labeled SPI1, SPI2, SPI3 etc.
 
@@ -49,19 +49,19 @@ Configuration-wise, you'll need to set up the peripheral as per your MCU's datas
 
 As per the AVR configuration, you may choose any other standard GPIO as a slave select pin, which should be supplied to `spi_start()`.
 
-## API :id=api
+## Functions
 
-### `void spi_init(void)` :id=api-spi-init
+### `void spi_init(void)`
 
 Initialize the SPI driver. This function must be called only once, before any of the below functions can be called.
 
 ---
 
-### `bool spi_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divisor)` :id=api-spi-start
+### `bool spi_start(pin_t slavePin, bool lsbFirst, uint8_t mode, uint16_t divisor)`
 
 Start an SPI transaction.
 
-#### Arguments :id=api-spi-start-arguments
+#### Arguments
 
  - `pin_t slavePin`  
    The QMK pin to assert as the slave select pin, eg. `B4`.
@@ -80,71 +80,71 @@ Start an SPI transaction.
  - `uint16_t divisor`  
    The SPI clock divisor, will be rounded up to the nearest power of two. This number can be calculated by dividing the MCU's clock speed by the desired SPI clock speed. For example, an MCU running at 8 MHz wanting to talk to an SPI device at 4 MHz would set the divisor to `2`.
 
-#### Return Value :id=api-spi-start-return
+#### Return Value
 
 `false` if the supplied parameters are invalid or the SPI peripheral is already in use, or `true`.
 
 ---
 
-### `spi_status_t spi_write(uint8_t data)` :id=api-spi-write
+### `spi_status_t spi_write(uint8_t data)`
 
 Write a byte to the selected SPI device.
 
-#### Arguments :id=api-spi-write-arguments
+#### Arguments
 
  - `uint8_t data`  
    The byte to write.
 
-#### Return Value :id=api-spi-write-return
+#### Return Value
 
 `SPI_STATUS_TIMEOUT` if the timeout period elapses, or `SPI_STATUS_SUCCESS`.
 
 ---
 
-### `spi_status_t spi_read(void)` :id=api-spi-read
+### `spi_status_t spi_read(void)`
 
 Read a byte from the selected SPI device.
 
-#### Return Value :id=api-spi-read-return
+#### Return Value
 
 `SPI_STATUS_TIMEOUT` if the timeout period elapses, or the byte read from the device.
 
 ---
 
-### `spi_status_t spi_transmit(const uint8_t *data, uint16_t length)` :id=api-spi-transmit
+### `spi_status_t spi_transmit(const uint8_t *data, uint16_t length)`
 
 Send multiple bytes to the selected SPI device.
 
-#### Arguments :id=api-spi-transmit-arguments
+#### Arguments
 
  - `const uint8_t *data`  
    A pointer to the data to write from.
  - `uint16_t length`  
    The number of bytes to write. Take care not to overrun the length of `data`.
 
-#### Return Value :id=api-spi-transmit-return
+#### Return Value
 
 `SPI_STATUS_TIMEOUT` if the timeout period elapses, `SPI_STATUS_ERROR` if some other error occurs, otherwise `SPI_STATUS_SUCCESS`.
 
 ---
 
-### `spi_status_t spi_receive(uint8_t *data, uint16_t length)` :id=api-spi-receive
+### `spi_status_t spi_receive(uint8_t *data, uint16_t length)`
 
 Receive multiple bytes from the selected SPI device.
 
-#### Arguments :id=api-spi-receive-arguments
+#### Arguments
 
  - `uint8_t *data`  
    A pointer to the buffer to read into.
  - `uint16_t length`  
    The number of bytes to read. Take care not to overrun the length of `data`.
 
-#### Return Value :id=api-spi-receive-return
+#### Return Value
 
 `SPI_STATUS_TIMEOUT` if the timeout period elapses, `SPI_STATUS_ERROR` if some other error occurs, otherwise `SPI_STATUS_SUCCESS`.
 
 ---
 
-### `void spi_stop(void)` :id=api-spi-stop
+### `void spi_stop(void)`
 
 End the current SPI transaction. This will deassert the slave select pin and reset the endianness, mode and divisor configured by `spi_start()`.

@@ -16,11 +16,9 @@
 
 #pragma once
 
+#include "progmem.h"
+#include "quantum.h"
 #include <stdint.h>
-#include <stdbool.h>
-#include "action.h"
-#include "keycodes.h"
-#include "quantum_keycodes.h"
 
 #ifdef EXTRA_SHORT_COMBOS
 #    define MAX_COMBO_LENGTH 6

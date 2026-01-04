@@ -21,7 +21,7 @@
 #include <string>
 
 extern "C" {
-#include "matrix.h"
+#include "quantum.h"
 #include "timer.h"
 }
 

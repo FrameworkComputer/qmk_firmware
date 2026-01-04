@@ -25,8 +25,6 @@
 #include "wait.h"
 #include "send_string.h"
 #include "utf8.h"
-#include "debug.h"
-#include "quantum.h"
 
 #if defined(AUDIO_ENABLE)
 #    include "audio.h"

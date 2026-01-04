@@ -1,10 +1,12 @@
 // Copyright 2022 Marek Kraus (@gamelaster)
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "quantum.h"
+
 #include "hardware/pio.h"
 #include "hardware/clocks.h"
 #include "ps2.h"
-#include "debug.h"
+#include "print.h"
 
 #if !defined(MCU_RP)
 #    error PIO Driver is only available for Raspberry Pi 2040 MCUs!

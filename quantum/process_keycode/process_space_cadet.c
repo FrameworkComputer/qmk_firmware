@@ -14,8 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "process_space_cadet.h"
-#include "keycodes.h"
-#include "timer.h"
 #include "action_tapping.h"
 
 // ********** OBSOLETE DEFINES, STOP USING! (pls?) **********

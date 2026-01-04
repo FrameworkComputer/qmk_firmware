@@ -15,8 +15,6 @@
  */
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "action.h"
+#include "quantum.h"
 
 bool process_grave_esc(uint16_t keycode, keyrecord_t *record);

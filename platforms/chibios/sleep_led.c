@@ -41,20 +41,17 @@ void sleep_led_timer_callback(void) {
             uint8_t duration : 2;
             uint8_t index : 6;
         } pwm;
-    } timer                = {.row = 0};
-    static led_t led_state = {0};
+    } timer = {.row = 0};
 
     timer.row++;
 
     // LED on
     if (timer.pwm.count == 0) {
-        led_state.caps_lock = true;
-        led_set(led_state.raw);
+        led_set(1 << USB_LED_CAPS_LOCK);
     }
     // LED off
     if (timer.pwm.count == breathing_table[timer.pwm.index]) {
-        led_state.caps_lock = false;
-        led_set(led_state.raw);
+        led_set(0);
     }
 }
 
@@ -193,7 +190,7 @@ void sleep_led_toggle(void) {
 void sleep_led_init(void) {}
 
 void sleep_led_enable(void) {
-    led_set(2); // Caps Lock
+    led_set(1 << USB_LED_CAPS_LOCK);
 }
 
 void sleep_led_disable(void) {

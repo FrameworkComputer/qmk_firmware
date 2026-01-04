@@ -89,21 +89,6 @@ void IS31FL_unlock_register(uint8_t addr, uint8_t page) {
     IS31FL_write_single_register(addr, ISSI_COMMANDREGISTER, page);
 }
 
-// Only known to work on IS31FL3743
-void IS31FL_common_set_pwm_frequency(uint8_t addr, uint8_t freq) {
-    // Unlock the command register & select Function Register
-    //IS31FL_unlock_register(addr, ISSI_PAGE_FUNCTION);
-
-    // Enable test mode to unlock PWM freqency register
-    IS31FL_write_single_register(addr, ISSI_REG_TEST, 0x01);
-
-    IS31FL_write_single_register(addr, ISSI_REG_CUSTOM_PWM, freq);
-
-    // Disable test mode again
-    IS31FL_write_single_register(addr, ISSI_REG_TEST, 0x00);
-}
-
-
 void IS31FL_common_init(uint8_t addr, uint8_t ssr) {
     // Setup phase, need to take out of software shutdown and configure
     // ISSI_SSR_x is passed to allow Master / Slave setting where applicable
@@ -131,11 +116,6 @@ void IS31FL_common_init(uint8_t addr, uint8_t ssr) {
     IS31FL_write_single_register(addr, ISSI_REG_PWM_SET, ISSI_PWM_SET);
 #endif
 
-#ifdef ISSI_CUSTOM_PWM_FREQ
-    // Instead of default 29kHz increase to 32.25kHz PWM Frequency
-    IS31FL_common_set_pwm_frequency(addr, ISSI_CUSTOM_PWM_32K);
-#endif
-
     // Wait 10ms to ensure the device has woken up.
     wait_ms(10);
 }
@@ -153,28 +133,19 @@ void IS31FL_common_update_pwm_register(uint8_t addr, uint8_t index) {
 
 #ifdef ISSI_MANUAL_SCALING
 void IS31FL_set_manual_scaling_buffer(void) {
-    is31_led led;
-    is31_led scale;
     for (int i = 0; i < ISSI_MANUAL_SCALING; i++) {
-        memcpy_P(&scale, (&g_is31_scaling[i]), sizeof(scale));
-
+        is31_led scale = g_is31_scaling[i];
 #    ifdef RGB_MATRIX_ENABLE
         if (scale.driver >= 0 && scale.driver < RGB_MATRIX_LED_COUNT) {
-            memcpy_P(&led, (&g_is31_leds[scale.driver]), sizeof(led));
+            is31_led led = g_is31_leds[scale.driver];
 
-            if (g_scaling_buffer[led.driver][led.r] = scale.r && g_scaling_buffer[led.driver][led.g] = scale.g && g_scaling_buffer[led.driver][led.b] = scale.b) {
-                return;
-            }
             g_scaling_buffer[led.driver][led.r] = scale.r;
             g_scaling_buffer[led.driver][led.g] = scale.g;
             g_scaling_buffer[led.driver][led.b] = scale.b;
 #    elif defined(LED_MATRIX_ENABLE)
         if (scale.driver >= 0 && scale.driver < LED_MATRIX_LED_COUNT) {
-            memcpy_P(&led, (&g_is31_leds[scale.driver]), sizeof(led));
+            is31_led led = g_is31_leds[scale.driver];
 
-            if (g_scaling_buffer[led.driver][led.v] == scale.v) {
-                return;
-            }
             g_scaling_buffer[led.driver][led.v] = scale.v;
 #    endif
             g_scaling_buffer_update_required[led.driver] = true;
@@ -198,8 +169,7 @@ void IS31FL_common_update_scaling_register(uint8_t addr, uint8_t index) {
 // Colour is set by adjusting PWM register
 void IS31FL_RGB_set_color(int index, uint8_t red, uint8_t green, uint8_t blue) {
     if (index >= 0 && index < RGB_MATRIX_LED_COUNT) {
-        is31_led led;
-        memcpy_P(&led, (&g_is31_leds[index]), sizeof(led));
+        is31_led led = g_is31_leds[index];
 
         g_pwm_buffer[led.driver][led.r]          = red;
         g_pwm_buffer[led.driver][led.g]          = green;
@@ -216,8 +186,7 @@ void IS31FL_RGB_set_color_all(uint8_t red, uint8_t green, uint8_t blue) {
 
 // Setup Scaling register that decides the peak current of each LED
 void IS31FL_RGB_set_scaling_buffer(uint8_t index, bool red, bool green, bool blue) {
-    is31_led led;
-    memcpy_P(&led, (&g_is31_leds[index]), sizeof(led));
+    is31_led led = g_is31_leds[index];
     if (red) {
         g_scaling_buffer[led.driver][led.r] = ISSI_SCAL_RED;
     } else {
@@ -239,8 +208,7 @@ void IS31FL_RGB_set_scaling_buffer(uint8_t index, bool red, bool green, bool blu
 #elif defined(LED_MATRIX_ENABLE)
 // LED Matrix Specific scripts
 void IS31FL_simple_set_scaling_buffer(uint8_t index, bool value) {
-    is31_led led;
-    memcpy_P(&led, (&g_is31_leds[index]), sizeof(led));
+    is31_led led = g_is31_leds[index];
     if (value) {
         g_scaling_buffer[led.driver][led.v] = ISSI_SCAL_LED;
     } else {
@@ -251,9 +219,7 @@ void IS31FL_simple_set_scaling_buffer(uint8_t index, bool value) {
 
 void IS31FL_simple_set_brightness(int index, uint8_t value) {
     if (index >= 0 && index < LED_MATRIX_LED_COUNT) {
-        is31_led led;
-        memcpy_P(&led, (&g_is31_leds[index]), sizeof(led));
-
+        is31_led led = g_is31_leds[index];
         g_pwm_buffer[led.driver][led.v] = value;
         g_pwm_buffer_update_required[led.driver] = true;
     }

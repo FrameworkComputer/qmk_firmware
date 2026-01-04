@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <stdbool.h>
-
-extern void chSysHalt(const char *reason) __attribute__((noreturn));
+#include <ch.h>
 
 void panic(const char *fmt, ...) {
     chSysHalt(fmt);

@@ -10,19 +10,6 @@ import argparse
 import json
 from time import sleep
 
-# Don't even need -b. hex has this embedded
-# > ./util/uf2conv.py .build/framework_ansi_default.hex -o ansi.uf2 -b 0x10000000 -f rp2040 --convert --blocks-reserved 1
-# Converted to 222 blocks
-# Converted to uf2, output size: 113664, start address: 0x10000000
-# Wrote 113664 bytes to ansi.uf2
-# # 113664 / 512 = 222
-#
-# > ./util/uf2conv.py serial.bin -o serial.uf2 -b 0x100ff000 -f rp2040 --convert --blocks-offset 222
-# Converted to 1 blocks
-# Converted to uf2, output size: 512, start address: 0x100ff000
-# Wrote 512 bytes to serial.uf2
-
-
 
 UF2_MAGIC_START0 = 0x0A324655 # "UF2\n"
 UF2_MAGIC_START1 = 0x9E5D5157 # Randomly selected
@@ -78,13 +65,6 @@ def convert_from_uf2(buf):
             curraddr = newaddr
             if familyid == 0x0 or familyid == hd[7]:
                 appstartaddr = newaddr
-        print(f"  flags:      0x{hd[2]:02x}")
-        print(f"  addr:       0x{hd[3]:02x}")
-        print(f"  len:        {hd[4]}")
-        print(f"  block no:   {hd[5]}")
-        print(f"  blocks:     {hd[6]}")
-        print(f"  size/famid: {hd[7]}")
-        print()
         padding = newaddr - curraddr
         if padding < 0:
             assert False, "Block out of order at " + ptr
@@ -94,7 +74,7 @@ def convert_from_uf2(buf):
             assert False, "Non-word padding size at " + ptr
         while padding > 0:
             padding -= 4
-            outp.append(b"\x00\x00\x00\x00")
+            outp += b"\x00\x00\x00\x00"
         if familyid == 0x0 or ((hd[2] & 0x2000) and familyid == hd[7]):
             outp.append(block[32 : 32 + datalen])
         curraddr = newaddr + datalen
@@ -138,7 +118,7 @@ def convert_to_carray(file_content):
     outp += "\n};\n"
     return bytes(outp, "utf-8")
 
-def convert_to_uf2(file_content, blocks_reserved=0, blocks_offset=0):
+def convert_to_uf2(file_content):
     global familyid
     datapadding = b""
     while len(datapadding) < 512 - 256 - 32 - 4:
@@ -153,13 +133,12 @@ def convert_to_uf2(file_content, blocks_reserved=0, blocks_offset=0):
             flags |= 0x2000
         hd = struct.pack(b"<IIIIIIII",
             UF2_MAGIC_START0, UF2_MAGIC_START1,
-            flags, ptr + appstartaddr, 256, blockno + blocks_offset, blocks_offset + blocks_reserved + numblocks, familyid)
+            flags, ptr + appstartaddr, 256, blockno, numblocks, familyid)
         while len(chunk) < 256:
             chunk += b"\x00"
         block = hd + chunk + datapadding + struct.pack(b"<I", UF2_MAGIC_END)
         assert len(block) == 512
         outp.append(block)
-    print(f"Converted to {numblocks} blocks")
     return b"".join(outp)
 
 class Block:
@@ -167,7 +146,7 @@ class Block:
         self.addr = addr
         self.bytes = bytearray(256)
 
-    def encode(self, blockno, numblocks, blocks_reserved=0, blocks_offset=0):
+    def encode(self, blockno, numblocks):
         global familyid
         flags = 0x0
         if familyid:
@@ -176,7 +155,7 @@ class Block:
             flags |= 0x8000
         hd = struct.pack("<IIIIIIII",
             UF2_MAGIC_START0, UF2_MAGIC_START1,
-            flags, self.addr, 256, blockno + blocks_offset, blocks_offset + blocks_reserved + numblocks, familyid)
+            flags, self.addr, 256, blockno, numblocks, familyid)
         hd += self.bytes[0:256]
         if devicetype:
             hd += bytearray(b'\x08\x29\xa7\xc8')
@@ -186,7 +165,7 @@ class Block:
         hd += struct.pack("<I", UF2_MAGIC_END)
         return hd
 
-def convert_from_hex_to_uf2(buf, blocks_reserved=0, blocks_offset=0):
+def convert_from_hex_to_uf2(buf):
     global appstartaddr
     appstartaddr = None
     upper = 0
@@ -220,10 +199,9 @@ def convert_from_hex_to_uf2(buf, blocks_reserved=0, blocks_offset=0):
                 addr += 1
                 i += 1
     numblocks = len(blocks)
-    print(f"Converted to {numblocks} blocks")
     resfile = b""
     for i in range(0, numblocks):
-        resfile += blocks[i].encode(i, numblocks, blocks_reserved, blocks_offset)
+        resfile += blocks[i].encode(i, numblocks)
     return resfile
 
 def to_str(b):
@@ -240,17 +218,18 @@ def get_drives():
             if len(words) >= 3 and words[1] == "2" and words[2] == "FAT":
                 drives.append(words[0])
     else:
-        searchpaths = ["/media"]
+        rootpath = "/media"
         if sys.platform == "darwin":
-            searchpaths = ["/Volumes"]
+            rootpath = "/Volumes"
         elif sys.platform == "linux":
-            searchpaths += ["/media/" + os.environ["USER"], '/run/media/' + os.environ["USER"]]
-
-        for rootpath in searchpaths:
-            if os.path.isdir(rootpath):
-                for d in os.listdir(rootpath):
-                    if os.path.isdir(rootpath):
-                        drives.append(os.path.join(rootpath, d))
+            tmp = rootpath + "/" + os.environ["USER"]
+            if os.path.isdir(tmp):
+                rootpath = tmp
+            tmp = "/run" + rootpath + "/" + os.environ["USER"]
+            if os.path.isdir(tmp):
+                rootpath = tmp
+        for d in os.listdir(rootpath):
+            drives.append(os.path.join(rootpath, d))
 
 
     def has_info(d):
@@ -309,12 +288,6 @@ def main():
     parser.add_argument('-f', '--family', dest='family', type=str,
                         default="0x0",
                         help='specify familyID - number or name (default: 0x0)')
-    parser.add_argument('--blocks-offset', dest='blocks_offset', type=str,
-                        default="0x0",
-                        help='TODO')
-    parser.add_argument('--blocks-reserved', dest='blocks_reserved', type=str,
-                        default="0x0",
-                        help='TODO')
     parser.add_argument('-t' , '--device-type', dest='devicetype', type=str,
                         help='specify deviceTypeID extension tag - number')
     parser.add_argument('-o', '--output', metavar="FILE", dest='output', type=str,
@@ -335,8 +308,6 @@ def main():
                         help='display header information from UF2, do not convert')
     args = parser.parse_args()
     appstartaddr = int(args.base, 0)
-    blocks_offset = int(args.blocks_offset, 0)
-    blocks_reserved = int(args.blocks_reserved, 0)
 
     families = load_families()
 
@@ -368,14 +339,13 @@ def main():
         elif from_uf2 and args.info:
             outbuf = ""
             convert_from_uf2(inpbuf)
-
         elif is_hex(inpbuf):
-            outbuf = convert_from_hex_to_uf2(inpbuf.decode("utf-8"), blocks_reserved, blocks_offset)
+            outbuf = convert_from_hex_to_uf2(inpbuf.decode("utf-8"))
         elif args.carray:
             outbuf = convert_to_carray(inpbuf)
             ext = "h"
         else:
-            outbuf = convert_to_uf2(inpbuf, blocks_reserved, blocks_offset)
+            outbuf = convert_to_uf2(inpbuf)
         if not args.deploy and not args.info:
             print("Converted to %s, output size: %d, start address: 0x%x" %
                   (ext, len(outbuf), appstartaddr))
@@ -387,18 +357,16 @@ def main():
         if ext == "uf2" and not args.convert and not args.info:
             drives = get_drives()
             if len(drives) == 0:
-                #error("No drive to deploy.")
-                if args.wait or True:
+                if args.wait:
                     print("Waiting for drive to deploy...")
                     while len(drives) == 0:
                         sleep(0.1)
                         drives = get_drives()
                 elif not args.output:
                     error("No drive to deploy.")
-            if outbuf:
-                for d in drives:
-                    print("Flashing %s (%s)" % (d, board_id(d)))
-                    write_file(d + "/NEW.UF2", outbuf)
+            for d in drives:
+                print("Flashing %s (%s)" % (d, board_id(d)))
+                write_file(d + "/NEW.UF2", outbuf)
 
 
 if __name__ == "__main__":

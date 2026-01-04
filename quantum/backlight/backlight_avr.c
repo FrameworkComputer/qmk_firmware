@@ -1,8 +1,7 @@
+#include "quantum.h"
 #include "backlight.h"
 #include "backlight_driver_common.h"
-#include "progmem.h"
-#include <avr/io.h>
-#include <avr/interrupt.h>
+#include "debug.h"
 
 // Maximum duty cycle limit
 #ifndef BACKLIGHT_LIMIT_VAL
@@ -18,6 +17,7 @@
 //   3. Full software PWM, driven by the matrix scan, if both timers are used by Audio.
 
 #if (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__) || defined(__AVR_ATmega16U4__) || defined(__AVR_ATmega32U4__)) && (BACKLIGHT_PIN == B5 || BACKLIGHT_PIN == B6 || BACKLIGHT_PIN == B7)
+#    define HARDWARE_PWM
 #    define ICRx ICR1
 #    define TCCRxA TCCR1A
 #    define TCCRxB TCCR1B
@@ -39,6 +39,7 @@
 #        define OCRxx OCR1C
 #    endif
 #elif (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1287__) || defined(__AVR_ATmega16U4__) || defined(__AVR_ATmega32U4__)) && (BACKLIGHT_PIN == C4 || BACKLIGHT_PIN == C5 || BACKLIGHT_PIN == C6)
+#    define HARDWARE_PWM
 #    define ICRx ICR3
 #    define TCCRxA TCCR3A
 #    define TCCRxB TCCR3B
@@ -68,6 +69,7 @@
 #        define OCRxx OCR3A
 #    endif
 #elif (defined(__AVR_AT90USB162__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega32U2__)) && (BACKLIGHT_PIN == B7 || BACKLIGHT_PIN == C5 || BACKLIGHT_PIN == C6)
+#    define HARDWARE_PWM
 #    define ICRx ICR1
 #    define TCCRxA TCCR1A
 #    define TCCRxB TCCR1B
@@ -89,6 +91,7 @@
 #        define OCRxx OCR1A
 #    endif
 #elif defined(__AVR_ATmega32A__) && (BACKLIGHT_PIN == D4 || BACKLIGHT_PIN == D5)
+#    define HARDWARE_PWM
 #    define ICRx ICR1
 #    define TCCRxA TCCR1A
 #    define TCCRxB TCCR1B
@@ -106,6 +109,7 @@
 #        define OCRxx OCR1A
 #    endif
 #elif (defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328__)) && (BACKLIGHT_PIN == B1 || BACKLIGHT_PIN == B2)
+#    define HARDWARE_PWM
 #    define ICRx ICR1
 #    define TCCRxA TCCR1A
 #    define TCCRxB TCCR1B
@@ -125,6 +129,7 @@
 #elif (AUDIO_PIN != B5) && (AUDIO_PIN != B6) && (AUDIO_PIN != B7) && (AUDIO_PIN_ALT != B5) && (AUDIO_PIN_ALT != B6) && (AUDIO_PIN_ALT != B7)
 // Timer 1 is not in use by Audio feature, Backlight can use it
 #    pragma message "Using hardware timer 1 with software PWM"
+#    define HARDWARE_PWM
 #    define BACKLIGHT_PWM_TIMER
 #    define ICRx ICR1
 #    define TCCRxA TCCR1A
@@ -143,6 +148,7 @@
 #elif (AUDIO_PIN != C4) && (AUDIO_PIN != C5) && (AUDIO_PIN != C6)
 #    pragma message "Using hardware timer 3 with software PWM"
 // Timer 3 is not in use by Audio feature, Backlight can use it
+#    define HARDWARE_PWM
 #    define BACKLIGHT_PWM_TIMER
 #    define ICRx ICR1
 #    define TCCRxA TCCR3A
@@ -154,6 +160,10 @@
 
 #    define OCIExA OCIE3A
 #    define OCRxx OCR3A
+#elif defined(BACKLIGHT_CUSTOM_DRIVER)
+error("Please set 'BACKLIGHT_DRIVER = custom' within rules.mk")
+#else
+error("Please set 'BACKLIGHT_DRIVER = software' within rules.mk")
 #endif
 
 #ifndef BACKLIGHT_PWM_TIMER // pwm through software

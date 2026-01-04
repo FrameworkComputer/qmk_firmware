@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "send_string.h"
 #include "keymap_workman_zxcvm.h"
 
 // clang-format off

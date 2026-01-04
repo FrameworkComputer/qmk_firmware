@@ -1,9 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "matrix.h"
-
 /**
  * @brief Debounce raw matrix events according to the choosen debounce algorithm.
  *

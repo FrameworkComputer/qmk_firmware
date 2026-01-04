@@ -1,12 +1,4 @@
-<<<<<<< HEAD
 # Xavier's fork of the Framework QMK Firmware
-=======
-# THIS IS THE DEVELOP BRANCH
-
-Warning- This is the `develop` branch of QMK Firmware. You may encounter broken code here. Please see [Breaking Changes](https://docs.qmk.fm/#/breaking_changes) for more information.
-
-# Quantum Mechanical Keyboard Firmware
->>>>>>> fl16-bisect
 
 This is a keyboard firmware based on the [Framework's fork of QMK firmware](https://github.com/FrameworkComputer/qmk_firmware/tree/fl16-bisect).
 

@@ -41,8 +41,6 @@
 #include "usb_descriptor.h"
 #include "usb_descriptor_common.h"
 
-#include "dyn_serial.h"
-
 #ifdef JOYSTICK_ENABLE
 #    include "joystick.h"
 #endif
@@ -321,20 +319,6 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM SharedReport[] = {
         HID_RI_REPORT_SIZE(8, 16),
         HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
     HID_RI_END_COLLECTION(0),
-
-    HID_RI_USAGE_PAGE(8, 0x01),           // Generic Desktop
-    HID_RI_USAGE(8, 0x0C),                // Wireless Radio Controls
-    HID_RI_COLLECTION(8, 0x01),           // Application
-        HID_RI_REPORT_ID(8, REPORT_ID_RADIO),
-        HID_RI_LOGICAL_MINIMUM(8, 0x00),
-        HID_RI_LOGICAL_MAXIMUM(8, 0x01),
-        HID_RI_USAGE(8, 0xC6),            // Wireless Radio Button
-        HID_RI_REPORT_COUNT(8, 1),
-        HID_RI_REPORT_SIZE(8, 1),
-        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
-        HID_RI_REPORT_SIZE(8, 7),
-        HID_RI_INPUT(8, HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-    HID_RI_END_COLLECTION(0),
 #endif
 
 #ifdef PROGRAMMABLE_BUTTON_ENABLE
@@ -454,8 +438,7 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor = {
         .Size                   = sizeof(USB_Descriptor_Device_t),
         .Type                   = DTYPE_Device
     },
-    // Needs to be 2.0.1 or 2.1.0 to advertise BOS descriptor
-    .USBSpecification           = VERSION_BCD(2, 1, 0),
+    .USBSpecification           = VERSION_BCD(2, 0, 0),
 
 #if VIRTSER_ENABLE
     .Class                      = USB_CSCP_IADDeviceClass,
@@ -480,139 +463,6 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor = {
     .SerialNumStrIndex          = 0x00,
 #endif
     .NumberOfConfigurations     = FIXED_NUM_CONFIGURATIONS
-};
-
-/*
- * BOS descriptor
- */
-const USB_Descriptor_Bos_t PROGMEM BosDescriptor = {
-    // 2 Bytes
-    .Header = {
-        .Size                   = 0x05,
-        .Type                   = DTYPE_Bos
-    },
-    // 3 Bytes (=> 5 Bytes)
-    // Value must be header + each cap
-#if defined(MSOS2_CAP) && defined(FWUPD_CAP) && defined(PICOBOOT_CAP)
-    .TotalLength                = 0x0060,
-    .NumDeviceCaps              = 0x04,
-#elif defined(FWUPD_CAP) && defined(PICOBOOT_CAP)
-    .TotalLength                = 0x0044,
-    .NumDeviceCaps              = 0x03,
-#elif defined(MSOS2_CAP) && defined(FWUPD_CAP)
-    .TotalLength                = 0x0044,
-    .NumDeviceCaps              = 0x03,
-#elif defined(MSOS2_CAP) && defined(PICOBOOT_CAP)
-    .TotalLength                = 0x0044,
-    .NumDeviceCaps              = 0x03,
-#elif defined(MSOS2_CAP)
-    .TotalLength                = 0x0028,
-    .NumDeviceCaps              = 0x02,
-#elif defined(FWUPD_CAP)
-    .TotalLength                = 0x0028,
-    .NumDeviceCaps              = 0x02,
-#elif defined(PICOBOOT_CAP)
-    .TotalLength                = 0x0028,
-    .NumDeviceCaps              = 0x02,
-#else
-    .TotalLength                = 0x000C,
-    .NumDeviceCaps              = 0x01,
-#endif
-
-    .Usb20ExtensionDevCap       = {
-        // 2 Bytes (=> 7 Bytes)
-        .Header = {
-            .Size = 0x07,
-            .Type = 16,
-        },
-        // 5 Bytes (=> 12 Bytes / 0x0C Bytes)
-        .DevCapabilityType      = 2, // USB 2.0 Extension Descriptor
-        .Bytes                  = {0x00, 0x00, 0x00, 0x00},
-    },
-
-#ifdef FWUPD_CAP
-    // See https://fwupd.github.io/libfwupdplugin/ds20.html
-    .FwupdCap       = {
-        // 2 Bytes (=> 7 Bytes)
-        .Header = {
-            .Size = sizeof(USB_Descriptor_Capability_Msos_t),
-            .Type = 16,
-        },
-        // 5 Bytes (=> 12 Bytes / 0x0C Bytes)
-        .DevCapabilityType      = 5, // Platform
-        .Reserved               = 0,
-        // FWUPD {010aec63-f574-52cd-9dda-2852550d94f0}
-        .PlatformCapabilityId   = {
-            0x63, 0xec, 0x0a, 0x01,
-            0x74, 0xf5, 0xcd, 0x52,
-            0x9d, 0xda, 0x28, 0x52,
-            0x55, 0x0d, 0x94, 0xf0
-        },
-        .Set                    = {{
-            // rp-pico protocol supported since fwupd 2.0.2
-            // 0x00020002
-            .WindowsVersion     = {0x02, 0x00, 0x02, 0x00},
-            // Length of the data returned by control request
-            .TotalLength        = 0x59,
-            .VendorCode         = 0x2a,
-            .AltEnumCode        = 0,
-        }},
-    },
-#endif // FWUPD_CAP
-
-#ifdef PICOBOOT_CAP
-    .MsosCap       = {
-        // 2 Bytes (=> 7 Bytes)
-        .Header = {
-            .Size = sizeof(USB_Descriptor_Capability_Msos_t),
-            .Type = 16,
-        },
-        // 5 Bytes (=> 12 Bytes / 0x0C Bytes)
-        .DevCapabilityType      = 5, // Platform
-        .Reserved               = 0,
-        // Microsoft OS 2.0 {D8DD60DF-4589-4CC7-9CD2-659D9E648A9F}
-        .PlatformCapabilityId   = {
-            0xDF, 0x60, 0xDD, 0xD8,
-            0x89, 0x45, 0xC7, 0x4C,
-            0x9C, 0xD2, 0x65, 0x9D,
-            0x9E, 0x64, 0x8A, 0x9F
-        },
-        .Set                    = {{
-            .WindowsVersion     = {0x00, 0x00, 0x03, 0x06}, // Windows Blue
-            // Length of the data returned by control request
-            .TotalLength        = 0xA6,
-            .VendorCode         = 0x01, // Microsoft
-            .AltEnumCode        = 0,
-        }},
-    },
-#endif // PICOBOOT_CAP
-
-#ifdef MSOS2_CAP
-    // 28 Bytes (0x1C)
-    .MsosCap       = {
-        // 2 Bytes (=> 7 Bytes)
-        .Header = {
-            .Size = sizeof(USB_Descriptor_Capability_Msos_t),
-            .Type = 16,
-        },
-        // 5 Bytes (=> 12 Bytes / 0x0C Bytes)
-        .DevCapabilityType      = 5,
-        .Reserved               = 0,
-        // Microsoft OS 2.0 {D8DD60DF-4589-4CC7-9CD2-659D9E648A9F}
-        .PlatformCapabilityId   = {
-            0xDF, 0x60, 0xDD, 0xD8,
-            0x89, 0x45, 0xC7, 0x4C,
-            0x9C, 0xD2, 0x65, 0x9D,
-            0x9E, 0x64, 0x8A, 0x9F
-        },
-        .Set                    = {{
-            .WindowsVersion     = {0x00, 0x00, 0x03, 0x06}, // Windows Blue
-            .TotalLength        = 0x0048,
-            .VendorCode         = 0x01, // Microsoft
-            .AltEnumCode        = 0,
-        }},
-    },
-#endif
 };
 
 #ifndef USB_MAX_POWER_CONSUMPTION
@@ -814,18 +664,6 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
     },
 #endif
 
-    .Console_Interface_Association = {
-        .Header = {
-            .Size               = sizeof(USB_Descriptor_Interface_Association_t),
-            .Type               = DTYPE_InterfaceAssociation
-        },
-        .FirstInterfaceIndex    = CONSOLE_INTERFACE,
-        .TotalInterfaces        = 1,
-        .Class                  = HID_CSCP_HIDClass,
-        .SubClass               = 0x00,
-        .Protocol               = 0x00,
-        .IADStrIndex            = NO_DESCRIPTOR,
-    },
 #ifdef CONSOLE_ENABLE
     /*
      * Console
@@ -1210,31 +1048,6 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
         .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
     },
 #endif
-    .Reset_Interface_Association = {
-        .Header = {
-            .Size               = sizeof(USB_Descriptor_Interface_Association_t),
-            .Type               = DTYPE_InterfaceAssociation
-        },
-        .FirstInterfaceIndex    = RP2040_RESET_INTERFACE,
-        .TotalInterfaces        = 1,
-        .Class                  = 0xFF,
-        .SubClass               = 0x00, // RESET_INTERFACE_SUBCLASS
-        .Protocol               = 0x01, // RESET_INTERFACE_PROTOCOL
-        .IADStrIndex            = NO_DESCRIPTOR,
-    },
-    .Rp2040_Reset_Interface = {
-        .Header = {
-            .Size               = sizeof(USB_Descriptor_Interface_t),
-            .Type               = DTYPE_Interface
-        },
-        .InterfaceNumber        = RP2040_RESET_INTERFACE,
-        .AlternateSetting       = 0x00,
-        .TotalEndpoints         = 0,
-        .Class                  = 0xFF,
-        .SubClass               = 0x00, // RESET_INTERFACE_SUBCLASS
-        .Protocol               = 0x01, // RESET_INTERFACE_PROTOCOL
-        .InterfaceStrIndex      = NO_DESCRIPTOR
-    },
 };
 
 /*
@@ -1264,6 +1077,16 @@ const USB_Descriptor_String_t PROGMEM ProductString = {
     .UnicodeString              = USBSTR(PRODUCT)
 };
 
+#if defined(SERIAL_NUMBER)
+const USB_Descriptor_String_t PROGMEM SerialNumberString = {
+    .Header = {
+        .Size                   = sizeof(USBSTR(SERIAL_NUMBER)),
+        .Type                   = DTYPE_String
+    },
+    .UnicodeString              = USBSTR(SERIAL_NUMBER)
+};
+#endif
+
 // clang-format on
 
 /**
@@ -1290,17 +1113,6 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
             Size    = sizeof(USB_Descriptor_Configuration_t);
 
             break;
-        case DTYPE_Bos:
-            Address = &BosDescriptor;
-            Size    = 5;
-            if (wLength >= sizeof(USB_Descriptor_Bos_t)) {
-                Size    = sizeof(USB_Descriptor_Bos_t);
-            }
-#ifdef OS_DETECTION_ENABLE
-            process_zoid(31);
-#endif
-
-            break;
         case DTYPE_String:
             switch (DescriptorIndex) {
                 case 0x00:
@@ -1320,10 +1132,8 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
                     break;
 #if defined(SERIAL_NUMBER)
                 case 0x03:
-                    // TODO: Give these functions a generic name and let anyone override it
-                    // Framework 16 uses this
-                    Address = dyn_serial_number_string();
-                    Size    = dyn_serial_number_string_len();
+                    Address = &SerialNumberString;
+                    Size    = pgm_read_byte(&SerialNumberString.Header.Size);
 
                     break;
 #endif
