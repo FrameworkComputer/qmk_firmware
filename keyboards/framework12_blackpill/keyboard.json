@@ -6,10 +6,10 @@
     "features": {
         "bootmagic": true,
         "command": false,
-        "console": false,
-        "extrakey": true,
+        "console": true,
+        "extrakey": false,
         "mousekey": false,
-        "nkro": true
+        "nkro": false
     },
     "matrix_pins": {
         "rows": ["C14", "C15", "A0", "A1", "A2", "A3", "A4", "A5"],
