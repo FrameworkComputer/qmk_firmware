@@ -18,13 +18,19 @@
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
 enum _layers {
   _NUMLOCK,
   _FN
 };
+<<<<<<< HEAD
 =======
 //enum _layers {
 //  _NUMLOCK,
 //  _FN
 //};
 >>>>>>> fl16-bisect
+=======
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)

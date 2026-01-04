@@ -1,10 +1,14 @@
 # VIA support uses raw HID, don't need to enable it extra.
 # Only when disabling VIA but still wanting to use RAW, need to enable it here.
 <<<<<<< HEAD
+<<<<<<< HEAD
 VIA_ENABLE = yes
 =======
 VIA_ENABLE = no
 >>>>>>> fl16-bisect
+=======
+VIA_ENABLE = yes
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
 RAW_ENABLE = no
 
 # Enabled in info.json

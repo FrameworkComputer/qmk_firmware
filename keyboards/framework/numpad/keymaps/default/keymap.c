@@ -21,12 +21,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * 21 total
      */
 <<<<<<< HEAD
+<<<<<<< HEAD
     [_NUMLOCK] = LAYOUT(
         KC_ESC,  KC_CALC, KC_EQL,  KC_BSPC,
 =======
     [0] = LAYOUT(
         LT(1,KC_ESC),  KC_CALC, KC_EQL,  KC_BSPC,
 >>>>>>> fl16-bisect
+=======
+    [_NUMLOCK] = LAYOUT(
+        KC_ESC,  KC_CALC, KC_EQL,  KC_BSPC,
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
         KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
         KC_P7,   KC_P8,   KC_P9,
         KC_P4,   KC_P5,   KC_P6,   KC_PPLS,
@@ -53,6 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * 21 total
      */
 <<<<<<< HEAD
+<<<<<<< HEAD
     [_FN] = LAYOUT(
         _______, _______, _______, _______,
         _______, _______, _______, _______,
@@ -63,12 +69,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 =======
     [1] = LAYOUT(
         _______, _______, BL_BRTG, BL_STEP,
+=======
+    [_FN] = LAYOUT(
+        _______, _______, _______, _______,
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
         _______, _______, _______, _______,
         _______, _______, _______,
-        _______, _______, _______, _______,
+        _______, _______, _______, BL_BRTG,
         _______, _______, _______,
+<<<<<<< HEAD
             _______,      _______, _______
 >>>>>>> fl16-bisect
+=======
+            _______,      _______, BL_STEP
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
 
     )
 
@@ -78,11 +92,15 @@ bool led_update_user(led_t led_state) {
     // Change layer if numlock state changes, either triggered by OS or
     // by numlock key on this keyboard
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
     if (led_state.num_lock) {
         layer_off(_FN);
     } else {
         layer_on(_FN);
     }
+<<<<<<< HEAD
 =======
     //if (led_state.num_lock) {
         //layer_off(_FN);
@@ -90,5 +108,7 @@ bool led_update_user(led_t led_state) {
         //layer_on(_FN);
     //}
 >>>>>>> fl16-bisect
+=======
+>>>>>>> parent of cf01a4f167 (keyboards/framework/numpad/keymaps/default/keymap.c)
     return true;
 }
