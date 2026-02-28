@@ -301,14 +301,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
       return true;
 #endif
     case KC_SCRN:
-      // Simulate press WIN+P
-      // Works (at least) on Windows and GNOME
+      // Send HID System Display Toggle Int/Ext Mode (usage 0xB5)
       if (record->event.pressed) {
-        register_code(KC_LGUI);
-        register_code(KC_P);
+        host_system_send(SYSTEM_DISPLAY_TOGGLE_INT_EXT);
       } else {
-        unregister_code(KC_P);
-        unregister_code(KC_LGUI);
+        host_system_send(0);
       }
       return false; // Skip all further processing of this key
     // Copilot key
