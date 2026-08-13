@@ -200,7 +200,9 @@ bool handle_bios_hotkeys(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-  process_record_user(keycode, record);
+  if (!process_record_user(keycode, record)) {
+    return false;
+  }
 
   os_variant_t os = detected_host_os();
   set_bios_mode(true);
