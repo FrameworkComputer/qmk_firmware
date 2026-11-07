@@ -278,14 +278,62 @@ void drive_col(int col, bool high) {
     }
 }
 
+#ifdef FRAMEWORK_FAST_ADC
+// Busy-wait cycles between selecting the mux input and starting the
+// conversion, to give the analog input time to settle.
+// The ChibiOS driver path took roughly this long between the mux switch and
+// starting the conversion (estimated, not measured).
+#    ifndef FRAMEWORK_FAST_ADC_SETTLE_CYCLES
+#        define FRAMEWORK_FAST_ADC_SETTLE_CYCLES 64
+#    endif
+
+/**
+ * Set up the RP2040 ADC for polled single conversions on ADC_CH2_PIN.
+ *
+ * Bypasses the ChibiOS ADC driver (adcStart is never called, so the FIFO
+ * and its IRQ stay disabled). The ADC was already taken out of reset by
+ * adc_lld_init during halInit.
+ */
+static void fast_adc_init(void) {
+    hal_lld_peripheral_unreset(RESETS_ALLREG_ADC);
+    ADC->CS = ADC_CS_EN | (((uint32_t)pinToMux(ADC_CH2_PIN).input << ADC_CS_AINSEL_Pos) & ADC_CS_AINSEL_Msk);
+    while (!(ADC->CS & ADC_CS_READY)) {
+    }
+}
+
+/**
+ * Do a single conversion by polling the ADC.
+ *
+ * With the ChibiOS driver every conversion goes through an IRQ and two
+ * thread context switches, which cost more CPU time than the 2us
+ * (96 cycles of the 48MHz ADC clock) conversion itself. Polling is shorter
+ * in total, so the full matrix scan finishes a lot faster and the MCU can go
+ * back to sleep sooner.
+ */
+static uint16_t fast_adc_read(void) {
+    for (volatile uint32_t i = 0; i < FRAMEWORK_FAST_ADC_SETTLE_CYCLES / 4; i++) {
+    }
+    ADC->SET.CS = ADC_CS_START_ONCE;
+    // READY goes low when the conversion starts and high when it's done
+    while (!(ADC->CS & ADC_CS_READY)) {
+    }
+    // 12 bit result, rest of the code expects 10 bit
+    return (ADC->RESULT & 0xFFF) >> 2;
+}
+#endif
+
 /**
  * Read a value from the ADC and print some debugging details
  */
 static adc10ksample_t read_adc(void) {
+#ifdef FRAMEWORK_FAST_ADC
+    uint16_t val = fast_adc_read();
+#else
     // Can't use analogReadPin because it gets rid of the internal pullup on
     // this pin, that we configure in matrix_init_custom
     // uint16_t val = analogReadPin(ADC_CH2_PIN);
     uint16_t val = adc_read(pinToMux(ADC_CH2_PIN));
+#endif
     return to_voltage(val);
 }
 
@@ -513,6 +561,9 @@ void matrix_init_custom(void) {
 
     adc_mux_init();
     adc_gpio_init(ADC_CH2_PIN);
+#ifdef FRAMEWORK_FAST_ADC
+    fast_adc_init();
+#endif
 
     // KS0 - KSO7 for Keyboard and Numpad
     setPinOutput(KSO0);

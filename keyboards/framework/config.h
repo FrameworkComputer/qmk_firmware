@@ -63,6 +63,12 @@
 // Makes the matrix scan take longer, see FRAMEWORK_SCAN_INTERVAL_US.
 //#define FRAMEWORK_SYS_CLOCK_48MHZ
 
+// Power saving (experimental): Read the ADC by polling its registers instead
+// of through the ChibiOS driver (IRQ + context switches per conversion).
+// Makes the matrix scan several times faster. The time between switching the
+// mux and sampling changes slightly, see FRAMEWORK_FAST_ADC_SETTLE_CYCLES.
+//#define FRAMEWORK_FAST_ADC
+
 // Prototype for Framework Laptop 16 with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22
