@@ -24,6 +24,25 @@
 // Only during debugging, since it prevents the host from going to sleep
 //#define DEBUG_MATRIX_SCAN_RATE
 
+// Power saving: Minimum time between the start of two matrix scans.
+// The MCU sleeps (WFI) in between. USB polls the keyboard every 1ms, so
+// scanning faster than that doesn't reduce latency. Set to 0 to scan as fast
+// as possible (old behavior).
+#ifndef FRAMEWORK_SCAN_INTERVAL_US
+#    define FRAMEWORK_SCAN_INTERVAL_US 1000
+#endif
+// Same, but while the host is suspended and we only scan to detect wake-up
+// keypresses. Keep it well below the debounce time plus a quick keypress:
+// The debounce algorithm needs two scans, at least DEBOUNCE ms apart, that
+// see the key pressed before it's reported.
+#ifndef FRAMEWORK_SUSPEND_SCAN_INTERVAL_US
+#    define FRAMEWORK_SUSPEND_SCAN_INTERVAL_US 10000
+#endif
+// While the lid is closed keypresses are ignored, only check the lid state
+#ifndef FRAMEWORK_LID_CLOSED_POLL_MS
+#    define FRAMEWORK_LID_CLOSED_POLL_MS 20
+#endif
+
 // Prototype for Framework Laptop 16 with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22

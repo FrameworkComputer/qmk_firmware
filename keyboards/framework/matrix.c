@@ -54,6 +54,36 @@ const adc10ksample_t ADC_THRESHOLD = (adc10ksample_t) 29000;
 bool have_slept = false;
 bool prev_lid_closed = false;
 
+/**
+ * Limit how often the matrix is scanned.
+ *
+ * Without this the QMK main loop never yields, so the CPU is busy 100% of the
+ * time and the WFI idle hook (CORTEX_ENABLE_WFI_IDLE) almost never runs.
+ * By sleeping the main thread until the next scan is due, ChibiOS switches to
+ * the idle thread, which executes WFI until the next interrupt (systick, USB,
+ * ...).
+ *
+ * The timestamp is taken at the start of the scan, so the scan time itself
+ * counts towards the interval. If the scan and the rest of the main loop take
+ * longer than the interval, no sleep happens at all.
+ */
+static void matrix_scan_rate_limit(uint32_t interval_us) {
+    static systime_t last_scan = 0;
+    static bool      first     = true;
+
+    if (interval_us > 0 && !first) {
+        sysinterval_t interval = TIME_US2I(interval_us);
+        sysinterval_t elapsed  = chVTTimeElapsedSinceX(last_scan);
+        // chThdSleep must not be called with 0 (TIME_IMMEDIATE)
+        if (elapsed < interval) {
+            chThdSleep(interval - elapsed);
+        }
+    }
+
+    first     = false;
+    last_scan = chVTGetSystemTimeX();
+}
+
 adc10ksample_t to_voltage(adcsample_t sample) {
   int voltage = sample * 33000;
   return voltage / 1023;
@@ -369,8 +399,14 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
      * a backpack) might cause the system to wake up.
      **/
     if (!readPin(SLEEP_GPIO)) {
+        // Nothing to do but to wait for the lid to open, don't busy-loop
+        chThdSleepMilliseconds(FRAMEWORK_LID_CLOSED_POLL_MS);
         return false;
     }
+
+    // While the host is asleep there's no need to scan as quickly, just
+    // fast enough to wake it up on a keypress.
+    matrix_scan_rate_limit(is_suspended ? FRAMEWORK_SUSPEND_SCAN_INTERVAL_US : FRAMEWORK_SCAN_INTERVAL_US);
 
     // Most of the time no key is pressed. Save power and time by not doing the
     // full scan in that case.
