@@ -381,9 +381,13 @@ static bool any_key_pressed(void) {
 
 /**
  * Handle the host going to sleep or the keyboard being idle
- * TODO: If the host is asleep the keyboard should reduce the scan rate and turn backlight off.
  *
- * TODO: If the host is awake but the keyboard is idle it should enter a low-power state
+ * The scan rate is reduced while suspended or the lid is closed, see
+ * matrix_scan_custom. Backlight is turned off by QMK when suspended.
+ *
+ * TODO: If the host is awake but the keyboard is idle it could enter a
+ *       lower-power state, e.g. scan less often. Trade-off is latency of the
+ *       first keypress.
  */
 bool handle_idle(void) {
     bool lid_closed = !readPin(SLEEP_GPIO);
@@ -444,8 +448,6 @@ bool handle_idle(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
-    adc10ksample_t voltages[MATRIX_ROWS][MATRIX_COLS] = {};
-
     handle_idle();
 
     /* If lid is closed, ignore keypresses. Otherwise pressing the on the lid (e.g. in
@@ -472,6 +474,9 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         }
         return changed;
     }
+
+    // Every element is written by the scan below, no need to initialize
+    adc10ksample_t voltages[MATRIX_ROWS][MATRIX_COLS];
 
     //wait_us(500 * 1000);
     // Drive all high to deselect them
