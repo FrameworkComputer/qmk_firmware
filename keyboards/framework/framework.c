@@ -16,10 +16,54 @@ void keyboard_post_init_kb(void) {
   debug_keyboard = true;
 }
 
+#ifdef FRAMEWORK_SYS_CLOCK_48MHZ
+#include "hardware/clocks.h"
+#include "hardware/pll.h"
+
+/**
+ * Run the system clock at 48MHz from the USB PLL instead of 125MHz from the
+ * system PLL, and power down the system PLL.
+ *
+ * The dynamic power of the core, bus fabric and peripherals scales with the
+ * clock frequency, and this applies even while the core is in WFI because the
+ * clocks keep running.
+ *
+ * Must run before any peripheral driver that derives its timing from clk_sys
+ * or clk_peri is started (I2C, PWM, UART). USB, ADC and the system timer
+ * have their own clocks (clk_usb, clk_adc from PLL_USB and clk_ref from XOSC)
+ * and are not affected.
+ *
+ * Note: The RP2040 PWM counter is clocked from clk_sys, so the backlight PWM
+ * frequency changes. Duty cycle steps are unchanged.
+ */
+static void sys_clock_48mhz(void) {
+    // clock_configure switches clk_sys to clk_ref first (glitchless), then
+    // changes the aux mux to PLL_USB and switches back.
+    clock_configure(clk_sys,
+                    CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX,
+                    CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
+                    48 * MHZ, 48 * MHZ);
+    // clk_peri is already sourced from clk_sys, but reconfigure it so that
+    // clock_get_hz(clk_peri) reports the right frequency to the drivers.
+    clock_configure(clk_peri,
+                    0,
+                    CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLK_SYS,
+                    48 * MHZ, 48 * MHZ);
+    // Nothing uses the system PLL anymore
+    pll_deinit(pll_sys);
+
+    SystemCoreClock = 48 * MHZ;
+}
+#endif
+
 /**
  * Hook into early keyboard initialization
 */
 void keyboard_pre_init_kb(void) {
+#ifdef FRAMEWORK_SYS_CLOCK_48MHZ
+    sys_clock_48mhz();
+#endif
+
     keyboard_pre_init_user();
 
     // Mark boot as done.

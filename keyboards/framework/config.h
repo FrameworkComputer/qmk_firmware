@@ -58,6 +58,11 @@
 #    define FRAMEWORK_BACKLIGHT_TIMEOUT_MS 0
 #endif
 
+// Power saving (experimental): Run the RP2040 at 48MHz from the USB PLL
+// instead of 125MHz and power down the system PLL.
+// Makes the matrix scan take longer, see FRAMEWORK_SCAN_INTERVAL_US.
+//#define FRAMEWORK_SYS_CLOCK_48MHZ
+
 // Prototype for Framework Laptop 16 with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22
