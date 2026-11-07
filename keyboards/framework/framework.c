@@ -95,10 +95,66 @@ static bool rgb_all_dark(void) {
 }
 #endif
 
+#if FRAMEWORK_BACKLIGHT_TIMEOUT_MS > 0
+static bool     backlight_timed_out = false;
+static uint32_t backlight_wake_time = 0;
+
+/**
+ * Turn the keyboard backlight (white and/or RGB) off after
+ * FRAMEWORK_BACKLIGHT_TIMEOUT_MS without any keypress and back on with the
+ * next keypress. The keypress is still sent to the host as normal.
+ *
+ * Opening the lid or the host resuming counts as activity too, so the
+ * backlight is on when the user comes back to the laptop.
+ *
+ * Doesn't touch the saved backlight settings.
+ */
+static void backlight_timeout_task(void) {
+    // QMK turns the backlight off while suspended and restores it on resume
+    if (is_suspended) {
+        return;
+    }
+
+    uint32_t idle_ms = MIN(last_input_activity_elapsed(), timer_elapsed32(backlight_wake_time));
+    bool timed_out = idle_ms > FRAMEWORK_BACKLIGHT_TIMEOUT_MS;
+    if (timed_out == backlight_timed_out) {
+        return;
+    }
+    backlight_timed_out = timed_out;
+
+#    ifdef RGB_MATRIX_ENABLE
+    // Same mechanism QMK uses for USB suspend: Render all LEDs off and stop
+    // running effects. housekeeping_task_kb then shuts down the controller.
+    rgb_matrix_set_suspend_state(timed_out);
+#    endif
+#    ifdef BACKLIGHT_ENABLE
+    if (timed_out) {
+#        ifdef BACKLIGHT_BREATHING
+        if (is_breathing()) {
+            breathing_disable();
+        }
+#        endif
+        backlight_set(0);
+    } else {
+        backlight_set(get_backlight_level());
+#        ifdef BACKLIGHT_BREATHING
+        if (is_backlight_breathing()) {
+            breathing_enable();
+        }
+#        endif
+    }
+#    endif
+}
+#endif
+
 /**
  * Runs once per main loop iteration, after keyboard_task.
  */
 void housekeeping_task_kb(void) {
+#if FRAMEWORK_BACKLIGHT_TIMEOUT_MS > 0
+    backlight_timeout_task();
+#endif
+
 #if defined(RGB_MATRIX_ENABLE) && !defined(FRAMEWORK_NO_RGB_AUTO_SHUTDOWN)
     // While suspended, the controller is kept off by suspend_power_down_kb
     if (!is_suspended) {
@@ -145,6 +201,12 @@ void suspend_wakeup_init_kb(void) {
     // Give the RGB effect time to render before deciding it's dark
     rgb_dark_since = timer_read32();
 #  endif
+#endif
+
+#if FRAMEWORK_BACKLIGHT_TIMEOUT_MS > 0
+  // QMK restored the backlight. Restart the timeout from now.
+  backlight_timed_out = false;
+  backlight_wake_time = timer_read32();
 #endif
 }
 

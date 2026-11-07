@@ -50,6 +50,14 @@
 #    define FRAMEWORK_RGB_SHUTDOWN_DELAY_MS 1000
 #endif
 
+// Power saving: Turn the keyboard backlight (white and RGB) off after this
+// many milliseconds without a keypress. The next keypress turns it back on.
+// 0 disables the timeout (default, same behavior as before).
+// For example 5 minutes: (5 * 60 * 1000)
+#ifndef FRAMEWORK_BACKLIGHT_TIMEOUT_MS
+#    define FRAMEWORK_BACKLIGHT_TIMEOUT_MS 0
+#endif
+
 // Prototype for Framework Laptop 16 with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22
