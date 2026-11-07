@@ -170,10 +170,14 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
         key_state = true;
     }
 
+#ifdef FRAMEWORK_MATRIX_DEBUG_CONTINUOUS
+    // Print on every scan while the key is held down. Very noisy and costs a
+    // lot of CPU time (~1000 prints per second per key).
     if (key_state) {
         uprintf("Col %d - Row %d - State: %d, Voltage: ", col, row, key_state);
         print_as_float(voltage);
     }
+#endif
 
 // Don't update  matrix on Pico to avoid messing with the debug system
 // Can't attach the matrix anyways
@@ -189,8 +193,9 @@ static bool interpret_adc_row(matrix_row_t cur_matrix[], adc10ksample_t voltage,
         new_row &= ~(1 << col);
     }
     changed = cur_matrix[row] != new_row;
-    if (key_state) {
-        uprintf("Keypress at KSO%d, KSI%d - %d.%dV\n", col, row, voltage/10000, voltage%10000);
+    // Only print when the state changes, not on every scan while held
+    if (changed) {
+        uprintf("Key%s at KSO%d, KSI%d - %d.%04dV\n", key_state ? "press" : "release", col, row, voltage/10000, voltage%10000);
     }
     cur_matrix[row] = new_row;
 
