@@ -255,6 +255,48 @@ static adc10ksample_t read_adc(void) {
 }
 
 /**
+ * Quickly check whether any key at all is pressed.
+ *
+ * Drives all columns low at once and reads every row only once. That's
+ * MATRIX_ROWS ADC conversions instead of MATRIX_ROWS * MATRIX_COLS for a full
+ * scan (8 instead of 128 on the keyboard, 4 instead of 32 on the numpad).
+ *
+ * The check can't miss a key that a full scan would find:
+ * Every row is pulled up and only connected to the (actively driven) columns
+ * through the pressed keys. So the row voltage is a weighted average of the
+ * pull-up voltage and the voltages of the columns that it's connected to. With
+ * all columns driven low, that average can only be lower than in the full scan
+ * where all but one column are driven high. Since the full scan uses
+ * thresholds of at most ADC_THRESHOLD, if no row is below ADC_THRESHOLD here,
+ * the full scan would not detect any key either.
+ *
+ * False positives (e.g. a row without external pull-up that hasn't charged up
+ * yet) are harmless, they just cause a full scan.
+ */
+static bool any_key_pressed(void) {
+    bool pressed = false;
+
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        drive_col(col, false);
+    }
+
+    for (int row = 0; row < MATRIX_ROWS; row++) {
+        mux_select_row(row);
+        if (read_adc() < ADC_THRESHOLD) {
+            pressed = true;
+            break;
+        }
+    }
+
+    // Deselect all columns again
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        drive_col(col, true);
+    }
+
+    return pressed;
+}
+
+/**
  * Handle the host going to sleep or the keyboard being idle
  * TODO: If the host is asleep the keyboard should reduce the scan rate and turn backlight off.
  *
@@ -328,6 +370,18 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
      **/
     if (!readPin(SLEEP_GPIO)) {
         return false;
+    }
+
+    // Most of the time no key is pressed. Save power and time by not doing the
+    // full scan in that case.
+    if (!any_key_pressed()) {
+        for (int row = 0; row < MATRIX_ROWS; row++) {
+            if (current_matrix[row]) {
+                current_matrix[row] = 0;
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     //wait_us(500 * 1000);
