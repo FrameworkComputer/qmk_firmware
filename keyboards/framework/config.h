@@ -43,6 +43,13 @@
 #    define FRAMEWORK_LID_CLOSED_POLL_MS 20
 #endif
 
+// Power saving: Put the RGB LED controller(s) into hardware shutdown when all
+// LEDs have been off for this long (RGB disabled, brightness 0, timeout, ...)
+// Define FRAMEWORK_NO_RGB_AUTO_SHUTDOWN to only shut down when suspended.
+#ifndef FRAMEWORK_RGB_SHUTDOWN_DELAY_MS
+#    define FRAMEWORK_RGB_SHUTDOWN_DELAY_MS 1000
+#endif
+
 // Prototype for Framework Laptop 16 with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22

@@ -41,6 +41,81 @@ void keyboard_pre_init_kb(void) {
     setPinInput(SLEEP_GPIO);
 }
 
+#ifdef RGB_MATRIX_ENABLE
+// From drivers/led/issi/is31flcommon.c
+extern uint8_t g_pwm_buffer[DRIVER_COUNT][ISSI_MAX_LEDS];
+extern bool    g_pwm_buffer_update_required[DRIVER_COUNT];
+
+// Mirrors the state of the SDB pin. Set high in keyboard_pre_init_kb
+static bool     rgb_driver_on  = true;
+static uint32_t rgb_dark_since = 0;
+
+/**
+ * Turn the IS31FL3743A LED controller(s) on or off via the SDB pin.
+ *
+ * In hardware shutdown the controller draws only a few uA instead of several
+ * mA, even when all LEDs are off.
+ */
+static void rgb_driver_power(bool on) {
+    if (on == rgb_driver_on) {
+        return;
+    }
+    rgb_driver_on = on;
+
+    if (on) {
+        writePinHigh(IS31FL3743A_ENABLE_GPIO);
+        // The controller keeps its configuration in hardware shutdown, that's
+        // what the suspend handling relied on already. But PWM writes that
+        // happened while it was shut down might have been dropped. Force
+        // re-sending the full PWM buffer on the next flush to be safe.
+        for (int i = 0; i < DRIVER_COUNT; i++) {
+            g_pwm_buffer_update_required[i] = true;
+        }
+    } else {
+        writePinLow(IS31FL3743A_ENABLE_GPIO);
+    }
+}
+
+/**
+ * Check whether all LEDs are currently set to off in the PWM buffer.
+ *
+ * This is the data that's sent to the controller, so it covers all reasons
+ * for the LEDs being dark: RGB disabled, brightness 0, RGB_MATRIX_TIMEOUT,
+ * solid black, ...
+ */
+static bool rgb_all_dark(void) {
+    for (int i = 0; i < DRIVER_COUNT; i++) {
+        for (int led = 0; led < ISSI_MAX_LEDS; led++) {
+            if (g_pwm_buffer[i][led]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+#endif
+
+/**
+ * Runs once per main loop iteration, after keyboard_task.
+ */
+void housekeeping_task_kb(void) {
+#if defined(RGB_MATRIX_ENABLE) && !defined(FRAMEWORK_NO_RGB_AUTO_SHUTDOWN)
+    // While suspended, the controller is kept off by suspend_power_down_kb
+    if (!is_suspended) {
+        // RGB matrix renders new values into the PWM buffer in one main loop
+        // iteration and flushes them over I2C in a later one. So this turns
+        // the controller back on before the new values are sent to it.
+        if (!rgb_all_dark()) {
+            rgb_dark_since = timer_read32();
+            rgb_driver_power(true);
+        } else if (rgb_driver_on && timer_elapsed32(rgb_dark_since) > FRAMEWORK_RGB_SHUTDOWN_DELAY_MS) {
+            // Delay to avoid toggling on every frame of animations that briefly go dark (e.g. breathing)
+            rgb_driver_power(false);
+        }
+    }
+#endif
+}
+
 /**
  * Called by QMK when the keyboard suspends
  */
@@ -51,7 +126,7 @@ void suspend_power_down_kb(void) {
 
 #ifdef RGB_MATRIX_ENABLE
 #  ifndef NO_SUSPEND_POWER_DOWN
-  writePinLow(IS31FL3743A_ENABLE_GPIO);
+  rgb_driver_power(false);
 #  endif
 #endif
 }
@@ -66,7 +141,9 @@ void suspend_wakeup_init_kb(void) {
 
 #ifdef RGB_MATRIX_ENABLE
 #  ifndef NO_SUSPEND_POWER_DOWN
-    writePinHigh(IS31FL3743A_ENABLE_GPIO);
+    rgb_driver_power(true);
+    // Give the RGB effect time to render before deciding it's dark
+    rgb_dark_since = timer_read32();
 #  endif
 #endif
 }
