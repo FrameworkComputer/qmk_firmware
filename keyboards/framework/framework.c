@@ -4,8 +4,56 @@
 #include "quantum.h"
 #include "framework.h"
 #include "os_detection.h"
+#include "hardware/structs/clocks.h"
+#include "hardware/regs/clocks.h"
 
 bool is_suspended = false;
+
+#ifndef FRAMEWORK_NO_SUSPEND_CLOCK_GATING
+static uint32_t suspend_sleep_en0;
+static uint32_t suspend_sleep_en1;
+static uint32_t suspend_sleepdeep;
+
+static void suspend_clock_gating_enter(void) {
+    suspend_sleep_en0 = clocks_hw->sleep_en0;
+    suspend_sleep_en1 = clocks_hw->sleep_en1;
+    suspend_sleepdeep = SCB->SCR & SCB_SCR_SLEEPDEEP_Msk;
+
+    // WFI alone leaves the reset-default clock tree running. When both cores
+    // sleep, gate memory/bus/unused peripheral clocks until the next interrupt.
+    // WAKE_EN is unchanged: hardware restores those clocks before executing
+    // the handler, including the stack and vectors in SRAM and code in XIP.
+    // Keep ADC and I2C running because their ChibiOS drivers can sleep while
+    // waiting for completion, even during the suspend/wake-key scan loop.
+    // Retain GPIO/pad/SIO clocks during the driver's interrupt waits as well:
+    // an aggressive mask coincided with an unrequested wake in bench testing.
+    // Keep configured peripheral clocks here until their wake behavior has
+    // been validated independently of the memory/bus clock savings.
+    clocks_hw->sleep_en0 = CLOCKS_SLEEP_EN0_CLK_SYS_ADC_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_ADC_ADC_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_SYS_I2C1_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_SYS_PWM_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_SYS_SIO_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_SYS_IO_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_SYS_PADS_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_SYS_DMA_BITS;
+    clocks_hw->sleep_en1 = CLOCKS_SLEEP_EN1_CLK_SYS_TIMER_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_SYS_WATCHDOG_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_SYS_UART0_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_PERI_UART0_BITS;
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    __DSB();
+}
+
+static void suspend_clock_gating_leave(void) {
+    clocks_hw->sleep_en0 = suspend_sleep_en0;
+    clocks_hw->sleep_en1 = suspend_sleep_en1;
+    SCB->SCR = (SCB->SCR & ~SCB_SCR_SLEEPDEEP_Msk) | suspend_sleepdeep;
+    __DSB();
+}
+#endif
 
 void keyboard_post_init_kb(void) {
   keyboard_post_init_user();
@@ -222,6 +270,11 @@ void housekeeping_task_kb(void) {
 void suspend_power_down_kb(void) {
   suspend_power_down_user();
 
+#ifndef FRAMEWORK_NO_SUSPEND_CLOCK_GATING
+  if (!is_suspended) {
+    suspend_clock_gating_enter();
+  }
+#endif
   is_suspended = true;
 
 #ifdef RGB_MATRIX_ENABLE
@@ -235,6 +288,11 @@ void suspend_power_down_kb(void) {
  * Called by QMK when the keyboard wakes up from suspend
  */
 void suspend_wakeup_init_kb(void) {
+#ifndef FRAMEWORK_NO_SUSPEND_CLOCK_GATING
+  if (is_suspended) {
+    suspend_clock_gating_leave();
+  }
+#endif
   suspend_wakeup_init_user();
 
   is_suspended = false;

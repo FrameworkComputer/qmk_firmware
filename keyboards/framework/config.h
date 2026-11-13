@@ -38,6 +38,10 @@
 #ifndef FRAMEWORK_SUSPEND_SCAN_INTERVAL_US
 #    define FRAMEWORK_SUSPEND_SCAN_INTERVAL_US 10000
 #endif
+// Gate unused RP2040 clocks while the CPU waits during suspend. USB resume,
+// the scheduler timer and matrix ADC remain clocked. Restore the original
+// sleep clock mask on wake. Define this to compare with the old WFI behavior.
+//#define FRAMEWORK_NO_SUSPEND_CLOCK_GATING
 // While the lid is closed keypresses are ignored, only check the lid state
 #ifndef FRAMEWORK_LID_CLOSED_POLL_MS
 #    define FRAMEWORK_LID_CLOSED_POLL_MS 20
