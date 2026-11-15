@@ -123,6 +123,55 @@ static void suspend_clock_gating_leave(void) {
 static volatile bool slow_clock_armed  = false;
 static volatile bool slow_clock_active = false;
 
+#    ifdef FRAMEWORK_SUSPEND_LOW_VOLTAGE
+#        include "hardware/structs/vreg_and_chip_reset.h"
+#        include "hardware/regs/vreg_and_chip_reset.h"
+#        include "hardware/structs/timer.h"
+
+// VREG VSEL: 0.05V steps, 0x6 = 0.85V ... 0xb = 1.10V (reset value)
+#        define VREG_VSEL_1V10 0xb
+#        if FRAMEWORK_SUSPEND_VSEL < 0x8 || FRAMEWORK_SUSPEND_VSEL > VREG_VSEL_1V10
+#            error "FRAMEWORK_SUSPEND_VSEL must be between 0x8 (0.95V) and 0xb (1.10V)"
+#        endif
+
+static void core_voltage_set(uint32_t vsel) {
+    hw_write_masked(&vreg_and_chip_reset_hw->vreg, vsel << VREG_AND_CHIP_RESET_VREG_VSEL_LSB, VREG_AND_CHIP_RESET_VREG_VSEL_BITS);
+}
+
+/**
+ * Back to 1.10V. Must have settled before the system clock goes back to
+ * 125MHz, so busy-wait for 1ms and then for the regulator to report that it's
+ * in regulation (at most 10ms in total). Uses the raw system timer, which is
+ * clocked from clk_ref and doesn't depend on clk_sys or interrupts.
+ */
+static void core_voltage_restore(void) {
+    core_voltage_set(VREG_VSEL_1V10);
+    uint32_t start = timer_hw->timerawl;
+    while (true) {
+        uint32_t elapsed = timer_hw->timerawl - start;
+        if (elapsed >= 10000 || (elapsed >= 1000 && (vreg_and_chip_reset_hw->vreg & VREG_AND_CHIP_RESET_VREG_ROK_BITS))) {
+            break;
+        }
+    }
+}
+
+/**
+ * The regulator setting survives a watchdog reset. If that happens while the
+ * voltage is lowered (hang, development failsafe), restore it before
+ * anything switches to 125MHz (__late_init of the bootloader double tap
+ * detection, halInit). Overrides the weak ChibiOS startup hook, which runs
+ * right after reset from the ring oscillator at a few MHz, before .data and
+ * .bss are set up. The timer isn't ticking yet.
+ */
+void __cpu_init(void) {
+    if ((vreg_and_chip_reset_hw->vreg & VREG_AND_CHIP_RESET_VREG_VSEL_BITS) != (VREG_VSEL_1V10 << VREG_AND_CHIP_RESET_VREG_VSEL_LSB)) {
+        core_voltage_set(VREG_VSEL_1V10);
+        for (volatile uint32_t i = 0; i < 20000; i++) {
+        }
+    }
+}
+#    endif
+
 /**
  * Run clk_sys at 48MHz from the USB PLL and power down the system PLL while
  * the host has suspended the bus.
@@ -160,6 +209,9 @@ static void suspend_slow_clock_enter(void) {
                         48 * MHZ, 48 * MHZ / FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV);
         pll_deinit(pll_sys);
         SystemCoreClock   = clock_get_hz(clk_sys);
+#    ifdef FRAMEWORK_SUSPEND_LOW_VOLTAGE
+        core_voltage_set(FRAMEWORK_SUSPEND_VSEL);
+#    endif
         slow_clock_active = true;
     }
     chSysUnlock();
@@ -173,6 +225,10 @@ static void suspend_slow_clock_leave(void) {
     syssts_t sts = chSysGetStatusAndLockX();
     slow_clock_armed = false;
     if (slow_clock_active) {
+#    ifdef FRAMEWORK_SUSPEND_LOW_VOLTAGE
+        // Adds 1ms or a bit more, also when called from the USB ISR
+        core_voltage_restore();
+#    endif
         // Same as the pico-sdk clocks_init, which ChibiOS uses at boot.
         // Waits for the PLL to lock, which is far shorter than the 20ms of
         // resume signaling or the 10ms of a bus reset.
@@ -209,6 +265,10 @@ void usb_event_isr_kb(usbevent_t event) {
 void usb_remote_wakeup_pre_kb(void) {
     suspend_slow_clock_leave();
 }
+#endif
+
+#if defined(FRAMEWORK_SUSPEND_LOW_VOLTAGE) && !defined(FRAMEWORK_SUSPEND_SLOW_CLOCK)
+#    error "FRAMEWORK_SUSPEND_LOW_VOLTAGE needs FRAMEWORK_SUSPEND_SLOW_CLOCK"
 #endif
 
 #if FRAMEWORK_DEV_FAILSAFE_S > 0

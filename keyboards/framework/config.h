@@ -93,6 +93,15 @@
 #ifndef FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV
 #    define FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV 1
 #endif
+// Experimental, needs FRAMEWORK_SUSPEND_SLOW_CLOCK: Also lower the RP2040
+// core voltage from 1.10V while the suspend system clock is active. It's
+// raised again, with a wait of at least 1ms, before going back to 125MHz.
+// FRAMEWORK_SUSPEND_VSEL is the VREG VSEL value, 0x8 = 0.95V ... 0xb = 1.10V.
+// Note that the RP2040 datasheet specifies DVDD as 1.10V +-10%.
+//#define FRAMEWORK_SUSPEND_LOW_VOLTAGE
+#ifndef FRAMEWORK_SUSPEND_VSEL
+#    define FRAMEWORK_SUSPEND_VSEL 0x8
+#endif
 
 // Power saving (experimental): Read the ADC by polling its registers instead
 // of through the ChibiOS driver (IRQ + context switches per conversion).
