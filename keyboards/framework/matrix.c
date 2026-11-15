@@ -467,9 +467,25 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     // fast enough to wake it up on a keypress.
     matrix_scan_rate_limit(is_suspended ? FRAMEWORK_SUSPEND_SCAN_INTERVAL_US : FRAMEWORK_SCAN_INTERVAL_US);
 
+#ifdef FRAMEWORK_SUSPEND_ADC_OFF
+    // Powered down at the end of the previous scan in suspend
+    if (!(ADC->CS & ADC_CS_EN)) {
+        ADC->SET.CS = ADC_CS_EN;
+        for (int i = 0; i < 10000 && !(ADC->CS & ADC_CS_READY); i++) {
+        }
+    }
+#endif
+
     // Most of the time no key is pressed. Save power and time by not doing the
     // full scan in that case.
     if (!any_key_pressed()) {
+#ifdef FRAMEWORK_SUSPEND_ADC_OFF
+        // Power down the ADC until the next scan. Not while a key is held,
+        // the host is about to be woken up then.
+        if (is_suspended) {
+            ADC->CLR.CS = ADC_CS_EN;
+        }
+#endif
         for (int row = 0; row < MATRIX_ROWS; row++) {
             if (current_matrix[row]) {
                 current_matrix[row] = 0;

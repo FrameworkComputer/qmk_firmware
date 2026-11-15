@@ -109,6 +109,12 @@
 // mux and sampling changes slightly, see FRAMEWORK_FAST_ADC_SETTLE_CYCLES.
 //#define FRAMEWORK_FAST_ADC
 
+// Power saving (experimental): Power down the RP2040 ADC between the matrix
+// scans while suspended, it draws about 0.15 mA when enabled. Whether the
+// first conversion after powering it up reliably detects a keypress (wake
+// from suspend) is not validated.
+//#define FRAMEWORK_SUSPEND_ADC_OFF
+
 // Development only: Arm the watchdog and reboot into the ROM bootloader when
 // the firmware hangs, USB never comes up, or this many seconds after boot.
 // Allows testing risky changes without physical access to the module.
