@@ -531,9 +531,16 @@ void usb_event_queue_task(void) {
     }
 }
 
+/* Called first for every USB driver event, in the context of the USB ISR.
+ * Allows keyboards to react before the event is handled, instead of later in
+ * the main loop through the event queue. */
+__attribute__((weak)) void usb_event_isr_kb(usbevent_t event) {}
+
 /* Handles the USB driver global events
  * TODO: maybe disable some things when connection is lost? */
 static void usb_event_cb(USBDriver *usbp, usbevent_t event) {
+    usb_event_isr_kb(event);
+
     switch (event) {
         case USB_EVENT_ADDRESS:
             return;

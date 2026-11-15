@@ -179,6 +179,10 @@ void protocol_post_init(void) {
     host_set_driver(driver);
 }
 
+/* Called in the main loop while suspended, right before a remote wakeup is
+ * signaled to the host. */
+__attribute__((weak)) void usb_remote_wakeup_pre_kb(void) {}
+
 void protocol_pre_task(void) {
 #if !defined(NO_USB_STARTUP_CHECK)
     if (USB_DRIVER.state == USB_SUSPENDED) {
@@ -188,6 +192,7 @@ void protocol_pre_task(void) {
             if ((USB_DRIVER.status & USB_GETSTATUS_REMOTE_WAKEUP_ENABLED) && suspend_wakeup_condition()) {
                 /* issue a remote wakeup event to the host which should resume
                  * the bus and get our keyboard out of suspension. */
+                usb_remote_wakeup_pre_kb();
                 usbWakeupHost(&USB_DRIVER);
             }
             usb_event_queue_task();

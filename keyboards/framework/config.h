@@ -83,6 +83,11 @@
 // Makes the matrix scan take longer, see FRAMEWORK_SCAN_INTERVAL_US.
 //#define FRAMEWORK_SYS_CLOCK_48MHZ
 
+// Power saving (experimental): While the host has suspended USB, run the
+// RP2040 system clock at 48MHz from the USB PLL and power down the system
+// PLL. The USB interrupt restores 125MHz on resume/reset.
+//#define FRAMEWORK_SUSPEND_SLOW_CLOCK
+
 // Power saving (experimental): Read the ADC by polling its registers instead
 // of through the ChibiOS driver (IRQ + context switches per conversion).
 // Makes the matrix scan several times faster. The time between switching the

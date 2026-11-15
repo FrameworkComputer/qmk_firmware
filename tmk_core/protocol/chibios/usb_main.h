@@ -47,6 +47,12 @@ void usb_event_queue_init(void);
 /* Task to dequeue and execute any handlers for the USB events on the main thread */
 void usb_event_queue_task(void);
 
+/* Weak hook, called from the USB ISR for every USB driver event */
+void usb_event_isr_kb(usbevent_t event);
+
+/* Weak hook, called from the main loop right before a remote wakeup */
+void usb_remote_wakeup_pre_kb(void);
+
 /* --------------
  * Console header
  * --------------

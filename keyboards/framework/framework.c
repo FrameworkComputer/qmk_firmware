@@ -105,6 +105,107 @@ static void suspend_clock_gating_leave(void) {
 }
 #endif
 
+#ifdef FRAMEWORK_SUSPEND_SLOW_CLOCK
+#    ifdef FRAMEWORK_SYS_CLOCK_48MHZ
+#        error "FRAMEWORK_SUSPEND_SLOW_CLOCK restores 125MHz, don't combine it with FRAMEWORK_SYS_CLOCK_48MHZ"
+#    endif
+#    include "usb_main.h"
+#    include "hardware/clocks.h"
+#    include "hardware/pll.h"
+
+// Set by the USB ISR on every new suspend, cleared whenever the fast clock is
+// restored. Prevents going slow again in the same suspend after the clock was
+// restored for a remote wakeup, while the host is still resuming the bus.
+static volatile bool slow_clock_armed  = false;
+static volatile bool slow_clock_active = false;
+
+/**
+ * Run clk_sys at 48MHz from the USB PLL and power down the system PLL while
+ * the host has suspended the bus.
+ *
+ * Only the system clock changes. USB and ADC keep their 48MHz from PLL_USB
+ * and the system timer and watchdog their tick from clk_ref (XOSC), so bus
+ * state detection, the scan interval and the ADC timing are unaffected.
+ * clk_peri follows clk_sys, it only feeds the unused UART.
+ *
+ * Only on a real suspend of a configured device. The RP2040 also reports a
+ * suspend when it's connected and the bus is idle before the host resets it
+ * and enumeration must not run with a slow system clock. Neither must the
+ * lid-closed idle path, where USB is still live.
+ *
+ * 12MHz straight from clk_ref was tried as well and draws about 2.5mA less,
+ * but the firmware then stops feeding the watchdog as soon as it's suspended.
+ * The cause is unknown, so that's not offered as an option.
+ *
+ * Called on every pass of the suspend loop. The USB ISR can restore the clock
+ * at any time, so the state check and the switch are done with interrupts
+ * disabled.
+ */
+static void suspend_slow_clock_enter(void) {
+    if (slow_clock_active || !slow_clock_armed) {
+        return;
+    }
+    chSysLock();
+    if (slow_clock_armed && !slow_clock_active && USB_DRIVER.state == USB_SUSPENDED && USB_DRIVER.saved_state == USB_ACTIVE) {
+        // 48MHz from the USB PLL, which has to keep running for USB anyway.
+        // Goes through clk_ref (glitchless) while changing the aux mux.
+        clock_configure(clk_sys,
+                        CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX,
+                        CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
+                        48 * MHZ, 48 * MHZ);
+        pll_deinit(pll_sys);
+        SystemCoreClock   = clock_get_hz(clk_sys);
+        slow_clock_active = true;
+    }
+    chSysUnlock();
+}
+
+/**
+ * Restore the 125MHz system clock. Can be called from any context and when
+ * the clock isn't slow.
+ */
+static void suspend_slow_clock_leave(void) {
+    syssts_t sts = chSysGetStatusAndLockX();
+    slow_clock_armed = false;
+    if (slow_clock_active) {
+        // Same as the pico-sdk clocks_init, which ChibiOS uses at boot.
+        // Waits for the PLL to lock, which is far shorter than the 20ms of
+        // resume signaling or the 10ms of a bus reset.
+        pll_init(pll_sys, 1, 1500 * MHZ, 6, 2);
+        clock_configure(clk_sys,
+                        CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX,
+                        CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS,
+                        125 * MHZ, 125 * MHZ);
+        SystemCoreClock   = clock_get_hz(clk_sys);
+        slow_clock_active = false;
+    }
+    chSysRestoreStatusX(sts);
+}
+
+/**
+ * Runs in the USB ISR, before the event is handled.
+ *
+ * Anything other than a suspend means that the host is talking to us again
+ * (resume, reset, configuration). The system clock must be back at full speed
+ * before that continues and can't wait for the main loop to notice.
+ */
+void usb_event_isr_kb(usbevent_t event) {
+    if (event == USB_EVENT_SUSPEND) {
+        slow_clock_armed = true;
+    } else {
+        suspend_slow_clock_leave();
+    }
+}
+
+/**
+ * A key was pressed while suspended. The USB controller times the resume
+ * signaling, so restore the clock before it starts.
+ */
+void usb_remote_wakeup_pre_kb(void) {
+    suspend_slow_clock_leave();
+}
+#endif
+
 #if FRAMEWORK_DEV_FAILSAFE_S > 0
 #    define FAILSAFE_MAGIC 0xF16FA115
 // The RP2040 watchdog counts down twice per tick, so this is ~8.4s
@@ -366,6 +467,9 @@ void suspend_power_down_kb(void) {
   }
 #endif
   is_suspended = true;
+#ifdef FRAMEWORK_SUSPEND_SLOW_CLOCK
+  suspend_slow_clock_enter();
+#endif
 
 #ifdef RGB_MATRIX_ENABLE
 #  ifndef NO_SUSPEND_POWER_DOWN
@@ -378,6 +482,10 @@ void suspend_power_down_kb(void) {
  * Called by QMK when the keyboard wakes up from suspend
  */
 void suspend_wakeup_init_kb(void) {
+#ifdef FRAMEWORK_SUSPEND_SLOW_CLOCK
+  // Backstop, the USB ISR has normally restored the clock already
+  suspend_slow_clock_leave();
+#endif
 #ifndef FRAMEWORK_NO_SUSPEND_CLOCK_GATING
   if (is_suspended) {
     suspend_clock_gating_leave();
