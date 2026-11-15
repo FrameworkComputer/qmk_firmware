@@ -42,6 +42,10 @@
 // the scheduler timer and matrix ADC remain clocked. Restore the original
 // sleep clock mask on wake. Define this to compare with the old WFI behavior.
 //#define FRAMEWORK_NO_SUSPEND_CLOCK_GATING
+// Experimental: Also gate the GPIO/pad/SIO, PWM, DMA and UART clocks while
+// waiting during suspend. Only ADC, I2C, timer, watchdog and USB keep running.
+// Saves about 4 mA more. Waking the host by keypress is not validated with it.
+//#define FRAMEWORK_SUSPEND_CLOCK_GATING_LEAN
 // While the lid is closed keypresses are ignored, only check the lid state
 #ifndef FRAMEWORK_LID_CLOSED_POLL_MS
 #    define FRAMEWORK_LID_CLOSED_POLL_MS 20

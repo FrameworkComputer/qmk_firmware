@@ -29,6 +29,21 @@ static void suspend_clock_gating_enter(void) {
     // the handler, including the stack and vectors in SRAM and code in XIP.
     // Keep ADC and I2C running because their ChibiOS drivers can sleep while
     // waiting for completion, even during the suspend/wake-key scan loop.
+    // The timer (scheduler), watchdog and USB (resume detection) clocks must
+    // never be gated.
+#ifdef FRAMEWORK_SUSPEND_CLOCK_GATING_LEAN
+    // GPIO is only polled after the timer has woken us up, its clocks can stop
+    // during WFI without changing the pad configuration or output levels.
+    // The UART is unused, the console goes through USB. PWM doesn't need to
+    // make progress while the backlight is off and nothing uses DMA.
+    clocks_hw->sleep_en0 = CLOCKS_SLEEP_EN0_CLK_SYS_ADC_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_ADC_ADC_BITS |
+                           CLOCKS_SLEEP_EN0_CLK_SYS_I2C1_BITS;
+    clocks_hw->sleep_en1 = CLOCKS_SLEEP_EN1_CLK_SYS_TIMER_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_SYS_WATCHDOG_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS |
+                           CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS;
+#else
     // Retain GPIO/pad/SIO clocks during the driver's interrupt waits as well:
     // an aggressive mask coincided with an unrequested wake in bench testing.
     // Keep configured peripheral clocks here until their wake behavior has
@@ -47,6 +62,7 @@ static void suspend_clock_gating_enter(void) {
                            CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS |
                            CLOCKS_SLEEP_EN1_CLK_SYS_UART0_BITS |
                            CLOCKS_SLEEP_EN1_CLK_PERI_UART0_BITS;
+#endif
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
     __DSB();
 }
