@@ -353,8 +353,15 @@ static adc10ksample_t read_adc(void) {
  * thresholds of at most ADC_THRESHOLD, if no row is below ADC_THRESHOLD here,
  * the full scan would not detect any key either.
  *
- * False positives (e.g. a row without external pull-up that hasn't charged up
- * yet) are harmless, they just cause a full scan.
+ * False positives are harmless for the result, they just cause a full scan.
+ * But they're expensive. On the Macropad the first sample of KSI2 after
+ * switching the mux to it hasn't settled yet and reads 2.8-3.0V in about 90%
+ * of the scans without any key pressed, a second sample 9us later reads the
+ * settled 3.27V. With FRAMEWORK_QUICK_CHECK_REREADS a row that reads low is
+ * sampled again, up to that many times, and only counts as pressed if it's
+ * still low. The pull-up only ever charges the row towards the settled
+ * voltage and that one is what the reasoning above is about, so a held key
+ * stays below the threshold on every sample.
  */
 static bool any_key_pressed(void) {
     bool pressed = false;
@@ -365,7 +372,11 @@ static bool any_key_pressed(void) {
 
     for (int row = 0; row < MATRIX_ROWS; row++) {
         mux_select_row(row);
-        if (read_adc() < ADC_THRESHOLD) {
+        adc10ksample_t voltage = read_adc();
+        for (int i = 0; i < FRAMEWORK_QUICK_CHECK_REREADS && voltage < ADC_THRESHOLD; i++) {
+            voltage = read_adc();
+        }
+        if (voltage < ADC_THRESHOLD) {
             pressed = true;
             break;
         }

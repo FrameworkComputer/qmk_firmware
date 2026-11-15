@@ -109,6 +109,16 @@
 // mux and sampling changes slightly, see FRAMEWORK_FAST_ADC_SETTLE_CYCLES.
 //#define FRAMEWORK_FAST_ADC
 
+// Power saving (experimental): The quick "is any key pressed" check that
+// runs before a full matrix scan samples a row that reads low again, up to
+// this many times, and only does the full scan if it's still low. Without it
+// the unsettled first sample of one row on the Macropad causes a needless
+// full scan about 9 out of 10 times. 0 disables it (default, same behavior as
+// before). Detection of real keypresses with it is not validated.
+#ifndef FRAMEWORK_QUICK_CHECK_REREADS
+#    define FRAMEWORK_QUICK_CHECK_REREADS 0
+#endif
+
 // Power saving (experimental): Power down the RP2040 ADC between the matrix
 // scans while suspended, it draws about 0.15 mA when enabled. Whether the
 // first conversion after powering it up reliably detects a keypress (wake
