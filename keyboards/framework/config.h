@@ -87,6 +87,12 @@
 // RP2040 system clock at 48MHz from the USB PLL and power down the system
 // PLL. The USB interrupt restores 125MHz on resume/reset.
 //#define FRAMEWORK_SUSPEND_SLOW_CLOCK
+// Integer divider of the 48MHz from the USB PLL for that suspend system
+// clock. USB and ADC keep their undivided 48MHz. 2 (24MHz) works, with 4
+// (12MHz) the matrix scan (ADC) hangs.
+#ifndef FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV
+#    define FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV 1
+#endif
 
 // Power saving (experimental): Read the ADC by polling its registers instead
 // of through the ChibiOS driver (IRQ + context switches per conversion).

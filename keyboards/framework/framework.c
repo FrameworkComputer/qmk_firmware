@@ -113,6 +113,10 @@ static void suspend_clock_gating_leave(void) {
 #    include "hardware/clocks.h"
 #    include "hardware/pll.h"
 
+#    if FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV < 1 || FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV > 16
+#        error "FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV must be between 1 and 16"
+#    endif
+
 // Set by the USB ISR on every new suspend, cleared whenever the fast clock is
 // restored. Prevents going slow again in the same suspend after the clock was
 // restored for a remote wakeup, while the host is still resuming the bus.
@@ -133,9 +137,10 @@ static volatile bool slow_clock_active = false;
  * and enumeration must not run with a slow system clock. Neither must the
  * lid-closed idle path, where USB is still live.
  *
- * 12MHz straight from clk_ref was tried as well and draws about 2.5mA less,
- * but the firmware then stops feeding the watchdog as soon as it's suspended.
- * The cause is unknown, so that's not offered as an option.
+ * FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV divides the 48MHz further. 24MHz (2) works.
+ * At 12MHz (4, or straight from clk_ref) the main loop hangs in the suspend
+ * matrix scan. With the scan skipped 12MHz runs fine, so most likely ADC
+ * conversions don't complete with clk_sys that far below the 48MHz clk_adc.
  *
  * Called on every pass of the suspend loop. The USB ISR can restore the clock
  * at any time, so the state check and the switch are done with interrupts
@@ -152,7 +157,7 @@ static void suspend_slow_clock_enter(void) {
         clock_configure(clk_sys,
                         CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX,
                         CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
-                        48 * MHZ, 48 * MHZ);
+                        48 * MHZ, 48 * MHZ / FRAMEWORK_SUSPEND_SLOW_CLOCK_DIV);
         pll_deinit(pll_sys);
         SystemCoreClock   = clock_get_hz(clk_sys);
         slow_clock_active = true;
