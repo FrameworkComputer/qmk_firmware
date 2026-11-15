@@ -38,6 +38,18 @@
 #ifndef FRAMEWORK_SUSPEND_SCAN_INTERVAL_US
 #    define FRAMEWORK_SUSPEND_SCAN_INTERVAL_US 10000
 #endif
+// Power saving: Gate unused RP2040 clocks (memories, bus fabric, unused
+// peripherals) whenever the CPU sleeps waiting for the next interrupt, also
+// while awake. Everything that's configured (USB, timer, watchdog, ADC, I2C,
+// PWM, GPIO, UART, DMA) stays clocked. Define this to compare with the old
+// behavior.
+//#define FRAMEWORK_NO_AWAKE_CLOCK_GATING
+// Experimental: Also gate the GPIO/pad/SIO, DMA and UART clocks while the CPU
+// sleeps when awake. Only ADC, I2C, PWM, timer, watchdog and USB keep running.
+// Saves about 2.4 mA more. The suspend mask can only remove clocks from the
+// awake one, so this also gates them during suspend (see the LEAN option
+// below). Key detection and waking the host are not validated with it.
+//#define FRAMEWORK_AWAKE_CLOCK_GATING_LEAN
 // Gate unused RP2040 clocks while the CPU waits during suspend. USB resume,
 // the scheduler timer and matrix ADC remain clocked. Restore the original
 // sleep clock mask on wake. Define this to compare with the old WFI behavior.

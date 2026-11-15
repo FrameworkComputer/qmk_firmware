@@ -13,55 +13,85 @@
 
 bool is_suspended = false;
 
+// Clocks that stay enabled while the MCU sleeps in WFI (CLOCKS SLEEP_EN0/1).
+// WFI alone leaves the reset-default clock tree running. With these masks and
+// SLEEPDEEP set, everything else (SRAM, ROM, XIP, bus fabric and the unused
+// peripherals) stops until the next interrupt. WAKE_EN is unchanged: hardware
+// restores all clocks before executing the handler, including the stack and
+// vectors in SRAM and code in XIP.
+//
+// Required: The timer (scheduler tick), watchdog (tick generator, failsafe)
+// and USB clocks must never be gated. ADC and I2C keep running because their
+// ChibiOS drivers sleep the thread while waiting for the completion IRQ.
+#define SLEEP_EN0_REQUIRED (CLOCKS_SLEEP_EN0_CLK_SYS_ADC_BITS | \
+                            CLOCKS_SLEEP_EN0_CLK_ADC_ADC_BITS | \
+                            CLOCKS_SLEEP_EN0_CLK_SYS_I2C1_BITS)
+#define SLEEP_EN1_REQUIRED (CLOCKS_SLEEP_EN1_CLK_SYS_TIMER_BITS | \
+                            CLOCKS_SLEEP_EN1_CLK_SYS_WATCHDOG_BITS | \
+                            CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS | \
+                            CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS)
+// Conservative: Additionally keep the clocks of all other peripherals that
+// are configured. An aggressive mask coincided with an unrequested wake in
+// bench testing during suspend, so keep GPIO/pad/SIO clocked until their wake
+// behavior has been validated independently of the memory/bus clock savings.
+#define SLEEP_EN0_CONSERVATIVE (SLEEP_EN0_REQUIRED | \
+                                CLOCKS_SLEEP_EN0_CLK_SYS_PWM_BITS | \
+                                CLOCKS_SLEEP_EN0_CLK_SYS_SIO_BITS | \
+                                CLOCKS_SLEEP_EN0_CLK_SYS_IO_BITS | \
+                                CLOCKS_SLEEP_EN0_CLK_SYS_PADS_BITS | \
+                                CLOCKS_SLEEP_EN0_CLK_SYS_DMA_BITS)
+#define SLEEP_EN1_CONSERVATIVE (SLEEP_EN1_REQUIRED | \
+                                CLOCKS_SLEEP_EN1_CLK_SYS_UART0_BITS | \
+                                CLOCKS_SLEEP_EN1_CLK_PERI_UART0_BITS)
+
+#ifndef FRAMEWORK_NO_AWAKE_CLOCK_GATING
+/**
+ * Gate unused clocks whenever the MCU sleeps in WFI, also while awake.
+ *
+ * The main loop sleeps between matrix scans (see matrix_scan_rate_limit) and
+ * the drivers sleep while waiting for their interrupts, so most of the time
+ * is spent in WFI.
+ */
+static void awake_clock_gating_init(void) {
+#    ifdef FRAMEWORK_AWAKE_CLOCK_GATING_LEAN
+    // GPIO is only read and written while the core runs, its clocks can stop
+    // during WFI without changing the pad configuration or output levels.
+    // The UART is unused, the console goes through USB and nothing uses DMA.
+    // Unlike in suspend, the PWM counter has to keep running for the white
+    // backlight.
+    clocks_hw->sleep_en0 = SLEEP_EN0_REQUIRED | CLOCKS_SLEEP_EN0_CLK_SYS_PWM_BITS;
+    clocks_hw->sleep_en1 = SLEEP_EN1_REQUIRED;
+#    else
+    clocks_hw->sleep_en0 = SLEEP_EN0_CONSERVATIVE;
+    clocks_hw->sleep_en1 = SLEEP_EN1_CONSERVATIVE;
+#    endif
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    __DSB();
+}
+#endif
+
 #ifndef FRAMEWORK_NO_SUSPEND_CLOCK_GATING
 static uint32_t suspend_sleep_en0;
 static uint32_t suspend_sleep_en1;
 static uint32_t suspend_sleepdeep;
 
+// Saves the masks used while awake (see awake_clock_gating_init, or the reset
+// default with everything enabled) and only ever removes clocks from them.
 static void suspend_clock_gating_enter(void) {
     suspend_sleep_en0 = clocks_hw->sleep_en0;
     suspend_sleep_en1 = clocks_hw->sleep_en1;
     suspend_sleepdeep = SCB->SCR & SCB_SCR_SLEEPDEEP_Msk;
 
-    // WFI alone leaves the reset-default clock tree running. When both cores
-    // sleep, gate memory/bus/unused peripheral clocks until the next interrupt.
-    // WAKE_EN is unchanged: hardware restores those clocks before executing
-    // the handler, including the stack and vectors in SRAM and code in XIP.
-    // Keep ADC and I2C running because their ChibiOS drivers can sleep while
-    // waiting for completion, even during the suspend/wake-key scan loop.
-    // The timer (scheduler), watchdog and USB (resume detection) clocks must
-    // never be gated.
 #ifdef FRAMEWORK_SUSPEND_CLOCK_GATING_LEAN
     // GPIO is only polled after the timer has woken us up, its clocks can stop
     // during WFI without changing the pad configuration or output levels.
     // The UART is unused, the console goes through USB. PWM doesn't need to
     // make progress while the backlight is off and nothing uses DMA.
-    clocks_hw->sleep_en0 = CLOCKS_SLEEP_EN0_CLK_SYS_ADC_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_ADC_ADC_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_SYS_I2C1_BITS;
-    clocks_hw->sleep_en1 = CLOCKS_SLEEP_EN1_CLK_SYS_TIMER_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_SYS_WATCHDOG_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS;
+    clocks_hw->sleep_en0 = suspend_sleep_en0 & SLEEP_EN0_REQUIRED;
+    clocks_hw->sleep_en1 = suspend_sleep_en1 & SLEEP_EN1_REQUIRED;
 #else
-    // Retain GPIO/pad/SIO clocks during the driver's interrupt waits as well:
-    // an aggressive mask coincided with an unrequested wake in bench testing.
-    // Keep configured peripheral clocks here until their wake behavior has
-    // been validated independently of the memory/bus clock savings.
-    clocks_hw->sleep_en0 = CLOCKS_SLEEP_EN0_CLK_SYS_ADC_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_ADC_ADC_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_SYS_I2C1_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_SYS_PWM_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_SYS_SIO_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_SYS_IO_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_SYS_PADS_BITS |
-                           CLOCKS_SLEEP_EN0_CLK_SYS_DMA_BITS;
-    clocks_hw->sleep_en1 = CLOCKS_SLEEP_EN1_CLK_SYS_TIMER_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_SYS_WATCHDOG_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_SYS_USBCTRL_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_USB_USBCTRL_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_SYS_UART0_BITS |
-                           CLOCKS_SLEEP_EN1_CLK_PERI_UART0_BITS;
+    clocks_hw->sleep_en0 = suspend_sleep_en0 & SLEEP_EN0_CONSERVATIVE;
+    clocks_hw->sleep_en1 = suspend_sleep_en1 & SLEEP_EN1_CONSERVATIVE;
 #endif
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
     __DSB();
@@ -167,6 +197,9 @@ void keyboard_pre_init_kb(void) {
 #endif
 #ifdef FRAMEWORK_SYS_CLOCK_48MHZ
     sys_clock_48mhz();
+#endif
+#ifndef FRAMEWORK_NO_AWAKE_CLOCK_GATING
+    awake_clock_gating_init();
 #endif
 
     keyboard_pre_init_user();
