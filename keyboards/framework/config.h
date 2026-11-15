@@ -38,6 +38,20 @@
 #ifndef FRAMEWORK_SUSPEND_SCAN_INTERVAL_US
 #    define FRAMEWORK_SUSPEND_SCAN_INTERVAL_US 10000
 #endif
+// Power saving (experimental): While the host is awake, scan only every
+// FRAMEWORK_IDLE_SCAN_INTERVAL_US once no key has been pressed for
+// FRAMEWORK_IDLE_SCAN_AFTER_MS. The first scan that sees a key goes back to
+// FRAMEWORK_SCAN_INTERVAL_US. 0 disables it (default).
+// The first keypress after being idle is detected up to that interval later
+// and the debounce needs a second scan. The whole main loop runs at the scan
+// rate, so while idle RGB animations (several loop iterations per frame) and
+// VIA/raw HID responses slow down too.
+#ifndef FRAMEWORK_IDLE_SCAN_INTERVAL_US
+#    define FRAMEWORK_IDLE_SCAN_INTERVAL_US 0
+#endif
+#ifndef FRAMEWORK_IDLE_SCAN_AFTER_MS
+#    define FRAMEWORK_IDLE_SCAN_AFTER_MS 5000
+#endif
 // Power saving: Gate unused RP2040 clocks (memories, bus fabric, unused
 // peripherals) whenever the CPU sleeps waiting for the next interrupt, also
 // while awake. Everything that's configured (USB, timer, watchdog, ADC, I2C,

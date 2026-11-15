@@ -476,7 +476,19 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
 
     // While the host is asleep there's no need to scan as quickly, just
     // fast enough to wake it up on a keypress.
-    matrix_scan_rate_limit(is_suspended ? FRAMEWORK_SUSPEND_SCAN_INTERVAL_US : FRAMEWORK_SCAN_INTERVAL_US);
+    uint32_t scan_interval_us = FRAMEWORK_SCAN_INTERVAL_US;
+#if FRAMEWORK_IDLE_SCAN_INTERVAL_US > 0
+    // Scan less often once no key has been pressed for a while. The first
+    // scan that sees a key again goes back to the normal interval.
+    static uint32_t last_key_seen = 0;
+    if (timer_elapsed32(last_key_seen) > FRAMEWORK_IDLE_SCAN_AFTER_MS) {
+        scan_interval_us = FRAMEWORK_IDLE_SCAN_INTERVAL_US;
+    }
+#endif
+    if (is_suspended) {
+        scan_interval_us = FRAMEWORK_SUSPEND_SCAN_INTERVAL_US;
+    }
+    matrix_scan_rate_limit(scan_interval_us);
 
 #ifdef FRAMEWORK_SUSPEND_ADC_OFF
     // Powered down at the end of the previous scan in suspend
@@ -505,6 +517,9 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
         }
         return changed;
     }
+#if FRAMEWORK_IDLE_SCAN_INTERVAL_US > 0
+    last_key_seen = timer_read32();
+#endif
 
     // Every element is written by the scan below, no need to initialize
     adc10ksample_t voltages[MATRIX_ROWS][MATRIX_COLS];
