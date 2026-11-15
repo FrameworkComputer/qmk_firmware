@@ -6,6 +6,10 @@
 #include "os_detection.h"
 #include "hardware/structs/clocks.h"
 #include "hardware/regs/clocks.h"
+#include "hardware/structs/watchdog.h"
+#include "hardware/structs/psm.h"
+#include "hardware/regs/psm.h"
+#include "bootloader.h"
 
 bool is_suspended = false;
 
@@ -52,6 +56,40 @@ static void suspend_clock_gating_leave(void) {
     clocks_hw->sleep_en1 = suspend_sleep_en1;
     SCB->SCR = (SCB->SCR & ~SCB_SCR_SLEEPDEEP_Msk) | suspend_sleepdeep;
     __DSB();
+}
+#endif
+
+#if FRAMEWORK_DEV_FAILSAFE_S > 0
+#    define FAILSAFE_MAGIC 0xF16FA115
+// The RP2040 watchdog counts down twice per tick, so this is ~8.4s
+#    define FAILSAFE_WATCHDOG_LOAD 0xFFFFFF
+
+/**
+ * Development failsafe for testing risky firmware without physical access.
+ *
+ * Arms the hardware watchdog. It's only fed from the matrix scan and only
+ * until FRAMEWORK_DEV_FAILSAFE_S seconds after boot. When the firmware hangs,
+ * USB never gets configured or the deadline passes, the watchdog resets the
+ * MCU and the next boot goes straight into the ROM bootloader, where a known
+ * good firmware can be flashed.
+ */
+static void failsafe_init(void) {
+    if (watchdog_hw->reason && watchdog_hw->scratch[0] == FAILSAFE_MAGIC) {
+        watchdog_hw->scratch[0] = 0;
+        bootloader_jump();
+    }
+    watchdog_hw->scratch[0] = FAILSAFE_MAGIC;
+    hw_clear_bits(&watchdog_hw->ctrl, WATCHDOG_CTRL_ENABLE_BITS);
+    // Reset everything except the oscillators, same as pico-sdk
+    psm_hw->wdsel = PSM_WDSEL_BITS & ~(PSM_WDSEL_ROSC_BITS | PSM_WDSEL_XOSC_BITS);
+    watchdog_hw->load = FAILSAFE_WATCHDOG_LOAD;
+    hw_set_bits(&watchdog_hw->ctrl, WATCHDOG_CTRL_ENABLE_BITS);
+}
+
+void framework_failsafe_feed(void) {
+    if (timer_read32() < (uint32_t)FRAMEWORK_DEV_FAILSAFE_S * 1000) {
+        watchdog_hw->load = FAILSAFE_WATCHDOG_LOAD;
+    }
 }
 #endif
 
@@ -108,6 +146,9 @@ static void sys_clock_48mhz(void) {
  * Hook into early keyboard initialization
 */
 void keyboard_pre_init_kb(void) {
+#if FRAMEWORK_DEV_FAILSAFE_S > 0
+    failsafe_init();
+#endif
 #ifdef FRAMEWORK_SYS_CLOCK_48MHZ
     sys_clock_48mhz();
 #endif

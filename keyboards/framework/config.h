@@ -73,6 +73,14 @@
 // mux and sampling changes slightly, see FRAMEWORK_FAST_ADC_SETTLE_CYCLES.
 //#define FRAMEWORK_FAST_ADC
 
+// Development only: Arm the watchdog and reboot into the ROM bootloader when
+// the firmware hangs, USB never comes up, or this many seconds after boot.
+// Allows testing risky changes without physical access to the module.
+// 0 disables it (default). Never enable in a release build!
+#ifndef FRAMEWORK_DEV_FAILSAFE_S
+#    define FRAMEWORK_DEV_FAILSAFE_S 0
+#endif
+
 // Prototype for Framework Laptop 16 with Raspberry Pi Pico
 // It'll disable column drive because we need to remap some pins to there
 // SDB is mapped to GP22

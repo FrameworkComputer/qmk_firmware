@@ -448,6 +448,10 @@ bool handle_idle(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
 
+#if FRAMEWORK_DEV_FAILSAFE_S > 0
+    framework_failsafe_feed();
+#endif
+
     handle_idle();
 
     /* If lid is closed, ignore keypresses. Otherwise pressing the on the lid (e.g. in
