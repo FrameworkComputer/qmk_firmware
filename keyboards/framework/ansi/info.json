@@ -12,7 +12,10 @@
         "nkro": true,
         "audio": false
     },
-    "debounce": 5,
+    "debounce": 20,
+    "build": {
+        "debounce_type": "sym_defer_pk"
+    },
     "processor": "RP2040",
     "url": "https://fr.mw/FRAKDKEN",
     "usb": {
